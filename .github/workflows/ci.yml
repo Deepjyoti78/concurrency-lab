@@ -1,0 +1,54 @@
+name: ConcurrencyLab CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-engine:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v2
+
+      - name: Set up Ninja
+        uses: ashutoshvarma/setup-ninja@master
+
+      - name: Configure CMake
+        run: |
+          cd engine
+          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Engine & Tests
+        run: |
+          cd engine/build
+          ninja
+
+      - name: Run Engine Test Suite
+        run: |
+          cd engine/build
+          ./concurrency_lab_tests.exe
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci || npm install
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build

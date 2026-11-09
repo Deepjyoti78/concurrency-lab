@@ -1,0 +1,20 @@
+# C++ build artifacts
+engine/build/
+*.obj
+*.exe
+*.o
+*.a
+*.pdb
+
+# Node dependencies & dist
+node_modules/
+dist/
+.vite/
+
+# Playwright artifacts
+.playwright-mcp/
+*.png
+
+# OS metadata
+.DS_Store
+Thumbs.db
