@@ -13,70 +13,113 @@ export const DiningTable: React.FC = () => {
   const mutexes = Object.values(snapshot.mutexes || {});
   const isDeadlocked = snapshot.deadlockReport?.isDeadlocked || currentEvent?.deadlockDetected;
 
-  const width = 560;
+  const width = 640;
   const height = 400;
   const centerX = width / 2;
   const centerY = height / 2;
   const tableRadius = 90;
   const philRadius = 145;
-  const forkRadius = 100;
+  const forkRadius = 95;
 
-  // 5 Philosophers positions
   const philCount = 5;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3">
+      {/* Header bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1 border-b border-[#E6E0D6]">
         <div className="flex items-center gap-2">
-          <Utensils className="w-4 h-4 text-purple-400" />
-          <h3 className="text-sm font-semibold tracking-tight text-slate-200">Dining Philosophers Round Table</h3>
+          <Utensils className="w-4 h-4 text-[#171717]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+            Dining Philosophers Round Table
+          </h3>
           {isDeadlocked ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
-              <AlertTriangle className="w-3 h-3" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30 animate-pulse">
+              <AlertTriangle className="w-3 h-3 text-[#EF4444]" />
               DEADLOCK: 5-WAY CIRCULAR WAIT
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <ShieldCheck className="w-3 h-3" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[#10B981]/15 text-[#047857] border border-[#10B981]/30">
+              <ShieldCheck className="w-3 h-3 text-[#10B981]" />
               PROGRESS MAINTAINED
             </span>
           )}
         </div>
-        <div className="text-[11px] font-mono text-slate-400">
-          5 Philosophers • 5 Shared Forks
+        <div className="text-[11px] font-mono text-[#78716C]">
+          5 Philosophers • 5 Shared Forks (Mutexes)
         </div>
       </div>
 
-      <div className="rounded-xl border border-[#1F2E4D] bg-[#0A0F1D] p-4 flex items-center justify-center overflow-x-auto shadow-inner">
-        <svg width={width} height={height} className="select-none">
+      {/* Table SVG Container */}
+      <div className="rounded-lg border border-[#E6E0D6] bg-[#F4EFE7] p-2 flex items-center justify-center overflow-hidden min-h-[380px]">
+        <svg 
+          viewBox={`0 0 ${width} ${height}`} 
+          className="w-full h-auto max-w-[640px] max-h-[390px] select-none"
+        >
+          {/* Subtle Grid */}
+          <pattern id="table-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="#DDD6CB" opacity="0.6" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#table-grid)" />
+
           {/* Table Background */}
           <circle
             cx={centerX}
             cy={centerY}
             r={tableRadius}
-            fill="#121A2F"
-            stroke="#1F2E4D"
-            strokeWidth="3"
+            fill="#EFEAE2"
+            stroke="#DDD6CB"
+            strokeWidth="2"
           />
           <circle
             cx={centerX}
             cy={centerY}
             r={tableRadius - 15}
             fill="none"
-            stroke="#162035"
-            strokeWidth="1.5"
+            stroke="#DCD5CA"
+            strokeWidth="1"
             strokeDasharray="4,4"
           />
           <text
             x={centerX}
             y={centerY + 4}
-            fill="#64748B"
-            fontSize="11"
+            fill="#78716C"
+            fontSize="10"
             fontFamily="monospace"
+            fontWeight="bold"
             textAnchor="middle"
           >
             SHARED TABLE
           </text>
+
+          {/* Fork-to-Philosopher Holding Lines */}
+          {Array.from({ length: 5 }).map((_, i) => {
+            const forkName = `Fork-${i}`;
+            const m = mutexes.find(mx => mx.name === forkName);
+            if (!m?.locked || !m.ownerThreadId) return null;
+
+            const fAngle = ((i + 0.5) / philCount) * 2 * Math.PI - Math.PI / 2;
+            const fx = centerX + forkRadius * Math.cos(fAngle);
+            const fy = centerY + forkRadius * Math.sin(fAngle);
+
+            // Owner philosopher angle
+            const ownerIdx = m.ownerThreadId - 1;
+            const pAngle = (ownerIdx / philCount) * 2 * Math.PI - Math.PI / 2;
+            const px = centerX + philRadius * Math.cos(pAngle);
+            const py = centerY + philRadius * Math.sin(pAngle);
+
+            return (
+              <line
+                key={`hold-line-${i}`}
+                x1={fx}
+                y1={fy}
+                x2={px}
+                y2={py}
+                stroke={isDeadlocked ? "#EF4444" : "#10B981"}
+                strokeWidth={isDeadlocked ? 2.5 : 1.5}
+                strokeDasharray={isDeadlocked ? "none" : "3,3"}
+              />
+            );
+          })}
 
           {/* Forks between philosophers */}
           {Array.from({ length: 5 }).map((_, i) => {
@@ -92,18 +135,18 @@ export const DiningTable: React.FC = () => {
             return (
               <g key={`fork-${i}`} transform={`translate(${fx}, ${fy})`}>
                 <rect
-                  x="-14"
-                  y="-8"
-                  width="28"
-                  height="16"
+                  x="-16"
+                  y="-9"
+                  width="32"
+                  height="18"
                   rx="3"
-                  fill={isHeld ? "#064E3B" : "#1E293B"}
-                  stroke={isHeld ? "#10B981" : "#475569"}
-                  strokeWidth="1.5"
+                  fill={isDeadlocked ? "#FEE2E2" : isHeld ? "#D1FAE5" : "#FBF4EA"}
+                  stroke={isDeadlocked ? "#EF4444" : isHeld ? "#10B981" : "#DDD6CB"}
+                  strokeWidth={isDeadlocked || isHeld ? "2" : "1"}
                 />
                 <text
                   y="3"
-                  fill="#F1F5F9"
+                  fill={isDeadlocked ? "#EF4444" : isHeld ? "#047857" : "#171717"}
                   fontSize="8"
                   fontFamily="monospace"
                   fontWeight="bold"
@@ -114,12 +157,13 @@ export const DiningTable: React.FC = () => {
                 {isHeld && holderId && (
                   <text
                     y="18"
-                    fill="#10B981"
+                    fill={isDeadlocked ? "#EF4444" : "#047857"}
                     fontSize="7"
                     fontFamily="monospace"
+                    fontWeight="bold"
                     textAnchor="middle"
                   >
-                    held by P{holderId - 1}
+                    P{holderId - 1}
                   </text>
                 )}
               </g>
@@ -135,19 +179,41 @@ export const DiningTable: React.FC = () => {
             const heldForks = t.heldMutexes || [];
             const isEating = heldForks.length === 2;
             const isHungry = t.state === 'BLOCKED' || (heldForks.length === 1 && !isEating);
+            const isDeadlockedPhil = isDeadlocked && (t.state === 'BLOCKED' || heldForks.length === 1);
+
+            let statusLabel = 'THINKING';
+            let fillColor = '#171717';
+            let strokeColor = '#171717';
+            let textColor = '#FFFFFF';
+
+            if (isDeadlockedPhil) {
+              statusLabel = 'DEADLOCKED';
+              fillColor = '#FEE2E2';
+              strokeColor = '#EF4444';
+              textColor = '#EF4444';
+            } else if (isEating) {
+              statusLabel = 'EATING';
+              fillColor = '#D1FAE5';
+              strokeColor = '#10B981';
+              textColor = '#047857';
+            } else if (isHungry) {
+              statusLabel = 'HUNGRY';
+              fillColor = '#FEF3C7';
+              strokeColor = '#F59E0B';
+              textColor = '#B45309';
+            }
 
             return (
               <g key={`phil-${t.id}`} transform={`translate(${px}, ${py})`}>
                 <circle
-                  r="26"
-                  fill={isEating ? "#064E3B" : isDeadlocked ? "#450A0A" : isHungry ? "#451A03" : "#111A2E"}
-                  stroke={isEating ? "#10B981" : isDeadlocked ? "#EF4444" : isHungry ? "#F59E0B" : t.color}
-                  strokeWidth={isEating || isDeadlocked ? 3 : 2}
-                  className="transition-colors"
+                  r="27"
+                  fill={fillColor}
+                  stroke={strokeColor}
+                  strokeWidth={isEating || isDeadlockedPhil ? 3 : 1.5}
                 />
                 <text
                   y="-4"
-                  fill="#F1F5F9"
+                  fill={statusLabel === 'THINKING' ? '#FFFFFF' : textColor}
                   fontSize="10"
                   fontFamily="sans-serif"
                   fontWeight="bold"
@@ -157,25 +223,26 @@ export const DiningTable: React.FC = () => {
                 </text>
                 <text
                   y="10"
-                  fill={isEating ? "#6EE7B7" : isDeadlocked ? "#FCA5A5" : isHungry ? "#FCD34D" : "#94A3B8"}
-                  fontSize="8"
+                  fill={statusLabel === 'THINKING' ? '#A8A29E' : textColor}
+                  fontSize="7"
                   fontFamily="monospace"
                   fontWeight="bold"
                   textAnchor="middle"
                 >
-                  {isEating ? 'EATING' : isDeadlocked ? 'DEADLOCK' : isHungry ? 'HUNGRY' : 'THINKING'}
+                  {statusLabel}
                 </text>
 
                 {/* Held forks indicators */}
                 {heldForks.length > 0 && (
                   <text
-                    y="36"
-                    fill="#A7F3D0"
-                    fontSize="8"
+                    y="37"
+                    fill={isDeadlocked ? "#EF4444" : "#047857"}
+                    fontSize="7"
                     fontFamily="monospace"
+                    fontWeight="bold"
                     textAnchor="middle"
                   >
-                    Forks: {heldForks.join(', ')}
+                    Forks: {heldForks.map(f => f.replace('Fork-', 'F')).join(', ')}
                   </text>
                 )}
               </g>
@@ -184,21 +251,22 @@ export const DiningTable: React.FC = () => {
         </svg>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-mono text-slate-400 p-2.5 bg-[#0E1524] rounded-lg border border-[#1F2E4D]">
+      {/* Legend */}
+      <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-[#57534E] p-2 bg-[#F4EFE7] rounded border border-[#E6E0D6]">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#111A2E] border border-indigo-400" />
+          <div className="w-3 h-3 rounded-full bg-[#171717]" />
           <span>Thinking (Contemplating)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#451A03] border border-amber-500" />
-          <span>Hungry (Acquiring Forks)</span>
+          <div className="w-3 h-3 rounded-full bg-[#FEF3C7] border border-[#F59E0B]" />
+          <span>Hungry (Waiting for 2nd Fork)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#064E3B] border border-emerald-500" />
+          <div className="w-3 h-3 rounded-full bg-[#D1FAE5] border border-[#10B981]" />
           <span>Eating (Both Forks Held)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#450A0A] border border-rose-500" />
+          <div className="w-3 h-3 rounded-full bg-[#FEE2E2] border border-[#EF4444]" />
           <span>Deadlocked (Circular Wait)</span>
         </div>
       </div>

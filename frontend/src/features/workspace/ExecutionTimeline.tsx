@@ -1,109 +1,167 @@
 import React, { useRef, useEffect } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
-import { Zap, AlertTriangle } from 'lucide-react';
+import { 
+  Zap, 
+  AlertTriangle, 
+  ChevronLeft, 
+  ChevronRight,
+  Terminal
+} from 'lucide-react';
 
 export const ExecutionTimeline: React.FC = () => {
-  const { currentRun, currentStep, seek, getCurrentEvent } = useSimulationStore();
+  const { 
+    currentRun, 
+    currentStep, 
+    isPlaying,
+    seek, 
+    getCurrentEvent, 
+    stepForward, 
+    stepBackward 
+  } = useSimulationStore();
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const events = currentRun?.events || [];
+  const totalSteps = events.length;
   const currentEvent = getCurrentEvent();
 
-  // Keep active step scrolled into view smoothly
+  // Auto-scroll ONLY during automatic playback, never fighting manual scrubber/clicks
   useEffect(() => {
-    if (!scrollContainerRef.current) return;
+    if (!isPlaying || !scrollContainerRef.current) return;
     const activeEl = scrollContainerRef.current.querySelector(`[data-step="${currentStep}"]`) as HTMLElement;
     if (activeEl) {
       activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
-  }, [currentStep]);
+  }, [currentStep, isPlaying]);
+
+  const getThreadColor = (threadId?: number) => {
+    if (threadId === 1) return '#6366F1';
+    if (threadId === 2) return '#10B981';
+    if (threadId === 3) return '#8B5CF6';
+    if (threadId === 4) return '#F59E0B';
+    return '#171717';
+  };
 
   return (
-    <div className="border-t border-[#1F2E4D] bg-[#0A0F1D] p-3 space-y-2">
-      {/* Current Step Explanation Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2 rounded-lg bg-[#0E1524] border border-[#1F2E4D] text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-indigo-400 font-bold px-1.5 py-0.5 rounded bg-indigo-950/60 border border-indigo-700/40 text-[11px]">
-            Step {currentStep} of {events.length}
-          </span>
+    <div className="border-t border-[#E6E0D6] bg-[#F4EFE7] px-3 py-2 flex flex-col gap-1.5 flex-shrink-0 select-none">
+      {/* 1. Header Bar: Step Info, Active Event Summary & Diagnostics */}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs min-w-0">
+        {/* Left: Step indicator & Navigation buttons */}
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <div className="flex items-center bg-[#EFEAE2] border border-[#DDD6CB] rounded p-0.5 flex-shrink-0">
+            <button
+              onClick={stepBackward}
+              disabled={currentStep === 0}
+              title="Step Backward"
+              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="font-mono text-[#171717] font-bold px-2 py-0.5 text-[11px] whitespace-nowrap">
+              Step {currentStep} <span className="text-[#78716C] font-normal">/ {totalSteps}</span>
+            </span>
+            <button
+              onClick={stepForward}
+              disabled={currentStep >= totalSteps}
+              title="Step Forward"
+              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Current Event Disassembly & Explanation */}
           {currentEvent ? (
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-100">{currentEvent.threadName}:</span>
-              <span className="font-mono text-slate-300 bg-[#162035] px-2 py-0.5 rounded border border-[#1F2E4D]">
+            <div className="flex items-center gap-1.5 font-mono text-[11px] min-w-0 max-w-xl truncate">
+              <span 
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{ backgroundColor: getThreadColor(currentEvent.threadId) }}
+              />
+              <span className="font-bold text-[#171717] flex-shrink-0">
+                {currentEvent.threadName}:
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-[#EFEAE2] border border-[#DDD6CB] text-[#171717] font-bold flex-shrink-0 truncate max-w-[140px] sm:max-w-none">
                 {currentEvent.instruction.disassembly}
               </span>
-              <span className="text-slate-400 font-normal hidden sm:inline">
+              <span className="text-[#57534E] font-sans truncate hidden md:inline">
                 — {currentEvent.explanation}
               </span>
             </div>
           ) : (
-            <span className="text-slate-400 italic">Simulation initialized at step 0. Click Step or Play to begin.</span>
+            <div className="flex items-center gap-1.5 text-[#78716C] font-mono text-[11px] truncate">
+              <Terminal className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">Initial state. Step or play to start.</span>
+            </div>
           )}
         </div>
 
-        {/* Warning Indicators if active */}
-        {currentEvent?.raceDetected && (
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-            <Zap className="w-3 h-3" />
-            Race Condition Detected
-          </span>
-        )}
-        {currentEvent?.deadlockDetected && (
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1 animate-pulse">
-            <AlertTriangle className="w-3 h-3" />
-            Deadlock Cycle Detected
-          </span>
-        )}
+        {/* Right: Detected Diagnostics */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {currentEvent?.raceDetected && (
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#F59E0B]/15 text-[#B45309] border border-[#F59E0B]/30 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-[#F59E0B]" />
+              <span>Race Conflict</span>
+            </span>
+          )}
+          {currentEvent?.deadlockDetected && (
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30 flex items-center gap-1 animate-pulse">
+              <AlertTriangle className="w-3 h-3 text-[#EF4444]" />
+              <span>Deadlock Cycle</span>
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Interactive Step Scrubber */}
+      {/* 2. Sleek Debugger Timeline Track */}
       <div 
         ref={scrollContainerRef}
-        className="flex items-center gap-1.5 overflow-x-auto py-2 px-1 select-none"
+        className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-thin select-none"
       >
         {/* Step 0 Initial Marker */}
         <button
           onClick={() => seek(0)}
           data-step="0"
-          className={`flex-shrink-0 px-2.5 py-1.5 rounded-lg font-mono text-[11px] border transition-all cursor-pointer ${
+          className={`flex-shrink-0 px-2 py-1 rounded font-mono text-[10px] border transition-all cursor-pointer ${
             currentStep === 0
-              ? 'bg-indigo-600 text-white border-indigo-400 shadow-md font-bold scale-105'
-              : 'bg-[#111A2E] text-slate-400 border-[#1F2E4D] hover:border-slate-500 hover:text-slate-200'
+              ? 'bg-[#171717] text-white border-[#171717] font-bold shadow-xs'
+              : 'bg-[#FBF4EA] text-[#57534E] border-[#DDD6CB] hover:border-[#171717] hover:text-[#171717]'
           }`}
         >
-          <div className="text-[9px] opacity-70">#0</div>
-          <div>INIT</div>
+          <div className="font-bold">#0 INIT</div>
         </button>
 
+        {/* Subsequent Steps */}
         {events.map((ev) => {
           const isSelected = currentStep === ev.sequence;
           const isPast = ev.sequence < currentStep;
+          const threadColor = getThreadColor(ev.threadId);
 
           return (
             <button
               key={ev.sequence}
               onClick={() => seek(ev.sequence)}
               data-step={ev.sequence}
-              className={`flex-shrink-0 px-2.5 py-1.5 rounded-lg font-mono text-[11px] border transition-all text-left cursor-pointer ${
+              className={`flex-shrink-0 px-2 py-1 rounded font-mono text-[10px] border transition-all text-left cursor-pointer min-w-[76px] ${
                 isSelected
-                  ? 'bg-indigo-600 text-white border-indigo-400 shadow-lg font-bold scale-105 z-10'
+                  ? 'bg-[#171717] text-white border-[#171717] font-bold shadow-xs ring-1 ring-[#171717]'
                   : isPast
-                  ? 'bg-[#162035] text-slate-300 border-[#223354] hover:border-indigo-400'
-                  : 'bg-[#0E1524] text-slate-500 border-[#1F2E4D]/60 hover:text-slate-300'
+                  ? 'bg-[#EFEAE2] text-[#171717] border-[#DDD6CB] hover:border-[#171717]'
+                  : 'bg-[#FBF4EA] text-[#78716C] border-[#E6E0D6] hover:text-[#171717]'
               }`}
+              style={isSelected ? { borderTopColor: threadColor, borderTopWidth: '3px' } : undefined}
             >
-              <div className="flex items-center justify-between gap-1 text-[9px] opacity-75">
-                <span>#{ev.sequence}</span>
-                <span className="truncate max-w-[60px]">{ev.threadName}</span>
+              <div className="flex items-center justify-between gap-1 text-[9px]">
+                <span className={isSelected ? 'text-amber-300 font-bold' : 'text-[#78716C]'}>
+                  #{ev.sequence}
+                </span>
+                <span 
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0" 
+                  style={{ backgroundColor: threadColor }}
+                />
               </div>
-              <div className="font-bold truncate max-w-[120px]">
+              <div className="font-semibold truncate max-w-[90px]">
                 {ev.instruction.opcode}
               </div>
-              {ev.instruction.arg1 && (
-                <div className="text-[9px] text-slate-400 truncate max-w-[120px]">
-                  {ev.instruction.arg1}
-                </div>
-              )}
             </button>
           );
         })}

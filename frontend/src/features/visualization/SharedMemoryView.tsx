@@ -10,7 +10,7 @@ export const SharedMemoryView: React.FC = () => {
 
   if (!snapshot || !snapshot.sharedVariables) {
     return (
-      <div className="p-8 text-center text-slate-500 font-mono text-sm">
+      <div className="p-8 text-center text-[#78716C] font-mono text-sm bg-[#F4EFE7] rounded-lg border border-[#E6E0D6]">
         No shared memory variables declared in this scenario.
       </div>
     );
@@ -19,90 +19,118 @@ export const SharedMemoryView: React.FC = () => {
   const variables = Object.entries(snapshot.sharedVariables);
   const accessHistory: MemoryAccessRecord[] = snapshot.memoryAccessHistory || [];
 
+  const getThreadColor = (threadId: number) => {
+    if (threadId === 1) return '#6366F1';
+    if (threadId === 2) return '#10B981';
+    if (threadId === 3) return '#8B5CF6';
+    if (threadId === 4) return '#F59E0B';
+    return '#171717';
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      {/* Subsystem Header */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-1 border-b border-[#E6E0D6]">
         <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-indigo-400" />
-          <h3 className="text-sm font-semibold tracking-tight text-slate-200">Shared Memory State</h3>
-          <span className="text-[11px] font-mono text-slate-400 px-2 py-0.5 rounded bg-[#162035] border border-[#1F2E4D]">
-            {variables.length} Variables
+          <Database className="w-4 h-4 text-[#171717]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+            Shared Memory Subsystem
+          </h3>
+          <span className="text-[10px] font-mono text-[#57534E] px-2 py-0.5 rounded bg-[#EFEAE2] border border-[#DDD6CB]">
+            {variables.length} {variables.length === 1 ? 'Variable' : 'Variables'}
           </span>
         </div>
-        <div className="text-[11px] font-mono text-slate-400">
-          State maintained by C++ SharedMemory subsystem
+        <div className="text-[11px] font-mono text-[#78716C]">
+          Atomic memory state synced from C++ engine core
         </div>
       </div>
 
-      {/* Variables Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Responsive Variable Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {variables.map(([name, meta]) => {
           const delta = currentEvent?.memoryDeltas?.find(d => d.variable === name);
           const hasDelta = !!delta;
           const isRaceOnVar = currentEvent?.raceDetected && currentEvent?.raceDetails?.variable === name;
+          const threadColor = meta.lastModifiedByThreadId > 0 ? getThreadColor(meta.lastModifiedByThreadId) : '#78716C';
 
           return (
             <div
               key={name}
-              className={`rounded-xl border p-5 transition-all bg-[#0E1524] ${
+              className={`rounded-lg border p-3.5 transition-all bg-[#F4EFE7] ${
                 isRaceOnVar
-                  ? 'border-amber-500/80 shadow-lg shadow-amber-950/30'
+                  ? 'border-[#F59E0B] ring-1 ring-[#F59E0B] bg-[#F59E0B]/10'
                   : hasDelta
-                  ? 'border-indigo-500/80 shadow-lg shadow-indigo-950/30'
-                  : 'border-[#1F2E4D]'
+                  ? 'border-[#171717] ring-1 ring-[#171717]/30 bg-white'
+                  : 'border-[#E6E0D6] hover:border-[#DDD6CB]'
               }`}
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#1F2E4D]">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-slate-100 text-sm">{name}</span>
+              {/* Card Header: Variable Name & Flags */}
+              <div className="flex items-center justify-between pb-2 border-b border-[#E6E0D6]">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono font-bold text-[#171717] text-xs">{name}</span>
+                  <span className="text-[9px] font-mono text-[#78716C] bg-[#EFEAE2] px-1.5 py-0.2 rounded border border-[#DDD6CB]">
+                    int32
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-1.5">
                   {hasDelta && (
-                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                      delta.type === 'WRITE' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                      delta.type === 'WRITE' 
+                        ? 'bg-[#10B981]/15 text-[#047857] border border-[#10B981]/30' 
+                        : 'bg-[#6366F1]/15 text-[#4338CA] border border-[#6366F1]/30'
                     }`}>
                       {delta.type}
                     </span>
                   )}
+                  {isRaceOnVar && (
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-[#F59E0B]/20 text-[#B45309] border border-[#F59E0B]/40 flex items-center gap-1">
+                      <Zap className="w-2.5 h-2.5 text-[#F59E0B]" />
+                      RACE CONFLICT
+                    </span>
+                  )}
                 </div>
-                {isRaceOnVar && (
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-                    <Zap className="w-3 h-3" />
-                    RACE CONFLICT
-                  </span>
-                )}
               </div>
 
-              {/* Big Value Display */}
-              <div className="my-4 flex items-baseline justify-between">
+              {/* Variable Value Display */}
+              <div className="my-3 flex items-baseline justify-between">
                 <div>
-                  <div className="text-[10px] uppercase font-mono text-slate-500">Current Value</div>
-                  <div className={`text-4xl font-mono font-bold tracking-tight transition-transform ${
-                    hasDelta ? 'scale-110 text-indigo-400' : 'text-slate-100'
+                  <div className="text-[9px] uppercase font-mono font-bold text-[#78716C]">Current Value</div>
+                  <div className={`text-3xl font-mono font-bold tracking-tight transition-transform ${
+                    hasDelta ? 'scale-105 text-[#171717]' : 'text-[#171717]'
                   }`}>
                     {meta.value}
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <div className="text-[10px] uppercase font-mono text-slate-500">Previous</div>
-                  <div className="text-sm font-mono text-slate-400">
-                    {meta.previousValue}
+                  <div className="text-[9px] uppercase font-mono font-bold text-[#78716C]">Previous</div>
+                  <div className="text-sm font-mono text-[#57534E] font-semibold flex items-center gap-1 justify-end">
+                    <span>{meta.previousValue}</span>
+                    <ArrowRight className="w-3 h-3 text-[#78716C]" />
+                    <span className="font-bold text-[#171717]">{meta.value}</span>
                   </div>
                 </div>
               </div>
 
               {/* Stats Footer */}
-              <div className="pt-3 border-t border-[#1F2E4D]/80 grid grid-cols-2 gap-2 text-[11px] font-mono text-slate-400">
+              <div className="pt-2 border-t border-[#E6E0D6] grid grid-cols-2 gap-1.5 text-[10px] font-mono text-[#57534E]">
                 <div>
-                  <span className="text-slate-500">Writes:</span> <strong className="text-slate-200">{meta.writeCount}</strong>
+                  <span className="text-[#78716C]">Writes:</span> <strong className="text-[#171717]">{meta.writeCount}</strong>
                 </div>
                 <div className="text-right">
-                  <span className="text-slate-500">Reads:</span> <strong className="text-slate-200">{meta.readCount}</strong>
+                  <span className="text-[#78716C]">Reads:</span> <strong className="text-[#171717]">{meta.readCount}</strong>
                 </div>
-                <div className="col-span-2 truncate">
-                  <span className="text-slate-500">Last modified by:</span>{' '}
-                  <strong className="text-indigo-300">
-                    {meta.lastModifiedByThreadId > 0 ? `Thread #${meta.lastModifiedByThreadId}` : 'Initial State'}
-                  </strong>
+                <div className="col-span-2 truncate pt-1 flex items-center gap-1.5 border-t border-[#E6E0D6]/60">
+                  <span className="text-[#78716C]">Last accessed by:</span>
+                  {meta.lastModifiedByThreadId > 0 ? (
+                    <span className="inline-flex items-center gap-1 font-bold text-[#171717]">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: threadColor }} />
+                      Thread #{meta.lastModifiedByThreadId}
+                    </span>
+                  ) : (
+                    <span className="text-[#78716C] italic">Init State</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -111,40 +139,51 @@ export const SharedMemoryView: React.FC = () => {
       </div>
 
       {/* Memory Access History Feed */}
-      <div className="rounded-xl border border-[#1F2E4D] bg-[#0E1524] overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#1F2E4D] bg-[#111A2E] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
-            <History className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Memory Access Log</span>
+      <div className="rounded-lg border border-[#E6E0D6] bg-[#F4EFE7] overflow-hidden">
+        <div className="px-3.5 py-2 border-b border-[#E6E0D6] bg-[#EFEAE2] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#171717] uppercase tracking-wide">
+            <History className="w-3.5 h-3.5 text-[#171717]" />
+            <span>Memory Access Journal</span>
           </div>
-          <span className="text-[11px] font-mono text-slate-500">
-            Sequence of reads and writes up to current step
+          <span className="text-[10px] font-mono text-[#78716C]">
+            {accessHistory.length} total memory operations
           </span>
         </div>
 
-        <div className="max-h-56 overflow-y-auto divide-y divide-[#1F2E4D]/60 text-xs font-mono">
+        <div className="max-h-64 overflow-y-auto divide-y divide-[#E6E0D6] text-xs font-mono scrollbar-thin">
           {accessHistory.length === 0 ? (
-            <div className="p-4 text-center text-slate-500 italic">No memory accesses recorded yet.</div>
+            <div className="p-6 text-center text-[#78716C] font-mono text-[11px] flex flex-col items-center justify-center gap-1">
+              <span className="font-semibold text-[#57534E]">Initial state: no memory operations recorded yet.</span>
+              <span>Step forward or run simulation to trace atomic reads, writes, and cache interleavings.</span>
+            </div>
           ) : (
-            accessHistory.map((rec: MemoryAccessRecord, i: number) => (
-              <div key={i} className="px-4 py-2 flex items-center justify-between hover:bg-[#162035]/50 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-slate-500 text-[10px]">#{rec.sequence}</span>
-                  <span className="font-semibold text-slate-200">{rec.threadName}</span>
-                  <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                    rec.type === 'WRITE' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'
-                  }`}>
-                    {rec.type}
-                  </span>
-                  <span className="text-indigo-300 font-bold">{rec.variable}</span>
+            accessHistory.map((rec: MemoryAccessRecord, i: number) => {
+              const threadColor = getThreadColor(rec.threadId);
+              return (
+                <div key={i} className="px-3.5 py-1.5 flex items-center justify-between hover:bg-white/60 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#78716C] text-[10px] w-6">#{rec.sequence}</span>
+                    <span className="flex items-center gap-1.5 font-bold text-[#171717]">
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: threadColor }} />
+                      {rec.threadName}
+                    </span>
+                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                      rec.type === 'WRITE' 
+                        ? 'bg-[#10B981]/15 text-[#047857] border border-[#10B981]/30' 
+                        : 'bg-[#6366F1]/15 text-[#4338CA] border border-[#6366F1]/30'
+                    }`}>
+                      {rec.type}
+                    </span>
+                    <span className="text-[#171717] font-semibold">{rec.variable}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[#57534E] text-[11px]">
+                    <span className="text-[#78716C]">{rec.previousValue}</span>
+                    <ArrowRight className="w-3 h-3 text-[#78716C]" />
+                    <span className="font-bold text-[#171717]">{rec.value}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-slate-300">
-                  <span className="text-slate-500">{rec.previousValue}</span>
-                  <ArrowRight className="w-3 h-3 text-slate-600" />
-                  <span className="font-bold text-white">{rec.value}</span>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

@@ -14,7 +14,7 @@ export const App: React.FC = () => {
   }, [checkBackendHealth]);
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-[#F1F5F9] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FBF4EA] text-[#18181B] flex flex-col font-sans">
       <Header currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
       <main className="flex-1 flex flex-col">

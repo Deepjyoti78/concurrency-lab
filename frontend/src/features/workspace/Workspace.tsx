@@ -15,7 +15,9 @@ import {
   Cpu, 
   Utensils, 
   RefreshCw, 
-  Zap 
+  Zap,
+  SlidersHorizontal,
+  Eye
 } from 'lucide-react';
 
 export const Workspace: React.FC = () => {
@@ -26,91 +28,106 @@ export const Workspace: React.FC = () => {
   } = useSimulationStore();
 
   const [isRaceModalOpen, setIsRaceModalOpen] = useState(false);
+  const [mobilePane, setMobilePane] = useState<'stage' | 'inspector'>('stage');
   const currentEvent = getCurrentEvent();
 
   return (
-    <div className="flex flex-col h-[calc(100vh-53px)] bg-[#090D16] text-[#F1F5F9] overflow-hidden">
-      {/* Top Toolbar */}
+    <div className="flex flex-col h-[calc(100vh-49px)] sm:h-[calc(100vh-53px)] bg-[#FBF4EA] text-[#171717] overflow-hidden w-full max-w-full">
+      {/* 1. Unified Simulation Toolbar */}
       <TopToolbar />
 
-      {/* Main Workspace Area */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* 2. Main Workspace Layout: Visualizer Canvas + Contextual Inspector */}
+      <div className="flex flex-1 overflow-hidden relative min-w-0 w-full">
         {/* Central Visualization Stage */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* View Tab Selector & Diagnostic Pill */}
-          <div className="px-4 py-2 border-b border-[#1F2E4D] bg-[#0A0F1D] flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1 font-mono text-xs">
+        <div className={`flex-1 flex flex-col overflow-hidden min-w-0 ${mobilePane === 'stage' ? 'flex' : 'hidden lg:flex'}`}>
+          {/* View Tab Selector Bar */}
+          <div className="px-2.5 sm:px-4 py-1.5 border-b border-[#E6E0D6] bg-[#F4EFE7] flex items-center justify-between gap-2 min-w-0 overflow-hidden select-none">
+            {/* Visualizer selector segmented bar with touch-friendly scrolling */}
+            <div className="flex items-center gap-1 font-mono text-xs bg-[#EFEAE2] p-0.5 rounded border border-[#DDD6CB] overflow-x-auto scrollbar-none flex-nowrap min-w-0 flex-1 sm:flex-initial">
               <button
                 onClick={() => setActiveView('lanes')}
-                className={`px-3 py-1 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'lanes'
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#162035]'
+                    ? 'bg-[#171717] text-white font-bold'
+                    : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
                 }`}
               >
                 <Cpu className="w-3.5 h-3.5" />
-                Thread Lanes
+                <span>Thread Lanes</span>
               </button>
               <button
                 onClick={() => setActiveView('memory')}
-                className={`px-3 py-1 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'memory'
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#162035]'
+                    ? 'bg-[#171717] text-white font-bold'
+                    : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
                 }`}
               >
                 <Database className="w-3.5 h-3.5" />
-                Shared Memory
+                <span>Shared Memory</span>
               </button>
               <button
                 onClick={() => setActiveView('rag')}
-                className={`px-3 py-1 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'rag'
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#162035]'
+                    ? 'bg-[#171717] text-white font-bold'
+                    : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
                 }`}
               >
                 <GitFork className="w-3.5 h-3.5" />
-                RAG / Deadlock Graph
+                <span>RAG / Deadlock</span>
               </button>
               <button
                 onClick={() => setActiveView('philosophers')}
-                className={`px-3 py-1 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'philosophers'
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#162035]'
+                    ? 'bg-[#171717] text-white font-bold'
+                    : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
                 }`}
               >
                 <Utensils className="w-3.5 h-3.5" />
-                Dining Philosophers
+                <span>Dining Table</span>
               </button>
               <button
                 onClick={() => setActiveView('buffer')}
-                className={`px-3 py-1 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'buffer'
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#162035]'
+                    ? 'bg-[#171717] text-white font-bold'
+                    : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
                 }`}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                Bounded Buffer
+                <span>Bounded Buffer</span>
               </button>
             </div>
 
-            {/* Diagnostic Action Pill */}
-            {currentEvent?.raceDetected && (
+            {/* Right Diagnostic & Mobile Inspector Toggle */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {currentEvent?.raceDetected && (
+                <button
+                  onClick={() => setIsRaceModalOpen(true)}
+                  className="px-2 py-1 rounded bg-[#F59E0B]/20 hover:bg-[#F59E0B]/30 text-[#B45309] border border-[#F59E0B]/40 font-mono text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <Zap className="w-3.5 h-3.5 text-[#F59E0B]" />
+                  <span className="hidden md:inline">Inspect Race</span>
+                  <span className="md:hidden">Race</span>
+                </button>
+              )}
+
+              {/* Mobile Toggle: Switch to Inspector view on small screens */}
               <button
-                onClick={() => setIsRaceModalOpen(true)}
-                className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-mono text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                onClick={() => setMobilePane('inspector')}
+                title="Open State Inspector & Registers"
+                className="lg:hidden px-2.5 py-1 rounded bg-[#171717] text-white font-mono text-xs font-semibold flex items-center gap-1.5 cursor-pointer flex-shrink-0 shadow-xs"
               >
-                <Zap className="w-3 h-3" />
-                Inspect Race Condition Diagnostic
+                <SlidersHorizontal className="w-3 h-3" />
+                <span>Inspect</span>
               </button>
-            )}
+            </div>
           </div>
 
           {/* Active Visualizer Body */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div className="flex-1 overflow-y-auto p-2.5 sm:p-4 bg-[#FBF4EA] scrollbar-thin min-w-0">
             {activeView === 'lanes' && <ThreadLanes />}
             {activeView === 'memory' && <SharedMemoryView />}
             {activeView === 'rag' && <ResourceAllocationGraph />}
@@ -119,11 +136,28 @@ export const Workspace: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Inspector Panel */}
-        <InspectorPanel />
+        {/* Contextual Inspector: 320px on desktop; full screen drawer on mobile */}
+        <div className={`flex-col h-full ${
+          mobilePane === 'inspector' 
+            ? 'flex w-full absolute inset-0 z-20 bg-[#F4EFE7]' 
+            : 'hidden lg:flex w-[320px] flex-shrink-0'
+        }`}>
+          {/* Mobile Back-to-Stage Header */}
+          <div className="lg:hidden p-2.5 bg-[#EFEAE2] border-b border-[#DDD6CB] flex items-center justify-between">
+            <span className="font-bold text-xs text-[#171717] font-mono">System & Thread Inspector</span>
+            <button
+              onClick={() => setMobilePane('stage')}
+              className="px-2.5 py-1 rounded bg-[#171717] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Back to Visualizer</span>
+            </button>
+          </div>
+          <InspectorPanel />
+        </div>
       </div>
 
-      {/* Bottom Timeline Scrubber */}
+      {/* 3. Compact Debugger Execution Timeline */}
       <ExecutionTimeline />
 
       {/* Race Analysis Diagnostic Modal */}

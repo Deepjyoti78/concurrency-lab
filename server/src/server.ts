@@ -9,6 +9,12 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use((err: any, req: any, res: any, next: any) => {
+  if (err instanceof SyntaxError && "body" in err) {
+    return res.status(400).json({ error: "Invalid JSON payload" });
+  }
+  next(err);
+});
 
 const MINGW_BIN = "C:\\Users\\deepjyoti\\AppData\\Local\\Microsoft\\WinGet\\Packages\\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\mingw64\\bin";
 const ENGINE_EXE = path.resolve(__dirname, "../../engine/build/concurrency_lab_engine.exe");

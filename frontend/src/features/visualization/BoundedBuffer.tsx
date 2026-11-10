@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
-import { RefreshCw, Lock, ShieldCheck, Box } from 'lucide-react';
+import { RefreshCw, Lock, ShieldCheck, Box, UserCheck } from 'lucide-react';
 
 export const BoundedBuffer: React.FC = () => {
   const { getCurrentSnapshot } = useSimulationStore();
@@ -14,74 +14,95 @@ export const BoundedBuffer: React.FC = () => {
   const fullSem = snapshot.semaphores?.full_slots;
   const bufferMutex = snapshot.mutexes?.buffer_mutex;
 
-  const producerThread = Object.values(snapshot.threads).find(t => t.name === 'Producer');
-  const consumerThread = Object.values(snapshot.threads).find(t => t.name === 'Consumer');
+  const producerThread = Object.values(snapshot.threads).find(t => t.name.toLowerCase().includes('producer'));
+  const consumerThread = Object.values(snapshot.threads).find(t => t.name.toLowerCase().includes('consumer'));
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      {/* Header bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1 border-b border-[#E6E0D6]">
         <div className="flex items-center gap-2">
-          <RefreshCw className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-sm font-semibold tracking-tight text-slate-200">Producer-Consumer Bounded Buffer</h3>
-          <span className="text-[11px] font-mono text-slate-400 px-2 py-0.5 rounded bg-[#162035] border border-[#1F2E4D]">
+          <RefreshCw className="w-4 h-4 text-[#171717]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+            Producer-Consumer Bounded Buffer Subsystem
+          </h3>
+          <span className="text-[10px] font-mono text-[#57534E] px-2 py-0.5 rounded bg-[#EFEAE2] border border-[#DDD6CB]">
             Capacity: {capacity} Slots
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Invariant: 0 ≤ buffer_count ≤ {capacity} (Maintained)</span>
+        <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#047857] bg-[#10B981]/10 px-2.5 py-0.5 rounded border border-[#10B981]/30">
+          <ShieldCheck className="w-3 h-3 text-[#10B981]" />
+          <span>Safety Invariant: 0 ≤ buffer_count ≤ {capacity} (Maintained)</span>
         </div>
       </div>
 
-      {/* Main Visual Arena */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center p-6 rounded-xl border border-[#1F2E4D] bg-[#0A0F1D] shadow-inner">
+      {/* Main Visual Arena: Producer | Buffer Slots | Consumer */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch p-3.5 rounded-lg border border-[#E6E0D6] bg-[#F4EFE7]">
         {/* Producer Column */}
-        <div className="rounded-xl border border-[#1F2E4D] bg-[#0E1524] p-4 text-center space-y-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center font-bold">
-            P
-          </div>
+        <div className="rounded-md border border-[#E6E0D6] bg-[#FBF4EA] p-3 text-center flex flex-col justify-between">
           <div>
-            <div className="font-semibold text-slate-100 text-sm">Producer Thread</div>
-            <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-              State: <strong className="text-emerald-400">{producerThread?.state || 'READY'}</strong>
+            <div className="w-8 h-8 rounded-full bg-[#10B981] text-white mx-auto flex items-center justify-center font-bold text-xs shadow-xs mb-2">
+              P
+            </div>
+            <div className="font-bold text-[#171717] text-xs font-mono">
+              {producerThread?.name || 'Producer'} (TID {producerThread?.id ?? 1})
+            </div>
+            <div className="text-[10px] font-mono text-[#57534E] mt-1">
+              State:{' '}
+              <span className={`font-bold px-1.5 py-0.2 rounded ${
+                producerThread?.state === 'BLOCKED' 
+                  ? 'bg-[#EF4444]/15 text-[#EF4444]' 
+                  : 'bg-[#10B981]/15 text-[#047857]'
+              }`}>
+                {producerThread?.state || 'READY'}
+              </span>
             </div>
             {producerThread?.blockedOn && (
-              <div className="text-[10px] font-mono text-rose-400 mt-1">
+              <div className="text-[10px] font-mono text-[#EF4444] mt-1 font-semibold">
                 Blocked on: {producerThread.blockedOn}
               </div>
             )}
+            <div className="mt-2 text-[10px] font-mono text-[#78716C] bg-[#EFEAE2] p-1.5 rounded border border-[#DDD6CB]">
+              PC: {producerThread?.pc ?? 0}
+            </div>
           </div>
-          <div className="text-[11px] font-mono text-slate-500 bg-[#162035] p-2 rounded border border-[#1F2E4D]">
-            Produces items when empty_slots &gt; 0
+          <div className="text-[10px] font-mono text-[#57534E] bg-white p-2 rounded border border-[#E6E0D6] mt-3">
+            Acquires <code className="font-bold text-[#171717]">empty_slots</code> then locks buffer
           </div>
         </div>
 
-        {/* Center: Bounded Buffer Slots */}
-        <div className="space-y-4 text-center">
-          <div className="text-xs font-mono text-slate-400 uppercase font-semibold">
-            Bounded Buffer Queue ({bufferCount} / {capacity})
+        {/* Center: Bounded Buffer Slots Array */}
+        <div className="flex flex-col justify-between items-center text-center space-y-3 p-2 bg-[#F8F5EE] rounded-md border border-[#E6E0D6]">
+          <div>
+            <div className="text-[10px] font-mono text-[#78716C] uppercase font-bold tracking-wider">
+              Buffer Array Occupancy ({bufferCount} / {capacity})
+            </div>
+            <span className="text-[9px] font-mono text-[#78716C]">
+              Physical memory queue in shared heap
+            </span>
           </div>
 
-          <div className="flex items-center justify-center gap-3">
+          {/* Slots Array visualization */}
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             {Array.from({ length: capacity }).map((_, i) => {
               const isOccupied = i < bufferCount;
               return (
                 <div
                   key={i}
-                  className={`w-20 h-24 rounded-lg border-2 flex flex-col items-center justify-center transition-all ${
+                  className={`w-18 h-22 rounded border flex flex-col items-center justify-center transition-all ${
                     isOccupied
-                      ? 'border-emerald-500 bg-emerald-950/40 shadow-lg shadow-emerald-950/50 scale-105'
-                      : 'border-dashed border-slate-700 bg-[#0E1524]'
+                      ? 'border-[#10B981] bg-[#10B981]/10 shadow-xs'
+                      : 'border-dashed border-[#DDD6CB] bg-[#FBF4EA]'
                   }`}
                 >
-                  <span className="text-[9px] font-mono text-slate-500 mb-1">Slot #{i}</span>
+                  <span className="text-[9px] font-mono text-[#78716C] mb-1">Slot [{i}]</span>
                   {isOccupied ? (
                     <div className="flex flex-col items-center">
-                      <Box className="w-6 h-6 text-emerald-400" />
-                      <span className="text-[10px] font-mono text-emerald-300 font-bold mt-1">Item {i + 1}</span>
+                      <Box className="w-5 h-5 text-[#047857]" />
+                      <span className="text-[9px] font-mono text-[#047857] font-bold mt-1">Item #{i + 1}</span>
                     </div>
                   ) : (
-                    <span className="text-[10px] font-mono text-slate-600">EMPTY</span>
+                    <span className="text-[9px] font-mono text-[#A8A29E] font-medium">EMPTY</span>
                   )}
                 </div>
               );
@@ -89,69 +110,87 @@ export const BoundedBuffer: React.FC = () => {
           </div>
 
           {/* Buffer Mutex Indicator */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#162035] border border-[#1F2E4D] text-xs font-mono">
-            <Lock className={`w-3.5 h-3.5 ${bufferMutex?.locked ? 'text-amber-400' : 'text-slate-500'}`} />
-            <span className="text-slate-400">buffer_mutex:</span>
-            <span className={bufferMutex?.locked ? 'text-amber-300 font-bold' : 'text-emerald-400 font-bold'}>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white border border-[#DDD6CB] text-[11px] font-mono">
+            <Lock className={`w-3 h-3 ${bufferMutex?.locked ? 'text-[#F59E0B]' : 'text-[#78716C]'}`} />
+            <span className="text-[#57534E]">buffer_mutex:</span>
+            <span className={bufferMutex?.locked ? 'text-[#B45309] font-bold' : 'text-[#047857] font-bold'}>
               {bufferMutex?.locked ? `LOCKED (${bufferMutex.ownerThreadName})` : 'UNLOCKED'}
             </span>
           </div>
         </div>
 
         {/* Consumer Column */}
-        <div className="rounded-xl border border-[#1F2E4D] bg-[#0E1524] p-4 text-center space-y-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 mx-auto flex items-center justify-center font-bold">
-            C
-          </div>
+        <div className="rounded-md border border-[#E6E0D6] bg-[#FBF4EA] p-3 text-center flex flex-col justify-between">
           <div>
-            <div className="font-semibold text-slate-100 text-sm">Consumer Thread</div>
-            <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-              State: <strong className="text-indigo-400">{consumerThread?.state || 'READY'}</strong>
+            <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white mx-auto flex items-center justify-center font-bold text-xs shadow-xs mb-2">
+              C
+            </div>
+            <div className="font-bold text-[#171717] text-xs font-mono">
+              {consumerThread?.name || 'Consumer'} (TID {consumerThread?.id ?? 2})
+            </div>
+            <div className="text-[10px] font-mono text-[#57534E] mt-1">
+              State:{' '}
+              <span className={`font-bold px-1.5 py-0.2 rounded ${
+                consumerThread?.state === 'BLOCKED' 
+                  ? 'bg-[#EF4444]/15 text-[#EF4444]' 
+                  : 'bg-[#6366F1]/15 text-[#4338CA]'
+              }`}>
+                {consumerThread?.state || 'READY'}
+              </span>
             </div>
             {consumerThread?.blockedOn && (
-              <div className="text-[10px] font-mono text-rose-400 mt-1">
+              <div className="text-[10px] font-mono text-[#EF4444] mt-1 font-semibold">
                 Blocked on: {consumerThread.blockedOn}
               </div>
             )}
+            <div className="mt-2 text-[10px] font-mono text-[#78716C] bg-[#EFEAE2] p-1.5 rounded border border-[#DDD6CB]">
+              PC: {consumerThread?.pc ?? 0}
+            </div>
           </div>
-          <div className="text-[11px] font-mono text-slate-500 bg-[#162035] p-2 rounded border border-[#1F2E4D]">
-            Consumes items when full_slots &gt; 0
+          <div className="text-[10px] font-mono text-[#57534E] bg-white p-2 rounded border border-[#E6E0D6] mt-3">
+            Acquires <code className="font-bold text-[#171717]">full_slots</code> then locks buffer
           </div>
         </div>
       </div>
 
-      {/* Synchronization Primitives Dashboard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Synchronization Primitives Dashboard: Independent Semaphores */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Empty Slots Semaphore */}
-        <div className="rounded-xl border border-[#1F2E4D] bg-[#0E1524] p-4 flex items-center justify-between">
+        <div className="rounded-md border border-[#E6E0D6] bg-white p-3 flex items-center justify-between">
           <div>
-            <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Counting Semaphore</div>
-            <div className="text-sm font-bold text-slate-200 font-mono">empty_slots</div>
-            <div className="text-[11px] text-slate-400 mt-1">Tracks available slots for producer</div>
+            <div className="text-[9px] uppercase font-mono text-[#78716C] font-bold">Counting Semaphore</div>
+            <div className="text-xs font-bold text-[#171717] font-mono">empty_slots</div>
+            <div className="text-[10px] text-[#57534E] mt-0.5">
+              Available empty slots for Producer (<code className="text-[#171717]">sem_wait</code> blocks if 0)
+            </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-mono font-bold text-emerald-400">
+            <div className="text-2xl font-mono font-bold text-[#171717]">
               {emptySem?.currentCount ?? 3}
             </div>
-            <span className="text-[10px] font-mono text-slate-500">
-              Wait queue: {emptySem?.waitingQueue?.length ?? 0}
+            <span className="text-[9px] font-mono text-[#78716C] flex items-center gap-1 justify-end">
+              <UserCheck className="w-2.5 h-2.5" />
+              Waiting: {emptySem?.waitingQueue?.length ?? 0}
             </span>
           </div>
         </div>
 
         {/* Full Slots Semaphore */}
-        <div className="rounded-xl border border-[#1F2E4D] bg-[#0E1524] p-4 flex items-center justify-between">
+        <div className="rounded-md border border-[#E6E0D6] bg-white p-3 flex items-center justify-between">
           <div>
-            <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Counting Semaphore</div>
-            <div className="text-sm font-bold text-slate-200 font-mono">full_slots</div>
-            <div className="text-[11px] text-slate-400 mt-1">Tracks ready items for consumer</div>
+            <div className="text-[9px] uppercase font-mono text-[#78716C] font-bold">Counting Semaphore</div>
+            <div className="text-xs font-bold text-[#171717] font-mono">full_slots</div>
+            <div className="text-[10px] text-[#57534E] mt-0.5">
+              Ready filled items for Consumer (<code className="text-[#171717]">sem_wait</code> blocks if 0)
+            </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-mono font-bold text-indigo-400">
+            <div className="text-2xl font-mono font-bold text-[#171717]">
               {fullSem?.currentCount ?? 0}
             </div>
-            <span className="text-[10px] font-mono text-slate-500">
-              Wait queue: {fullSem?.waitingQueue?.length ?? 0}
+            <span className="text-[9px] font-mono text-[#78716C] flex items-center gap-1 justify-end">
+              <UserCheck className="w-2.5 h-2.5" />
+              Waiting: {fullSem?.waitingQueue?.length ?? 0}
             </span>
           </div>
         </div>

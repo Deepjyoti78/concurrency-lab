@@ -11,9 +11,12 @@ node_modules/
 dist/
 .vite/
 
-# Playwright artifacts
+# Playwright artifacts & temp files
 .playwright-mcp/
-*.png
+/page-*.png
+/test-*.png
+!frontend/public/assets/**
+!docs/screenshots/**
 
 # OS metadata
 .DS_Store

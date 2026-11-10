@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
-import { AlertTriangle, ShieldCheck, GitFork } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, GitFork, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
 export const ResourceAllocationGraph: React.FC = () => {
   const { getCurrentSnapshot, getCurrentEvent } = useSimulationStore();
   const [graphMode, setGraphMode] = useState<'rag' | 'wfg'>('rag');
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const snapshot = getCurrentSnapshot();
   const currentEvent = getCurrentEvent();
@@ -16,9 +17,9 @@ export const ResourceAllocationGraph: React.FC = () => {
   const deadlockReport = snapshot.deadlockReport || currentEvent?.deadlockDetails;
   const isDeadlocked = deadlockReport?.isDeadlocked;
 
-  // SVG dimensions
-  const width = 640;
-  const height = 360;
+  // SVG viewBox coordinates
+  const width = 720;
+  const height = 400;
 
   const threadCount = threads.length;
   const mutexCount = mutexes.length;
@@ -28,7 +29,7 @@ export const ResourceAllocationGraph: React.FC = () => {
 
   threads.forEach((t, i) => {
     const angle = (i / Math.max(1, threadCount)) * 2 * Math.PI - Math.PI / 2;
-    const radius = 130;
+    const radius = 140;
     threadPositions[t.id] = {
       x: width / 2 + radius * Math.cos(angle),
       y: height / 2 + radius * Math.sin(angle)
@@ -37,77 +38,117 @@ export const ResourceAllocationGraph: React.FC = () => {
 
   mutexes.forEach((m, i) => {
     const angle = ((i + 0.5) / Math.max(1, mutexCount)) * 2 * Math.PI - Math.PI / 2;
-    const radius = 65;
+    const radius = 70;
     mutexPositions[m.name] = {
       x: width / 2 + radius * Math.cos(angle),
       y: height / 2 + radius * Math.sin(angle)
     };
   });
 
+  const getThreadColor = (id: number) => {
+    if (id === 1) return '#6366F1';
+    if (id === 2) return '#10B981';
+    if (id === 3) return '#8B5CF6';
+    if (id === 4) return '#F59E0B';
+    return '#171717';
+  };
+
   return (
-    <div className="space-y-4">
-      {/* Header & Mode Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-3">
+      {/* Header, Mode Switcher & Zoom Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1 border-b border-[#E6E0D6]">
         <div className="flex items-center gap-2">
-          <GitFork className="w-4 h-4 text-indigo-400" />
-          <h3 className="text-sm font-semibold tracking-tight text-slate-200">
-            {graphMode === 'rag' ? 'Resource Allocation Graph (RAG)' : 'Wait-For Graph (WFG)'}
+          <GitFork className="w-4 h-4 text-[#171717]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+            {graphMode === 'rag' ? 'Resource Allocation Graph' : 'Wait-For Graph'}
           </h3>
           {isDeadlocked ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
-              <AlertTriangle className="w-3 h-3" />
-              CYCLE DETECTED
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30 animate-pulse">
+              <AlertTriangle className="w-3 h-3 text-[#EF4444]" />
+              CIRCULAR WAIT DETECTED
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <ShieldCheck className="w-3 h-3" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[#10B981]/15 text-[#047857] border border-[#10B981]/30">
+              <ShieldCheck className="w-3 h-3 text-[#10B981]" />
               CYCLE FREE
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1 bg-[#162035] p-1 rounded-lg border border-[#1F2E4D] text-xs font-mono">
-          <button
-            onClick={() => setGraphMode('rag')}
-            className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
-              graphMode === 'rag' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            RAG (Bipartite)
-          </button>
-          <button
-            onClick={() => setGraphMode('wfg')}
-            className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
-              graphMode === 'wfg' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Wait-For Graph
-          </button>
+        <div className="flex items-center gap-2">
+          {/* Zoom controls */}
+          <div className="flex items-center bg-[#EFEAE2] border border-[#DDD6CB] rounded p-0.5">
+            <button
+              onClick={() => setZoomLevel(prev => Math.max(0.7, prev - 0.15))}
+              title="Zoom Out"
+              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] cursor-pointer"
+            >
+              <ZoomOut className="w-3 h-3" />
+            </button>
+            <span className="font-mono text-[10px] px-1.5 text-[#57534E] font-bold">
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            <button
+              onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.15))}
+              title="Zoom In"
+              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] cursor-pointer"
+            >
+              <ZoomIn className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => setZoomLevel(1)}
+              title="Reset Zoom"
+              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] cursor-pointer border-l border-[#DDD6CB] ml-0.5"
+            >
+              <Maximize2 className="w-3 h-3" />
+            </button>
+          </div>
+
+          {/* Mode Switcher */}
+          <div className="flex items-center gap-0.5 bg-[#EFEAE2] p-0.5 rounded border border-[#DDD6CB] text-xs font-mono">
+            <button
+              onClick={() => setGraphMode('rag')}
+              className={`px-2 py-0.5 rounded transition-colors cursor-pointer text-xs ${
+                graphMode === 'rag' ? 'bg-[#171717] text-white font-bold' : 'text-[#57534E] hover:text-[#171717]'
+              }`}
+            >
+              RAG
+            </button>
+            <button
+              onClick={() => setGraphMode('wfg')}
+              className={`px-2 py-0.5 rounded transition-colors cursor-pointer text-xs ${
+                graphMode === 'wfg' ? 'bg-[#171717] text-white font-bold' : 'text-[#57534E] hover:text-[#171717]'
+              }`}
+            >
+              Wait-For Graph
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Deadlock Alert Banner */}
       {isDeadlocked && deadlockReport && (
-        <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-700/60 text-xs space-y-2 text-rose-200 shadow-lg">
-          <div className="flex items-center gap-2 font-bold text-rose-400">
-            <AlertTriangle className="w-4 h-4" />
-            <span>Deadlock Cycle Detected: Circular Wait</span>
+        <div className="p-3 rounded-md bg-[#EF4444]/10 border border-[#EF4444]/30 text-xs space-y-1 text-[#EF4444]">
+          <div className="flex items-center gap-1.5 font-bold">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>Deadlock Cycle: {deadlockReport.cycleDescription || "Circular wait among threads"}</span>
           </div>
-          <p className="font-mono text-[11px] text-rose-300">
-            {deadlockReport.cycleDescription || "Circular wait among threads."}
-          </p>
-          <p className="text-[11px] text-slate-300">
+          <p className="text-[11px] text-[#57534E]">
             {deadlockReport.explanation}
           </p>
-          <div className="pt-1 text-[11px] text-emerald-400 font-mono">
+          <div className="text-[11px] text-[#047857] font-mono font-semibold pt-0.5">
             <strong>Remediation:</strong> {deadlockReport.remediation}
           </div>
         </div>
       )}
 
-      {/* SVG Canvas */}
-      <div className="rounded-xl border border-[#1F2E4D] bg-[#0A0F1D] p-4 flex items-center justify-center overflow-x-auto shadow-inner">
-        <svg width={width} height={height} className="select-none">
+      {/* SVG Canvas with Zoom Scaling */}
+      <div className="rounded-lg border border-[#E6E0D6] bg-[#F4EFE7] p-2 flex items-center justify-center overflow-hidden min-h-[360px]">
+        <svg 
+          viewBox={`0 0 ${width} ${height}`} 
+          className="w-full h-auto max-w-[720px] max-h-[380px] select-none transition-transform duration-200"
+          style={{ transform: `scale(${zoomLevel})` }}
+        >
           <defs>
             <marker
               id="arrow-holding"
@@ -144,11 +185,11 @@ export const ResourceAllocationGraph: React.FC = () => {
             </marker>
           </defs>
 
-          {/* Background grid */}
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1" fill="#1F2E4D" opacity="0.3" />
+          {/* Subtle Grid Background */}
+          <pattern id="warm-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="#DDD6CB" opacity="0.7" />
           </pattern>
-          <rect width="100%" height="100%" fill="url(#grid)" />
+          <rect width="100%" height="100%" fill="url(#warm-grid)" />
 
           {/* Edges in RAG Mode */}
           {graphMode === 'rag' && (
@@ -170,7 +211,7 @@ export const ResourceAllocationGraph: React.FC = () => {
                       x2={tPos.x}
                       y2={tPos.y}
                       stroke={isInCycle ? "#EF4444" : "#10B981"}
-                      strokeWidth={isInCycle ? 3 : 2}
+                      strokeWidth={isInCycle ? 3.5 : 2}
                       markerEnd={isInCycle ? "url(#arrow-cycle)" : "url(#arrow-holding)"}
                       className={isInCycle ? "animate-pulse" : ""}
                     />
@@ -190,7 +231,7 @@ export const ResourceAllocationGraph: React.FC = () => {
                       x2={mPos.x}
                       y2={mPos.y}
                       stroke={isInCycle ? "#EF4444" : "#F59E0B"}
-                      strokeWidth={isInCycle ? 3 : 2}
+                      strokeWidth={isInCycle ? 3.5 : 2}
                       strokeDasharray={isInCycle ? "none" : "5,4"}
                       markerEnd={isInCycle ? "url(#arrow-cycle)" : "url(#arrow-request)"}
                       className={isInCycle ? "animate-pulse" : ""}
@@ -230,19 +271,20 @@ export const ResourceAllocationGraph: React.FC = () => {
                         x2={holderPos.x}
                         y2={holderPos.y}
                         stroke={isCycleEdge ? "#EF4444" : "#F59E0B"}
-                        strokeWidth={isCycleEdge ? 3.5 : 2}
+                        strokeWidth={isCycleEdge ? 4 : 2}
                         markerEnd={isCycleEdge ? "url(#arrow-cycle)" : "url(#arrow-request)"}
                         className={isCycleEdge ? "animate-pulse" : ""}
                       />
                       <text
                         x={(waiterPos.x + holderPos.x) / 2}
                         y={(waiterPos.y + holderPos.y) / 2 - 8}
-                        fill="#94A3B8"
-                        fontSize="9"
+                        fill="#57534E"
+                        fontSize="10"
                         fontFamily="monospace"
+                        fontWeight="bold"
                         textAnchor="middle"
                       >
-                        for {m.name}
+                        waits for {m.name}
                       </text>
                     </g>
                   );
@@ -262,25 +304,24 @@ export const ResourceAllocationGraph: React.FC = () => {
               return (
                 <g key={`node-m-${m.name}`} transform={`translate(${pos.x}, ${pos.y})`}>
                   <rect
-                    x="-24"
-                    y="-16"
-                    width="48"
-                    height="32"
+                    x="-28"
+                    y="-18"
+                    width="56"
+                    height="36"
                     rx="4"
-                    fill={isInCycle ? "#450A0A" : isHeld ? "#064E3B" : "#1E293B"}
-                    stroke={isInCycle ? "#EF4444" : isHeld ? "#10B981" : "#475569"}
-                    strokeWidth={isInCycle ? 2 : 1.5}
-                    className="transition-colors"
+                    fill={isInCycle ? "#FEE2E2" : isHeld ? "#D1FAE5" : "#EFEAE2"}
+                    stroke={isInCycle ? "#EF4444" : isHeld ? "#10B981" : "#DDD6CB"}
+                    strokeWidth={isInCycle ? 2.5 : 1.5}
                   />
                   <text
                     y="4"
-                    fill="#F1F5F9"
+                    fill={isInCycle ? "#EF4444" : isHeld ? "#047857" : "#171717"}
                     fontSize="10"
                     fontFamily="monospace"
                     fontWeight="bold"
                     textAnchor="middle"
                   >
-                    {m.name.length > 8 ? m.name.substring(0, 7) + '…' : m.name}
+                    {m.name.length > 9 ? m.name.substring(0, 8) + '…' : m.name}
                   </text>
                 </g>
               );
@@ -292,31 +333,32 @@ export const ResourceAllocationGraph: React.FC = () => {
             if (!pos) return null;
             const isDeadlockedThread = isDeadlocked && deadlockReport?.deadlockedThreadIds.includes(t.id);
             const isBlocked = t.state === 'BLOCKED';
+            const threadAccent = getThreadColor(t.id);
 
             return (
               <g key={`node-t-${t.id}`} transform={`translate(${pos.x}, ${pos.y})`}>
                 <circle
-                  r="24"
-                  fill={isDeadlockedThread ? "#450A0A" : isBlocked ? "#31102A" : "#111A2E"}
-                  stroke={isDeadlockedThread ? "#EF4444" : t.color}
-                  strokeWidth={isDeadlockedThread ? 3 : 2}
-                  className="transition-all"
+                  r="26"
+                  fill={isDeadlockedThread ? "#FEE2E2" : isBlocked ? "#FEF3C7" : "#171717"}
+                  stroke={isDeadlockedThread ? "#EF4444" : isBlocked ? "#F59E0B" : threadAccent}
+                  strokeWidth={isDeadlockedThread ? 3.5 : 2.5}
                 />
                 <text
                   y="-4"
-                  fill="#F1F5F9"
+                  fill={isDeadlockedThread ? "#EF4444" : isBlocked ? "#B45309" : "#FFFFFF"}
                   fontSize="10"
-                  fontFamily="sans-serif"
+                  fontFamily="monospace"
                   fontWeight="bold"
                   textAnchor="middle"
                 >
                   {t.name}
                 </text>
                 <text
-                  y="10"
-                  fill={isDeadlockedThread ? "#FCA5A5" : "#94A3B8"}
+                  y="11"
+                  fill={isDeadlockedThread ? "#EF4444" : isBlocked ? "#B45309" : "#A8A29E"}
                   fontSize="8"
                   fontFamily="monospace"
+                  fontWeight="bold"
                   textAnchor="middle"
                 >
                   {t.state}
@@ -328,27 +370,27 @@ export const ResourceAllocationGraph: React.FC = () => {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-5 text-xs font-mono text-slate-400 p-2 bg-[#0E1524] rounded-lg border border-[#1F2E4D]">
+      <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-[#57534E] p-2 bg-[#F4EFE7] rounded border border-[#E6E0D6]">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full border border-indigo-400 bg-[#111A2E]" />
-          <span>Thread Node (Circle)</span>
+          <div className="w-3 h-3 rounded-full bg-[#171717] border border-[#DDD6CB]" />
+          <span>Thread Node</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded border border-emerald-500 bg-[#064E3B]" />
-          <span>Mutex Resource (Box)</span>
+          <div className="w-3 h-3 rounded bg-[#EFEAE2] border border-[#DDD6CB]" />
+          <span>Mutex Resource</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-4 h-0.5 bg-emerald-500" />
-          <span>Holding Edge (Resource → Thread)</span>
+          <div className="w-4 h-0.5 bg-[#10B981]" />
+          <span>Holding Edge</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-4 h-0.5 border-t border-dashed border-amber-500" />
-          <span>Request Edge (Thread → Resource)</span>
+          <div className="w-4 h-0.5 border-t-2 border-dashed border-[#F59E0B]" />
+          <span>Request Edge</span>
         </div>
         {isDeadlocked && (
-          <div className="flex items-center gap-1.5 text-rose-400 font-bold">
-            <div className="w-4 h-1 bg-rose-500 animate-pulse" />
-            <span>Deadlock Cycle</span>
+          <div className="flex items-center gap-1.5 text-[#EF4444] font-bold">
+            <div className="w-4 h-1 bg-[#EF4444] animate-pulse" />
+            <span>Deadlock Cycle Edge</span>
           </div>
         )}
       </div>
