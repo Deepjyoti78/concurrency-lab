@@ -18,6 +18,7 @@ interface SimulationState {
   quantum: number;
   seed: number;
   selectedThreadId: number | null;
+  isThreadPinned: boolean;
   activeView: 'lanes' | 'memory' | 'rag' | 'philosophers' | 'buffer';
   theme: 'dark' | 'light';
   isLoading: boolean;
@@ -34,6 +35,9 @@ interface SimulationState {
   setSpeed: (speed: number) => void;
   setSchedulerConfig: (scheduler: string, quantum?: number, seed?: number) => void;
   selectThread: (threadId: number | null) => void;
+  togglePinThread: () => void;
+  pinThread: (threadId: number) => void;
+  unpinThread: () => void;
   setActiveView: (view: 'lanes' | 'memory' | 'rag' | 'philosophers' | 'buffer') => void;
   toggleTheme: () => void;
   reRunNativeEngine: () => Promise<void>;
@@ -50,21 +54,35 @@ const typedEngineData = defaultEngineData as unknown as {
   runs: Record<string, SimulationRunResult>;
 };
 
-export const useSimulationStore = create<SimulationState>((set, get) => ({
-  scenarios: typedEngineData.scenariosList || [],
-  currentScenarioId: 'race_counter_2',
-  currentRun: typedEngineData.runs['race_counter_2'] || null,
-  currentStep: 0,
-  isPlaying: false,
-  speed: 1,
-  scheduler: 'rr',
-  quantum: 1,
-  seed: 42,
-  selectedThreadId: 1,
-  activeView: 'lanes',
-  theme: 'dark',
-  isLoading: false,
-  isBackendConnected: false,
+export const useSimulationStore = create<SimulationState>((set, get) => {
+  const getThreadIdForStep = (step: number, run: SimulationRunResult | null, currentThreadId: number | null): number | null => {
+    if (!run || !run.events || step === 0) {
+      if (run?.snapshots && run.snapshots[0]?.threads) {
+        const threadIds = Object.keys(run.snapshots[0].threads).map(Number);
+        if (threadIds.length > 0) return threadIds[0];
+      }
+      return currentThreadId || 1;
+    }
+    const ev = run.events[step - 1];
+    return ev?.threadId ?? currentThreadId ?? 1;
+  };
+
+  return {
+    scenarios: typedEngineData.scenariosList || [],
+    currentScenarioId: 'race_counter_2',
+    currentRun: typedEngineData.runs['race_counter_2'] || null,
+    currentStep: 0,
+    isPlaying: false,
+    speed: 1,
+    scheduler: 'rr',
+    quantum: 1,
+    seed: 42,
+    selectedThreadId: 1,
+    isThreadPinned: false,
+    activeView: 'lanes',
+    theme: 'dark',
+    isLoading: false,
+    isBackendConnected: false,
 
   getCurrentSnapshot: () => {
     const { currentRun, currentStep } = get();
@@ -167,27 +185,38 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   },
 
   stepForward: () => {
-    const { currentRun, currentStep } = get();
+    const { currentRun, currentStep, isThreadPinned, selectedThreadId } = get();
     if (!currentRun || !currentRun.snapshots) return;
     if (currentStep < currentRun.snapshots.length - 1) {
-      set({ currentStep: currentStep + 1 });
+      const nextStep = currentStep + 1;
+      const nextThread = isThreadPinned 
+        ? selectedThreadId 
+        : getThreadIdForStep(nextStep, currentRun, selectedThreadId);
+      set({ currentStep: nextStep, selectedThreadId: nextThread });
     } else {
       set({ isPlaying: false });
     }
   },
 
   stepBackward: () => {
-    const { currentStep } = get();
+    const { currentRun, currentStep, isThreadPinned, selectedThreadId } = get();
     if (currentStep > 0) {
-      set({ currentStep: currentStep - 1, isPlaying: false });
+      const prevStep = currentStep - 1;
+      const nextThread = isThreadPinned 
+        ? selectedThreadId 
+        : getThreadIdForStep(prevStep, currentRun, selectedThreadId);
+      set({ currentStep: prevStep, selectedThreadId: nextThread, isPlaying: false });
     }
   },
 
   seek: (step: number) => {
-    const { currentRun } = get();
+    const { currentRun, isThreadPinned, selectedThreadId } = get();
     if (!currentRun || !currentRun.snapshots) return;
     const clamped = Math.min(Math.max(0, step), currentRun.snapshots.length - 1);
-    set({ currentStep: clamped, isPlaying: false });
+    const nextThread = isThreadPinned 
+      ? selectedThreadId 
+      : getThreadIdForStep(clamped, currentRun, selectedThreadId);
+    set({ currentStep: clamped, selectedThreadId: nextThread, isPlaying: false });
   },
 
   play: () => {
@@ -205,7 +234,11 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   },
 
   reset: () => {
-    set({ currentStep: 0, isPlaying: false });
+    const { currentRun, isThreadPinned, selectedThreadId } = get();
+    const nextThread = isThreadPinned 
+      ? selectedThreadId 
+      : getThreadIdForStep(0, currentRun, selectedThreadId);
+    set({ currentStep: 0, selectedThreadId: nextThread, isPlaying: false });
   },
 
   setSpeed: (speed: number) => {
@@ -222,6 +255,27 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
 
   selectThread: (threadId: number | null) => {
     set({ selectedThreadId: threadId });
+  },
+
+  togglePinThread: () => {
+    const { isThreadPinned, currentRun, currentStep, selectedThreadId } = get();
+    const willPin = !isThreadPinned;
+    if (!willPin) {
+      const syncedThread = getThreadIdForStep(currentStep, currentRun, selectedThreadId);
+      set({ isThreadPinned: false, selectedThreadId: syncedThread });
+    } else {
+      set({ isThreadPinned: true });
+    }
+  },
+
+  pinThread: (threadId: number) => {
+    set({ isThreadPinned: true, selectedThreadId: threadId });
+  },
+
+  unpinThread: () => {
+    const { currentRun, currentStep, selectedThreadId } = get();
+    const syncedThread = getThreadIdForStep(currentStep, currentRun, selectedThreadId);
+    set({ isThreadPinned: false, selectedThreadId: syncedThread });
   },
 
   setActiveView: (activeView) => {
@@ -249,4 +303,5 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       set({ isBackendConnected: false });
     }
   }
-}));
+};
+});

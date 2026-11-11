@@ -7,10 +7,12 @@ import {
   BookOpen, 
   Lock, 
   CheckCircle2, 
-  FileCode,
-  Info,
-  ChevronDown,
-  ChevronUp
+  FileCode, 
+  Info, 
+  ChevronDown, 
+  ChevronUp,
+  Pin,
+  Check
 } from 'lucide-react';
 
 export const InspectorPanel: React.FC = () => {
@@ -23,7 +25,11 @@ export const InspectorPanel: React.FC = () => {
 
   const { 
     getCurrentSnapshot, 
+    getCurrentEvent,
     selectedThreadId, 
+    selectThread,
+    isThreadPinned,
+    togglePinThread,
     currentRun, 
     currentScenarioId, 
     scenarios,
@@ -31,6 +37,7 @@ export const InspectorPanel: React.FC = () => {
   } = useSimulationStore();
 
   const snapshot = getCurrentSnapshot();
+  const currentEvent = getCurrentEvent();
   const scenario = scenarios.find(s => s.id === currentScenarioId);
 
   const threads = snapshot?.threads ? Object.values(snapshot.threads) : [];
@@ -39,6 +46,7 @@ export const InspectorPanel: React.FC = () => {
   const accessHistory: MemoryAccessRecord[] = snapshot?.memoryAccessHistory || [];
 
   const threadEvents = currentRun?.events?.filter(e => e.threadId === selectedThread?.id) || [];
+  const isExecutingCurrentStep = currentEvent?.threadId === selectedThread?.id;
 
   const getThreadColor = (threadId?: number) => {
     if (threadId === 1) return '#6366F1';
@@ -89,7 +97,36 @@ export const InspectorPanel: React.FC = () => {
 
       {/* Tab 1: Thread Inspector */}
       {activeTab === 'thread' && (
-        <div className="p-3 space-y-3 overflow-y-auto flex-1 scrollbar-thin">
+        <div className="p-3 space-y-2.5 overflow-y-auto flex-1 scrollbar-thin">
+          {/* Thread Selector & Following/Pinned Mode Controller */}
+          <div className="bg-[#EFEAE2] border border-[#DDD6CB] p-2 flex items-center justify-between gap-2 font-mono text-[11px] rounded-none">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[#78716C] font-semibold text-[10px]">INSPECT:</span>
+              <select
+                value={selectedThread?.id || 1}
+                onChange={(e) => selectThread(Number(e.target.value))}
+                className="bg-white border border-[#DDD6CB] text-[#171717] font-bold px-1.5 py-0.5 text-[11px] cursor-pointer focus:outline-none"
+              >
+                {threads.map(t => (
+                  <option key={t.id} value={t.id}>{t.name} (TID #{t.id})</option>
+                ))}
+              </select>
+            </div>
+            
+            <button
+              onClick={togglePinThread}
+              title={isThreadPinned ? "Pinned: Inspector stays on this thread" : "Following: Inspector automatically tracks currently executing thread"}
+              className={`px-2 py-0.5 rounded-none font-bold text-[10px] cursor-pointer flex items-center gap-1 border transition-colors flex-shrink-0 ${
+                isThreadPinned 
+                  ? 'bg-[#18181B] text-amber-300 border-[#18181B]' 
+                  : 'bg-[#FBF4EA] text-[#57534E] border-[#DDD6CB] hover:bg-[#EAE4D9]'
+              }`}
+            >
+              <Pin className={`w-2.5 h-2.5 ${isThreadPinned ? 'fill-amber-300 text-amber-300' : ''}`} />
+              <span>{isThreadPinned ? 'Pinned' : 'Follow Event'}</span>
+            </button>
+          </div>
+
           {!selectedThread ? (
             <div className="text-center py-8 text-[#78716C] font-mono text-xs">
               No thread selected.
@@ -97,10 +134,10 @@ export const InspectorPanel: React.FC = () => {
           ) : (
             <>
               {/* Section 1: Thread Overview (Collapsible) */}
-              <div className="rounded-md border border-[#E6E0D6] bg-[#FBF4EA] overflow-hidden">
+              <div className="rounded-none border border-[#DDD6CB] bg-[#FBF4EA] overflow-hidden">
                 <button
                   onClick={() => setIsOverviewOpen(!isOverviewOpen)}
-                  className="w-full px-2.5 py-1.5 bg-[#EFEAE2] flex items-center justify-between text-left cursor-pointer border-b border-[#E6E0D6]"
+                  className="w-full px-2.5 py-1.5 bg-[#EFEAE2] flex items-center justify-between text-left cursor-pointer border-b border-[#DDD6CB]"
                 >
                   <div className="flex items-center gap-2">
                     <span 
@@ -108,7 +145,7 @@ export const InspectorPanel: React.FC = () => {
                       style={{ backgroundColor: getThreadColor(selectedThread.id) }} 
                     />
                     <span className="font-bold text-[#171717] font-mono text-xs">
-                      {selectedThread.name} (TID {selectedThread.id})
+                      {selectedThread.name} (TID #{selectedThread.id})
                     </span>
                   </div>
                   {isOverviewOpen ? <ChevronUp className="w-3.5 h-3.5 text-[#78716C]" /> : <ChevronDown className="w-3.5 h-3.5 text-[#78716C]" />}
@@ -117,18 +154,25 @@ export const InspectorPanel: React.FC = () => {
                 {isOverviewOpen && (
                   <div className="p-2.5 space-y-2">
                     <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
-                      <div className="bg-white p-2 rounded border border-[#E6E0D6]">
-                        <span className="text-[10px] text-[#78716C] uppercase font-bold block">State</span>
+                      <div className="bg-white p-2 rounded-none border border-[#DDD6CB]">
+                        <span className="text-[9px] text-[#78716C] uppercase font-bold block">State</span>
                         <strong className="text-[#171717]">{selectedThread.state}</strong>
                       </div>
-                      <div className="bg-white p-2 rounded border border-[#E6E0D6]">
-                        <span className="text-[10px] text-[#78716C] uppercase font-bold block">Program Counter</span>
-                        <strong className="text-[#171717]">PC: {selectedThread.pc}</strong>
+                      <div className="bg-white p-2 rounded-none border border-[#DDD6CB]">
+                        <span className="text-[9px] text-[#78716C] uppercase font-bold block">Current PC</span>
+                        <strong className="text-[#171717]">{selectedThread.pc}</strong>
                       </div>
                     </div>
 
+                    {isExecutingCurrentStep && currentEvent && (
+                      <div className="bg-amber-500/10 p-2 rounded-none border border-amber-500/30 font-mono text-[10px] text-amber-900 flex items-center justify-between">
+                        <span>PC @ STEP #{currentEvent.sequence}:</span>
+                        <strong className="text-[#171717] font-bold">{currentEvent.previousPc}</strong>
+                      </div>
+                    )}
+
                     {selectedThread.blockedOn && (
-                      <div className="p-2 rounded bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] font-mono text-[10px] font-bold">
+                      <div className="p-2 rounded-none bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] font-mono text-[10px] font-bold">
                         Blocked on: {selectedThread.blockedOn}
                       </div>
                     )}
@@ -141,7 +185,7 @@ export const InspectorPanel: React.FC = () => {
                       {selectedThread.heldMutexes && selectedThread.heldMutexes.length > 0 ? (
                         <div className="flex flex-wrap gap-1 font-mono text-[10px]">
                           {selectedThread.heldMutexes.map(m => (
-                            <span key={m} className="px-2 py-0.5 rounded bg-[#F59E0B]/20 text-[#B45309] border border-[#F59E0B]/40 font-bold flex items-center gap-1">
+                            <span key={m} className="px-2 py-0.5 rounded-none bg-[#F59E0B]/20 text-[#B45309] border border-[#F59E0B]/40 font-bold flex items-center gap-1">
                               <Lock className="w-2.5 h-2.5" />
                               {m}
                             </span>
@@ -156,10 +200,10 @@ export const InspectorPanel: React.FC = () => {
               </div>
 
               {/* Section 2: Local CPU Registers (Collapsible) */}
-              <div className="rounded-md border border-[#E6E0D6] bg-[#FBF4EA] overflow-hidden">
+              <div className="rounded-none border border-[#DDD6CB] bg-[#FBF4EA] overflow-hidden">
                 <button
                   onClick={() => setIsRegistersOpen(!isRegistersOpen)}
-                  className="w-full px-2.5 py-1.5 bg-[#EFEAE2] flex items-center justify-between text-left cursor-pointer border-b border-[#E6E0D6]"
+                  className="w-full px-2.5 py-1.5 bg-[#EFEAE2] flex items-center justify-between text-left cursor-pointer border-b border-[#DDD6CB]"
                 >
                   <span className="font-bold text-[#171717] font-mono text-xs uppercase tracking-wide">
                     CPU Registers
@@ -174,7 +218,7 @@ export const InspectorPanel: React.FC = () => {
                         No registers assigned
                       </div>
                     ) : (
-                      <div className="bg-white rounded border border-[#E6E0D6] divide-y divide-[#E6E0D6] font-mono text-xs">
+                      <div className="bg-white rounded-none border border-[#DDD6CB] divide-y divide-[#DDD6CB] font-mono text-xs">
                         {Object.entries(selectedThread.registers).map(([reg, val]) => (
                           <div key={reg} className="flex items-center justify-between px-2.5 py-1">
                             <span className="text-[#171717] font-bold">{reg}</span>
@@ -188,10 +232,10 @@ export const InspectorPanel: React.FC = () => {
               </div>
 
               {/* Section 3: Instruction Disassembly (Collapsible) */}
-              <div className="rounded-md border border-[#E6E0D6] bg-[#FBF4EA] overflow-hidden">
+              <div className="rounded-none border border-[#DDD6CB] bg-[#FBF4EA] overflow-hidden">
                 <button
                   onClick={() => setIsDisassemblyOpen(!isDisassemblyOpen)}
-                  className="w-full px-2.5 py-1.5 bg-[#EFEAE2] flex items-center justify-between text-left cursor-pointer border-b border-[#E6E0D6]"
+                  className="w-full px-2.5 py-1.5 bg-[#EFEAE2] flex items-center justify-between text-left cursor-pointer border-b border-[#DDD6CB]"
                 >
                   <div className="flex items-center gap-1.5">
                     <FileCode className="w-3.5 h-3.5 text-[#171717]" />
@@ -210,31 +254,41 @@ export const InspectorPanel: React.FC = () => {
                       </div>
                     ) : (
                       threadEvents.map((ev, idx) => {
-                        const isActive = ev.sequence === currentStep;
+                        const isSelected = ev.sequence === currentStep;
                         const isExecuted = ev.sequence <= currentStep;
 
                         return (
                           <div
                             key={idx}
-                            className={`p-1.5 rounded border flex items-center justify-between transition-colors ${
-                              isActive
-                                ? 'bg-[#171717] border-[#171717] text-white font-bold'
+                            className={`p-1.5 rounded-none border flex items-center justify-between transition-colors ${
+                              isSelected
+                                ? 'bg-[#18181B] border-[#18181B] text-white font-bold'
                                 : isExecuted
-                                ? 'bg-white border-[#E6E0D6] text-[#171717]'
-                                : 'bg-[#F4EFE7] border-[#E6E0D6]/60 text-[#78716C]'
+                                ? 'bg-white border-[#DDD6CB] text-[#171717]'
+                                : 'bg-[#F4EFE7] border-[#DDD6CB]/60 text-[#78716C]'
                             }`}
                           >
                             <div className="truncate">
-                              <span className={`text-[9px] mr-1.5 ${isActive ? 'text-amber-300' : 'text-[#78716C]'}`}>
+                              <span className={`text-[9px] mr-1.5 ${isSelected ? 'text-amber-300' : 'text-[#78716C]'}`}>
                                 #{ev.sequence}
                               </span>
                               <span>{ev.instruction.disassembly}</span>
                             </div>
-                            {isActive && (
-                              <span className="text-[9px] text-amber-300 font-bold ml-1 flex-shrink-0">
-                                ◀ PC
-                              </span>
-                            )}
+                            <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+                              {isSelected ? (
+                                <span className="text-[8px] bg-amber-400 text-[#18181B] px-1 py-0.2 font-bold uppercase">
+                                  SELECTED
+                                </span>
+                              ) : isExecuted ? (
+                                <span className="text-[8px] text-[#047857] flex items-center gap-0.5 font-semibold">
+                                  <Check className="w-2.5 h-2.5" /> DONE
+                                </span>
+                              ) : (
+                                <span className="text-[8px] text-[#A8A29E]">
+                                  UPCOMING
+                                </span>
+                              )}
+                            </div>
                           </div>
                         );
                       })
@@ -256,12 +310,12 @@ export const InspectorPanel: React.FC = () => {
             </span>
             <div className="space-y-2 font-mono">
               {memoryVars.map(([name, meta]) => (
-                <div key={name} className="p-2.5 rounded-md bg-white border border-[#E6E0D6] space-y-1">
+                <div key={name} className="p-2.5 rounded-none bg-white border border-[#DDD6CB] space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-[#171717]">{name}</span>
                     <span className="text-base font-bold text-[#171717]">{meta.value}</span>
                   </div>
-                  <div className="text-[10px] text-[#78716C] flex items-center justify-between border-t border-[#E6E0D6]/60 pt-1">
+                  <div className="text-[10px] text-[#78716C] flex items-center justify-between border-t border-[#DDD6CB]/60 pt-1">
                     <span>Prev: {meta.previousValue}</span>
                     <span>W:{meta.writeCount} | R:{meta.readCount}</span>
                   </div>
@@ -277,7 +331,7 @@ export const InspectorPanel: React.FC = () => {
             </span>
             <div className="space-y-1 font-mono text-[10px] max-h-60 overflow-y-auto scrollbar-thin">
               {accessHistory.slice(-10).reverse().map((rec: MemoryAccessRecord, i: number) => (
-                <div key={i} className="p-1.5 rounded bg-white border border-[#E6E0D6] flex items-center justify-between">
+                <div key={i} className="p-1.5 rounded-none bg-white border border-[#DDD6CB] flex items-center justify-between">
                   <div>
                     <span className={`font-bold mr-1 ${rec.type === 'WRITE' ? 'text-[#047857]' : 'text-[#171717]'}`}>
                       {rec.type}
@@ -296,10 +350,10 @@ export const InspectorPanel: React.FC = () => {
       {/* Tab 3: Concept Guide & Educational Explanations */}
       {activeTab === 'guide' && scenario && (
         <div className="p-3 space-y-3 overflow-y-auto flex-1 scrollbar-thin">
-          <div className="pb-2 border-b border-[#E6E0D6]">
+          <div className="pb-2 border-b border-[#DDD6CB]">
             <h4 className="font-bold text-[#171717] text-xs font-mono">{scenario.title}</h4>
             <div className="flex items-center gap-1.5 pt-1 font-mono text-[10px]">
-              <span className="px-1.5 py-0.2 rounded bg-[#EFEAE2] text-[#171717] border border-[#DDD6CB] font-semibold">
+              <span className="px-1.5 py-0.2 rounded-none bg-[#EFEAE2] text-[#171717] border border-[#DDD6CB] font-semibold">
                 {scenario.moduleTitle}
               </span>
               <span className="text-[#78716C]">{scenario.difficulty}</span>
@@ -311,7 +365,7 @@ export const InspectorPanel: React.FC = () => {
               <Info className="w-3 h-3 text-[#171717]" />
               Objective
             </span>
-            <p className="text-[#57534E] text-[11px] leading-relaxed bg-white p-2 rounded border border-[#E6E0D6]">
+            <p className="text-[#57534E] text-[11px] leading-relaxed bg-white p-2 rounded-none border border-[#DDD6CB]">
               {scenario.objective}
             </p>
           </div>
@@ -320,7 +374,7 @@ export const InspectorPanel: React.FC = () => {
             <span className="text-[10px] uppercase font-mono text-[#78716C] font-bold block">
               Expected Outcome
             </span>
-            <div className="p-2 rounded bg-white border border-[#DDD6CB] font-mono text-[10px] text-[#171717]">
+            <div className="p-2 rounded-none bg-white border border-[#DDD6CB] font-mono text-[10px] text-[#171717]">
               {scenario.expectedOutcome}
             </div>
           </div>
@@ -330,7 +384,7 @@ export const InspectorPanel: React.FC = () => {
               <CheckCircle2 className="w-3 h-3 text-[#10B981]" />
               Key Takeaway
             </span>
-            <p className="text-[#047857] text-[11px] leading-relaxed bg-[#10B981]/10 p-2 rounded border border-[#10B981]/25">
+            <p className="text-[#047857] text-[11px] leading-relaxed bg-[#10B981]/10 p-2 rounded-none border border-[#10B981]/25">
               {scenario.keyTakeaway}
             </p>
           </div>

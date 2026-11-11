@@ -8,10 +8,15 @@ import {
   Play, 
   Check,
   ChevronRight,
-  Cpu
+  Cpu,
+  Zap
 } from 'lucide-react';
 
-export const ThreadLanes: React.FC = () => {
+interface ThreadLanesProps {
+  onOpenRaceModal?: () => void;
+}
+
+export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => {
   const { 
     getCurrentSnapshot, 
     getCurrentEvent, 
@@ -33,6 +38,9 @@ export const ThreadLanes: React.FC = () => {
   }
 
   const threads = Object.values(snapshot.threads);
+  const totalSteps = currentRun?.snapshots?.length ? currentRun.snapshots.length - 1 : 0;
+  const isCompletedRun = currentStep >= totalSteps && totalSteps > 0;
+  const hasRaceOccurred = currentEvent?.raceDetected || (isCompletedRun && currentRun?.events?.some(e => e.raceDetected));
 
   // Design system colors: Thread 1 = Indigo #6366F1, Thread 2 = Emerald #10B981
   const getThreadColor = (threadId: number, rawColor?: string) => {
@@ -48,35 +56,35 @@ export const ThreadLanes: React.FC = () => {
     switch (state) {
       case 'RUNNING':
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-[#171717] text-white">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#171717] text-white">
             <Play className="w-2.5 h-2.5 fill-white" />
             RUNNING
           </span>
         );
       case 'READY':
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#10B981]/15 text-[#047857] border border-[#10B981]/30">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-semibold bg-[#10B981]/15 text-[#047857] border border-[#10B981]/30">
             <Clock className="w-2.5 h-2.5 text-[#10B981]" />
             READY
           </span>
         );
       case 'BLOCKED':
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-semibold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30">
             <Lock className="w-2.5 h-2.5" />
             BLOCKED {blockedOn ? `(${blockedOn})` : ''}
           </span>
         );
       case 'TERMINATED':
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB]">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-semibold bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB]">
             <CheckCircle2 className="w-2.5 h-2.5" />
-            HALTED
+            TERMINATED
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#EAE4D9] text-[#78716C]">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-semibold bg-[#EAE4D9] text-[#78716C]">
             NEW
           </span>
         );
@@ -84,15 +92,15 @@ export const ThreadLanes: React.FC = () => {
   };
 
   return (
-    <div className="space-y-2.5 w-full max-w-full min-w-0">
+    <div className={`w-full max-w-full min-w-0 flex flex-col ${threads.length <= 3 ? 'min-h-[460px] justify-center' : 'justify-start'} py-2 space-y-2.5`}>
       {/* Top Lane Header Info Bar */}
-      <div className="flex items-center justify-between pb-1 border-b border-[#E6E0D6]">
+      <div className="flex items-center justify-between pb-1.5 border-b border-[#E6E0D6] flex-shrink-0">
         <div className="flex items-center gap-2">
           <Cpu className="w-3.5 h-3.5 text-[#171717]" />
           <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
             Virtual Thread Execution Lanes
           </h3>
-          <span className="text-[10px] font-mono text-[#57534E] px-1.5 py-0.2 rounded bg-[#EFEAE2] border border-[#DDD6CB]">
+          <span className="text-[10px] font-mono text-[#57534E] px-1.5 py-0.5 rounded-none bg-[#EFEAE2] border border-[#DDD6CB]">
             {threads.length} {threads.length === 1 ? 'Thread' : 'Threads'}
           </span>
         </div>
@@ -100,6 +108,31 @@ export const ThreadLanes: React.FC = () => {
           Click lane to inspect registers & call history
         </div>
       </div>
+
+      {/* Surface Race Condition Alert Banner if detected */}
+      {hasRaceOccurred && (
+        <div className="p-2 sm:p-2.5 bg-[#FFF8EE] border border-[#F59E0B]/50 text-[#B45309] flex flex-wrap items-center justify-between gap-2 shadow-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <Zap className="w-4 h-4 text-[#F59E0B] flex-shrink-0" />
+            <div className="min-w-0 font-mono text-xs">
+              <span className="font-bold text-[#18181B] mr-2">
+                RACE CONDITION (LOST UPDATE) DETECTED
+              </span>
+              <span className="text-[#78716C]">
+                Expected: <strong className="text-[#047857]">counter = 2</strong> | Actual: <strong className="text-[#DC2626]">counter = 1</strong>
+              </span>
+            </div>
+          </div>
+          {onOpenRaceModal && (
+            <button
+              onClick={onOpenRaceModal}
+              className="px-2.5 py-0.5 bg-[#9E381E] hover:bg-[#862E17] text-white font-mono text-[10px] font-bold transition-colors cursor-pointer flex-shrink-0 shadow-xs"
+            >
+              Full Diagnostics →
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Thread Lanes Grid */}
       <div className="space-y-2.5 w-full min-w-0">
@@ -111,6 +144,7 @@ export const ThreadLanes: React.FC = () => {
 
           // All instruction execution events for this thread across the scenario
           const threadEvents: ExecutionEvent[] = currentRun?.events?.filter(e => e.threadId === thread.id) || [];
+          const isShortSequence = threadEvents.length <= 4;
 
           return (
             <div
@@ -118,18 +152,18 @@ export const ThreadLanes: React.FC = () => {
               onClick={() => selectThread(thread.id)}
               className={`rounded-none border transition-all cursor-pointer overflow-hidden w-full min-w-0 ${
                 isSelected
-                  ? 'border-[#171717] bg-[#F4EFE7] ring-1 ring-[#171717]/30 shadow-xs'
-                  : 'border-[#DDD6CB] bg-[#FBF4EA] hover:border-[#171717] hover:bg-[#F8F5EE]'
+                  ? 'border-[#B8AFA2] bg-[#F2ECE2] ring-1 ring-[#171717]/15 shadow-xs'
+                  : 'border-[#DDD6CB] bg-[#F7F2EB] hover:border-[#B8AFA2] hover:bg-[#F2EDE5]'
               }`}
             >
               {/* Two-Column Structure: LEFT RAIL + RIGHT EXECUTION TRACK */}
-              <div className="grid grid-cols-1 md:grid-cols-[210px_minmax(0,1fr)] items-stretch w-full min-w-0">
+              <div className="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] items-stretch w-full min-w-0">
                 {/* 1. LEFT RAIL: Thread identity, ID, state, PC, registers, mutexes */}
                 <div 
-                  className="p-2.5 border-b md:border-b-0 md:border-r border-[#E6E0D6] bg-[#F8F5EE]/80 flex flex-col justify-between min-w-0"
+                  className="p-3 border-b md:border-b-0 md:border-r border-[#E6E0D6] bg-[#F8F5EE]/90 flex flex-col justify-between min-w-0"
                   style={{ borderLeftColor: threadColor, borderLeftWidth: '4px' }}
                 >
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     {/* Thread identity and state badge */}
                     <div className="flex items-center justify-between gap-1">
                       <div className="flex items-center gap-1.5 min-w-0">
@@ -149,26 +183,37 @@ export const ThreadLanes: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Program Counter & Historical Event / CPU Running Status */}
-                    <div className="flex items-center justify-between gap-1 text-[10px] font-mono">
-                      <div className="flex items-center gap-1 bg-[#EFEAE2] px-1.5 py-0.5 rounded border border-[#DDD6CB]">
-                        <span className="text-[#78716C]">PC</span>
+                    {/* Program Counter: Current PC vs Executed PC */}
+                    <div className="space-y-1 text-[10px] font-mono">
+                      <div className="flex items-center justify-between gap-1 bg-[#EFEAE2] px-2 py-0.5 rounded-none border border-[#DDD6CB]">
+                        <span className="text-[#78716C] font-semibold">CURRENT PC</span>
                         <strong className="text-[#171717]">{thread.pc}</strong>
                       </div>
 
+                      {/* Explicitly show Executed PC if this thread was the executor of current step */}
+                      {executedHistoricalEvent && currentEvent && (
+                        <div className="flex items-center justify-between gap-1 bg-amber-500/10 px-2 py-0.5 rounded-none border border-amber-500/30 text-amber-900">
+                          <span className="font-semibold text-[9px]">EXECUTED PC</span>
+                          <strong className="text-[#171717]">{currentEvent.previousPc}</strong>
+                        </div>
+                      )}
+
                       {/* Distinct badges for currently running vs executed historical event */}
-                      {isThreadRunningNow ? (
-                        <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#171717] text-white animate-pulse">
-                          ON CPU
-                        </span>
-                      ) : executedHistoricalEvent ? (
-                        <span 
-                          className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold text-white shadow-xs"
-                          style={{ backgroundColor: threadColor }}
-                        >
-                          STEP #{currentEvent.sequence}
-                        </span>
-                      ) : null}
+                      <div className="flex items-center gap-1 pt-0.5">
+                        {isThreadRunningNow && (
+                          <span className="px-1.5 py-0.5 rounded-none text-[9px] font-mono font-bold bg-[#171717] text-white animate-pulse">
+                            ON CPU
+                          </span>
+                        )}
+                        {executedHistoricalEvent && currentEvent && (
+                          <span 
+                            className="px-1.5 py-0.5 rounded-none text-[9px] font-mono font-bold text-white shadow-xs"
+                            style={{ backgroundColor: threadColor }}
+                          >
+                            STEP #{currentEvent.sequence}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Held Mutex / Resource Count */}
@@ -188,17 +233,17 @@ export const ThreadLanes: React.FC = () => {
 
                   {/* Compact CPU Registers */}
                   <div className="mt-2 pt-1.5 border-t border-[#E6E0D6] font-mono text-[10px]">
-                    <div className="text-[9px] uppercase font-bold text-[#78716C] mb-0.5">
-                      Registers
+                    <div className="text-[9px] uppercase font-bold text-[#78716C] mb-1">
+                      CPU Registers
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {Object.keys(thread.registers).length === 0 ? (
-                        <span className="text-[#A8A29E] text-[10px] italic">none</span>
+                        <span className="text-[#A8A29E] text-[10px] italic">none assigned</span>
                       ) : (
                         Object.entries(thread.registers).map(([reg, val]) => (
                           <span 
                             key={reg} 
-                            className="px-1.5 py-0.2 rounded bg-[#EFEAE2] border border-[#DDD6CB] text-[#171717] flex items-center gap-1"
+                            className="px-1.5 py-0.5 rounded-none bg-[#EFEAE2] border border-[#DDD6CB] text-[#171717] flex items-center gap-1 font-semibold"
                           >
                             <span className="text-[#78716C]">{reg}:</span>
                             <strong className="text-[#171717]">{val}</strong>
@@ -210,9 +255,9 @@ export const ThreadLanes: React.FC = () => {
                 </div>
 
                 {/* 2. RIGHT EXECUTION TRACK: Full-width instruction ribbon */}
-                <div className="p-2.5 flex flex-col justify-center min-w-0 overflow-hidden bg-[#FBF4EA]/40">
-                  <div className="flex items-center justify-between text-[10px] font-mono mb-1 text-[#78716C]">
-                    <span className="uppercase font-bold">
+                <div className="p-3 flex flex-col justify-center min-w-0 overflow-hidden bg-[#FBF4EA]/50">
+                  <div className="flex items-center justify-between text-[10px] font-mono mb-1.5 text-[#78716C] flex-shrink-0">
+                    <span className="uppercase font-bold tracking-wider">
                       Execution Track
                     </span>
                     <span>
@@ -220,87 +265,158 @@ export const ThreadLanes: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Horizontal Scrollable Instruction Ribbon */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-thin min-w-0">
-                    {threadEvents.length === 0 ? (
-                      <div className="text-[11px] font-mono text-[#A8A29E] italic py-1">
-                        No instruction stream registered for this thread.
-                      </div>
-                    ) : (
-                      threadEvents.map((ev, idx) => {
+                  {/* Instruction Track Container: Responsive Grid for <= 4 cards; Scrollable for > 4 */}
+                  {threadEvents.length === 0 ? (
+                    <div className="text-[11px] font-mono text-[#A8A29E] italic py-2">
+                      No instruction stream registered for this thread.
+                    </div>
+                  ) : isShortSequence ? (
+                    /* Short sequence: cards distributed evenly across 100% available width */
+                    <div className="flex items-center w-full min-w-0 gap-1.5">
+                      {threadEvents.map((ev, idx) => {
                         const isExecuted = ev.sequence <= currentStep;
-                        const isActive = ev.sequence === currentStep;
-                        const isAssociatedWithPC = ev.previousPc === thread.pc || (isExecuted && ev.newPc === thread.pc);
+                        const isSelected = ev.sequence === currentStep;
 
                         return (
                           <div
                             key={ev.sequence}
-                            className={`flex-shrink-0 flex items-center gap-1 ${
-                              isActive ? 'z-10' : ''
-                            }`}
+                            className="flex-1 min-w-0 flex items-center gap-1.5"
                           >
-                            {/* Instruction Card */}
+                            {/* Instruction Card filling its column width */}
                             <div
-                              className={`w-38 sm:w-42 p-1.5 rounded-none border font-mono text-left transition-all ${
-                                isActive
-                                  ? 'bg-[#171717] text-white border-[#171717] shadow-xs ring-1 ring-offset-1 ring-offset-[#FBF4EA]'
+                              className={`w-full min-w-0 p-2 rounded-none border font-mono text-left transition-all ${
+                                isSelected
+                                  ? 'bg-[#18181B] text-white border-amber-400 ring-1 ring-amber-400/50 shadow-xs'
                                   : isExecuted
                                   ? 'bg-[#EFEAE2] text-[#171717] border-[#DDD6CB]'
                                   : 'bg-[#FBF4EA] text-[#78716C] border-[#DDD6CB] border-dashed'
                               }`}
-                              style={isActive ? { borderColor: threadColor, outlineColor: threadColor } : undefined}
+                              style={isSelected ? { borderLeftColor: threadColor, borderLeftWidth: '3px' } : undefined}
                               title={`${ev.instruction.disassembly} — ${ev.explanation}`}
                             >
-                              {/* Top Bar: Sequence & Status */}
-                              <div className="flex items-center justify-between text-[9px] mb-0.5">
-                                <span className={isActive ? 'text-amber-300 font-bold' : isExecuted ? 'text-[#78716C]' : 'text-[#A8A29E]'}>
+                              {/* Top Bar: Sequence & State Badge */}
+                              <div className="flex items-center justify-between text-[9px] mb-1 gap-1">
+                                <span className={isSelected ? 'text-amber-300 font-bold' : isExecuted ? 'text-[#78716C]' : 'text-[#A8A29E]'}>
                                   Step #{ev.sequence}
                                 </span>
 
-                                <div className="flex items-center gap-1">
-                                  {isAssociatedWithPC && (
-                                    <span className={`text-[8px] px-1 py-0.2 rounded font-bold ${
-                                      isActive ? 'bg-amber-300 text-[#171717]' : 'bg-[#DDD6CB] text-[#171717]'
-                                    }`}>
-                                      PC:{ev.previousPc}
-                                    </span>
-                                  )}
-                                  {isActive ? (
-                                    <span className="px-1 py-0.2 bg-amber-400 text-[#171717] font-bold rounded text-[8px]">
-                                      ACTIVE
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  {isSelected ? (
+                                    <span className="px-1.5 py-0.2 bg-amber-400 text-[#18181B] font-bold rounded-none text-[8px] uppercase">
+                                      SELECTED
                                     </span>
                                   ) : isExecuted ? (
                                     <span className="flex items-center text-[#047857] font-semibold text-[8px]">
-                                      <Check className="w-2.5 h-2.5" />
+                                      <Check className="w-2.5 h-2.5 mr-0.5" />
                                       DONE
                                     </span>
                                   ) : (
                                     <span className="text-[#A8A29E] text-[8px]">
-                                      PENDING
+                                      UPCOMING
                                     </span>
                                   )}
                                 </div>
                               </div>
 
                               {/* Opcode */}
-                              <div className={`font-bold text-[11px] truncate ${isActive ? 'text-white' : isExecuted ? 'text-[#171717]' : 'text-[#57534E]'}`}>
+                              <div className={`font-bold text-[11px] truncate ${isSelected ? 'text-white' : isExecuted ? 'text-[#171717]' : 'text-[#57534E]'}`}>
                                 {ev.instruction.opcode}
                               </div>
 
                               {/* Instruction Disassembly */}
-                              <div className={`text-[9px] truncate ${isActive ? 'text-stone-300' : isExecuted ? 'text-[#57534E]' : 'text-[#78716C]'}`}>
+                              <div className={`text-[9px] truncate ${isSelected ? 'text-stone-300' : isExecuted ? 'text-[#57534E]' : 'text-[#78716C]'}`}>
                                 {ev.instruction.arg1 ? `${ev.instruction.arg1}${ev.instruction.arg2 ? `, ${ev.instruction.arg2}` : ''}` : '—'}
                               </div>
 
-                              {/* Outcome Preview if active */}
-                              {isActive && ev.explanation && (
+                              {/* Selected Step Explanation Preview */}
+                              {isSelected && ev.explanation && (
+                                <div className="mt-1 pt-1 border-t border-stone-700 text-[8px] text-amber-200 truncate font-sans">
+                                  {ev.explanation}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Chevron connector between instructions */}
+                            {idx < threadEvents.length - 1 && (
+                              <ChevronRight className={`w-3.5 h-3.5 flex-shrink-0 ${
+                                isExecuted ? 'text-[#78716C]' : 'text-[#DDD6CB]'
+                              }`} />
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {/* Lane Terminator Badge */}
+                      {thread.state === 'TERMINATED' && (
+                        <div className="flex-shrink-0 px-2 py-1 rounded-none bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB] font-mono text-[9px] font-bold">
+                          TERMINATED
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Long sequence (>4 instructions): horizontally scrollable ribbon */
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-thin min-w-0">
+                      {threadEvents.map((ev, idx) => {
+                        const isExecuted = ev.sequence <= currentStep;
+                        const isSelected = ev.sequence === currentStep;
+
+                        return (
+                          <div
+                            key={ev.sequence}
+                            className={`flex-shrink-0 flex items-center gap-1 ${
+                              isSelected ? 'z-10' : ''
+                            }`}
+                          >
+                            {/* Instruction Card */}
+                            <div
+                              className={`w-38 sm:w-42 p-2 rounded-none border font-mono text-left transition-all ${
+                                isSelected
+                                  ? 'bg-[#18181B] text-white border-amber-400 ring-1 ring-amber-400/50 shadow-xs'
+                                  : isExecuted
+                                  ? 'bg-[#EFEAE2] text-[#171717] border-[#DDD6CB]'
+                                  : 'bg-[#FBF4EA] text-[#78716C] border-[#DDD6CB] border-dashed'
+                              }`}
+                              style={isSelected ? { borderLeftColor: threadColor, borderLeftWidth: '3px' } : undefined}
+                              title={`${ev.instruction.disassembly} — ${ev.explanation}`}
+                            >
+                              <div className="flex items-center justify-between text-[9px] mb-0.5">
+                                <span className={isSelected ? 'text-amber-300 font-bold' : isExecuted ? 'text-[#78716C]' : 'text-[#A8A29E]'}>
+                                  Step #{ev.sequence}
+                                </span>
+
+                                <div className="flex items-center gap-1">
+                                  {isSelected ? (
+                                    <span className="px-1.5 py-0.2 bg-amber-400 text-[#18181B] font-bold rounded-none text-[8px] uppercase">
+                                      SELECTED
+                                    </span>
+                                  ) : isExecuted ? (
+                                    <span className="flex items-center text-[#047857] font-semibold text-[8px]">
+                                      <Check className="w-2.5 h-2.5 mr-0.5" />
+                                      DONE
+                                    </span>
+                                  ) : (
+                                    <span className="text-[#A8A29E] text-[8px]">
+                                      UPCOMING
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className={`font-bold text-[11px] truncate ${isSelected ? 'text-white' : isExecuted ? 'text-[#171717]' : 'text-[#57534E]'}`}>
+                                {ev.instruction.opcode}
+                              </div>
+
+                              <div className={`text-[9px] truncate ${isSelected ? 'text-stone-300' : isExecuted ? 'text-[#57534E]' : 'text-[#78716C]'}`}>
+                                {ev.instruction.arg1 ? `${ev.instruction.arg1}${ev.instruction.arg2 ? `, ${ev.instruction.arg2}` : ''}` : '—'}
+                              </div>
+
+                              {isSelected && ev.explanation && (
                                 <div className="mt-1 pt-0.5 border-t border-stone-700 text-[8px] text-amber-200 truncate font-sans">
                                   {ev.explanation}
                                 </div>
                               )}
                             </div>
 
-                            {/* Chevron between instructions if not last */}
                             {idx < threadEvents.length - 1 && (
                               <ChevronRight className={`w-3 h-3 flex-shrink-0 ${
                                 isExecuted ? 'text-[#78716C]' : 'text-[#DDD6CB]'
@@ -308,16 +424,15 @@ export const ThreadLanes: React.FC = () => {
                             )}
                           </div>
                         );
-                      })
-                    )}
+                      })}
 
-                    {/* Lane Terminator */}
-                    {thread.state === 'TERMINATED' && (
-                      <div className="flex-shrink-0 px-1.5 py-1 rounded bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB] font-mono text-[9px] font-bold">
-                        HALT
-                      </div>
-                    )}
-                  </div>
+                      {thread.state === 'TERMINATED' && (
+                        <div className="flex-shrink-0 px-2 py-1 rounded-none bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB] font-mono text-[9px] font-bold">
+                          TERMINATED
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -227,66 +227,66 @@ The "How ConcurrencyLab Works" architectural breakdown detailing virtual instruc
 
 ---
 
-### 6.4 Laboratory Workspace: Sharper Cards & Editorial Theme
-The redesigned workspace shell with sharp rectilinear cards (`rounded-none`), hairline borders, terracotta active accents, high-contrast dark execution tracks, and a compact contextual inspector.
+### 6.4 Laboratory Workspace: Initial State (Step 0 / 6)
+The fully refined workspace shell in its initial state. The instruction track distributes cards evenly across the full width, the execution timeline spans the bottom without empty voids, and the contextual inspector is set to Following Mode by default.
 
-![ConcurrencyLab Editorial Workspace](./docs/screenshots/doc_editorial_workspace.png)
-
----
-
-### 6.5 Laboratory Workspace: Thread Execution Lanes (Intermediate State)
-The redesigned two-column instruction-level execution lanes during runtime (Step 2 of the Two-Thread Race). Worker-A's Step #1 is completed (`DONE`), while Worker-B's Step #2 is actively executing with a prominent dark card, amber step badge, and inline disassembly preview.
-
-![Refactored Thread Lanes Active State](./docs/screenshots/doc_02_workspace_lanes.png)
+![Workspace Initial State](./docs/screenshots/doc_workspace_step0.png)
 
 ---
 
-### 6.6 Lost-Update Race Condition Detected
-At Step 6, both Worker-A and Worker-B have written back to `counter` using stale read values. The native C++ engine automatically detects the lost-update race condition, illuminating amber status badges across the toolbar, view navigation, and thread lanes.
+### 6.5 Laboratory Workspace: Intermediate Execution (Step 2 / 6)
+During runtime execution, Worker-A's Step #1 is completed (`✓ DONE`), while Worker-B's Step #2 is actively executing with a prominent graphite card, amber `SELECTED` badge, and inline disassembly preview. The left rail clearly communicates both `CURRENT PC: 1` and `EXECUTED PC: 0`, and the inspector automatically synchronizes to Worker-B.
 
-![Thread Lanes Race Detected](./docs/screenshots/doc_13_race_detected_lanes.png)
-
----
-
-### 6.7 Compact Scheduler Engine Popover
-Clicking the scheduler trigger opens a compact popover allowing users to change the scheduling algorithm (`Round Robin`, `FIFO`, `Seeded Random`, `Manual`), adjust the time quantum slider, and trigger a fresh C++ simulation run without cluttering the toolbar.
-
-![Scheduler Engine Popover](./docs/screenshots/doc_12_scheduler_popover.png)
+![Workspace Intermediate State](./docs/screenshots/doc_workspace_step2.png)
 
 ---
 
-### 6.8 Shared Memory Subsystem & Access Audit Log
+### 6.6 Completed Two-Thread Race Condition (Step 6 / 6)
+At the completed execution step, both threads reflect the actual engine state `TERMINATED`. All executed instructions show `✓ DONE`, Step #6 is highlighted as `SELECTED`, and an authoritative race alert banner surfaces the comparison: `Expected: counter = 2 | Actual: counter = 1 (Lost Update)` with one-click access to the full diagnostics modal.
+
+![Completed Race Condition](./docs/screenshots/doc_workspace_step6_race.png)
+
+---
+
+### 6.7 Three-Thread Concurrent Execution Lanes
+The execution lane layout scales seamlessly to 3+ virtual threads (Worker-1, Worker-2, Worker-3). Each thread's instruction track fills the available width, local CPU registers are tracked individually, and the timeline reflects multi-thread interleaving.
+
+![Three Thread Execution Lanes](./docs/screenshots/doc_workspace_three_threads.png)
+
+---
+
+### 6.8 Five-Philosopher Circular Wait Deadlock
+The 5-philosopher round table visualization in a verified circular wait deadlock state (Step 15). All 5 philosophers show `BLOCKED` on their respective forks, with a 5-node directed wait-for cycle and live engine deadlock notification.
+
+![Five Philosopher Deadlock](./docs/screenshots/doc_workspace_dining_deadlock.png)
+
+---
+
+### 6.9 Responsive Tablet Viewport (1024px)
+At 1024px width, the workspace layout maintains full inspector accessibility, fluid instruction lanes, and compact toolbar controls without horizontal overflow.
+
+![Tablet 1024px Workspace](./docs/screenshots/doc_workspace_1024px.png)
+
+---
+
+### 6.10 Responsive Mobile Viewport (390px)
+Strict mobile compliance verified at 390px viewport width (`scrollWidth: 385px`, zero horizontal page overflow). The global header adapts cleanly, instruction tracks scroll smoothly, and a dedicated mobile inspector toggle allows toggling between visualization stage and system inspection.
+
+![Mobile 390px Workspace](./docs/screenshots/doc_workspace_390px.png)
+
+---
+
+### 6.11 Shared Memory Subsystem & Access Audit Log
 The shared memory visualizer displays real-time variable cards with previous vs. current values, read/write counters, and an immutable chronological memory access journal.
 
 ![Shared Memory Subsystem](./docs/screenshots/doc_03_workspace_memory.png)
 
 ---
 
-### 6.9 Resource Allocation Graph (RAG) & Circular Wait Deadlock
+### 6.12 Resource Allocation Graph (RAG) & Circular Wait Deadlock
 In scenario 9 (`deadlock_circular_wait`), Thread-1 and Thread-2 hold one mutex while requesting the other. The C++ DeadlockDetector highlights the circular wait cycle with bold pulsing red arrows on the bipartite graph.
 
 ![Resource Allocation Graph Deadlock](./docs/screenshots/doc_04_workspace_rag.png)
-
----
-
-### 6.10 Dining Philosophers Round Table Visualizer
-The 5-philosopher round table visualization in a circular wait deadlock state. All 5 philosophers show `DEADLOCKED`, with red connector lines tracing the circular hold on each shared fork.
-
-![Dining Philosophers Table](./docs/screenshots/doc_05_workspace_dining.png)
-
----
-
-### 6.11 Producer-Consumer Bounded Buffer Subsystem
-The bounded buffer visualizer separates the physical buffer array occupancy (slots 0–2) from Dijkstra's counting semaphores (`empty_slots`, `full_slots`) and the mutual exclusion lock (`buffer_mutex`).
-
-![Producer-Consumer Bounded Buffer](./docs/screenshots/doc_06_workspace_buffer.png)
-
----
-
-### 6.12 Contextual Inspector: Educational Guide Tab
-The right-side inspector displays academic scenario descriptions, objectives, expected vs. actual outcomes, and key takeaways for students.
-
-![Contextual Inspector Guide Tab](./docs/screenshots/doc_08_workspace_guide_tab.png)
 
 ---
 
@@ -294,10 +294,6 @@ The right-side inspector displays academic scenario descriptions, objectives, ex
 The interactive technical documentation center detailing the virtual ISA, scheduling algorithms, synchronization primitives, and C++ engine mechanics.
 
 ![Architecture Documentation View](./docs/screenshots/doc_11_architecture_docs.png)
-
----
-
-### 6.14 Mobile Responsive Layouts (390px Viewport)
 Full mobile responsiveness verified on mobile and tablet viewports, featuring stacked thread lanes, horizontal instruction ribbons, wrapped toolbar controls, and a dedicated inspector drawer view.
 
 | Mobile Dashboard (390px) | Mobile Workspace (390px) |

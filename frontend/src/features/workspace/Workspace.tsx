@@ -127,8 +127,8 @@ export const Workspace: React.FC = () => {
           </div>
 
           {/* Active Visualizer Body */}
-          <div className="flex-1 overflow-y-auto p-2.5 sm:p-4 bg-[#FBF4EA] scrollbar-thin min-w-0">
-            {activeView === 'lanes' && <ThreadLanes />}
+          <div className="flex-1 overflow-y-auto p-2.5 sm:p-4 bg-[#FBF4EA] scrollbar-thin min-w-0 flex flex-col">
+            {activeView === 'lanes' && <ThreadLanes onOpenRaceModal={() => setIsRaceModalOpen(true)} />}
             {activeView === 'memory' && <SharedMemoryView />}
             {activeView === 'rag' && <ResourceAllocationGraph />}
             {activeView === 'philosophers' && <DiningTable />}
