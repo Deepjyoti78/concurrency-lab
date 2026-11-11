@@ -213,84 +213,91 @@ The enriched editorial landing page features high-contrast serif typography (`Ne
 
 ---
 
-### 6.2 Simulation Labs & System Mechanics Breakdown
-The broadsheet simulation cards detailing category pills, difficulty ratings, descriptions, terracotta step metrics, and expected vs. actual outcomes, followed by the system mechanics deep dive.
+### 6.2 Simulation Labs Showcase
+The broadsheet simulation cards detailing category pills, difficulty ratings, descriptions, terracotta step metrics, and expected vs. actual outcomes.
 
-![Simulation Labs & System Mechanics](./docs/screenshots/doc_editorial_labs_section.png)
+![Simulation Labs Showcase](./docs/screenshots/doc_editorial_labs_section.png)
 
 ---
 
-### 6.3 Laboratory Workspace: Sharper Cards & Editorial Theme
+### 6.3 System Mechanics Deep Dive
+The "How ConcurrencyLab Works" architectural breakdown detailing virtual instruction disassembly, Tarjan's DFS cycle detection, and snapshot-based time-travel.
+
+![System Mechanics Deep Dive](./docs/screenshots/doc_editorial_mechanics_section.png)
+
+---
+
+### 6.4 Laboratory Workspace: Sharper Cards & Editorial Theme
 The redesigned workspace shell with sharp rectilinear cards (`rounded-none`), hairline borders, terracotta active accents, high-contrast dark execution tracks, and a compact contextual inspector.
 
 ![ConcurrencyLab Editorial Workspace](./docs/screenshots/doc_editorial_workspace.png)
 
 ---
 
-### 6.2 Laboratory Workspace: Thread Execution Lanes (Intermediate State)
+### 6.5 Laboratory Workspace: Thread Execution Lanes (Intermediate State)
 The redesigned two-column instruction-level execution lanes during runtime (Step 2 of the Two-Thread Race). Worker-A's Step #1 is completed (`DONE`), while Worker-B's Step #2 is actively executing with a prominent dark card, amber step badge, and inline disassembly preview.
 
 ![Refactored Thread Lanes Active State](./docs/screenshots/doc_02_workspace_lanes.png)
 
 ---
 
-### 6.3 Lost-Update Race Condition Detected
+### 6.6 Lost-Update Race Condition Detected
 At Step 6, both Worker-A and Worker-B have written back to `counter` using stale read values. The native C++ engine automatically detects the lost-update race condition, illuminating amber status badges across the toolbar, view navigation, and thread lanes.
 
 ![Thread Lanes Race Detected](./docs/screenshots/doc_13_race_detected_lanes.png)
 
 ---
 
-### 6.4 Compact Scheduler Engine Popover
+### 6.7 Compact Scheduler Engine Popover
 Clicking the scheduler trigger opens a compact popover allowing users to change the scheduling algorithm (`Round Robin`, `FIFO`, `Seeded Random`, `Manual`), adjust the time quantum slider, and trigger a fresh C++ simulation run without cluttering the toolbar.
 
 ![Scheduler Engine Popover](./docs/screenshots/doc_12_scheduler_popover.png)
 
 ---
 
-### 6.5 Shared Memory Subsystem & Access Audit Log
+### 6.8 Shared Memory Subsystem & Access Audit Log
 The shared memory visualizer displays real-time variable cards with previous vs. current values, read/write counters, and an immutable chronological memory access journal.
 
 ![Shared Memory Subsystem](./docs/screenshots/doc_03_workspace_memory.png)
 
 ---
 
-### 6.6 Resource Allocation Graph (RAG) & Circular Wait Deadlock
+### 6.9 Resource Allocation Graph (RAG) & Circular Wait Deadlock
 In scenario 9 (`deadlock_circular_wait`), Thread-1 and Thread-2 hold one mutex while requesting the other. The C++ DeadlockDetector highlights the circular wait cycle with bold pulsing red arrows on the bipartite graph.
 
 ![Resource Allocation Graph Deadlock](./docs/screenshots/doc_04_workspace_rag.png)
 
 ---
 
-### 6.7 Dining Philosophers Round Table Visualizer
+### 6.10 Dining Philosophers Round Table Visualizer
 The 5-philosopher round table visualization in a circular wait deadlock state. All 5 philosophers show `DEADLOCKED`, with red connector lines tracing the circular hold on each shared fork.
 
 ![Dining Philosophers Table](./docs/screenshots/doc_05_workspace_dining.png)
 
 ---
 
-### 6.8 Producer-Consumer Bounded Buffer Subsystem
+### 6.11 Producer-Consumer Bounded Buffer Subsystem
 The bounded buffer visualizer separates the physical buffer array occupancy (slots 0–2) from Dijkstra's counting semaphores (`empty_slots`, `full_slots`) and the mutual exclusion lock (`buffer_mutex`).
 
 ![Producer-Consumer Bounded Buffer](./docs/screenshots/doc_06_workspace_buffer.png)
 
 ---
 
-### 6.9 Contextual Inspector: Educational Guide Tab
+### 6.12 Contextual Inspector: Educational Guide Tab
 The right-side inspector displays academic scenario descriptions, objectives, expected vs. actual outcomes, and key takeaways for students.
 
 ![Contextual Inspector Guide Tab](./docs/screenshots/doc_08_workspace_guide_tab.png)
 
 ---
 
-### 6.10 Architecture & Systems Documentation View
+### 6.13 Architecture & Systems Documentation View
 The interactive technical documentation center detailing the virtual ISA, scheduling algorithms, synchronization primitives, and C++ engine mechanics.
 
 ![Architecture Documentation View](./docs/screenshots/doc_11_architecture_docs.png)
 
 ---
 
-### 6.11 Mobile Responsive Layouts (390px Viewport)
+### 6.14 Mobile Responsive Layouts (390px Viewport)
 Full mobile responsiveness verified on mobile and tablet viewports, featuring stacked thread lanes, horizontal instruction ribbons, wrapped toolbar controls, and a dedicated inspector drawer view.
 
 | Mobile Dashboard (390px) | Mobile Workspace (390px) |
