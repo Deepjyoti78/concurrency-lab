@@ -55,6 +55,8 @@ void runScenario(const std::string& scenarioId, const std::string& schedulerType
     }
 
     ExecutionEngine engine;
+    scenario->setup(engine);
+
     if (schedulerType == "fifo") {
         engine.setScheduler(std::make_unique<FIFOScheduler>());
     } else if (schedulerType == "random") {
@@ -65,7 +67,6 @@ void runScenario(const std::string& scenarioId, const std::string& schedulerType
         engine.setScheduler(std::make_unique<RoundRobinScheduler>(quantum));
     }
 
-    scenario->setup(engine);
     engine.runToCompletion();
 
     const auto& events = engine.getEventHistory();

@@ -6,7 +6,8 @@ namespace concurrency_lab {
 
 class RoundRobinScheduler : public IScheduler {
 public:
-    explicit RoundRobinScheduler(uint32_t quantum = 1) : quantum_(quantum), remainingQuantum_(quantum) {}
+    explicit RoundRobinScheduler(uint32_t quantum = 1) 
+        : quantum_(quantum > 0 ? quantum : 1), remainingQuantum_(quantum > 0 ? quantum : 1) {}
 
     std::optional<uint32_t> selectNextThread(
         const std::vector<uint32_t>& eligibleThreadIds,

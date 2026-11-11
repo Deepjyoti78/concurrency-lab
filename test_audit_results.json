@@ -1,0 +1,328 @@
+{
+  "engineDirect": [
+    {
+      "scenario": "race_counter_2",
+      "title": "Two-Thread Shared Counter Race",
+      "events": 6,
+      "snapshots": 7,
+      "raceDetected": true,
+      "deadlockDetected": false,
+      "status": "PASS"
+    },
+    {
+      "scenario": "race_counter_3",
+      "title": "Three-Thread Shared Counter Race",
+      "events": 9,
+      "snapshots": 10,
+      "raceDetected": true,
+      "deadlockDetected": false,
+      "status": "PASS"
+    },
+    {
+      "scenario": "mutex_counter_2",
+      "title": "Mutex-Protected Shared Counter",
+      "events": 10,
+      "snapshots": 11,
+      "raceDetected": false,
+      "deadlockDetected": false,
+      "status": "PASS"
+    },
+    {
+      "scenario": "mutex_contention",
+      "title": "High Lock Contention",
+      "events": 15,
+      "snapshots": 16,
+      "raceDetected": false,
+      "deadlockDetected": false,
+      "status": "PASS"
+    },
+    {
+      "scenario": "counting_semaphore",
+      "title": "Counting Semaphore Resource Limiter",
+      "events": 32,
+      "snapshots": 33,
+      "raceDetected": true,
+      "deadlockDetected": false,
+      "status": "PASS"
+    },
+    {
+      "scenario": "producer_consumer_3",
+      "title": "Producer-Consumer Bounded Buffer",
+      "events": 32,
+      "snapshots": 33,
+      "raceDetected": false,
+      "deadlockDetected": false,
+      "status": "PASS"
+    },
+    {
+      "scenario": "dining_philosophers_deadlock",
+      "title": "Dining Philosophers Deadlock",
+      "events": 15,
+      "snapshots": 16,
+      "raceDetected": false,
+      "deadlockDetected": true,
+      "status": "PASS"
+    },
+    {
+      "scenario": "dining_philosophers_safe",
+      "title": "Dining Philosophers Deadlock-Free",
+      "events": 30,
+      "snapshots": 31,
+      "raceDetected": false,
+      "deadlockDetected": false,
+      "status": "PASS"
+    },
+    {
+      "scenario": "deadlock_circular_wait",
+      "title": "Two-Mutex Circular Wait Deadlock",
+      "events": 4,
+      "snapshots": 5,
+      "raceDetected": false,
+      "deadlockDetected": true,
+      "status": "PASS"
+    },
+    {
+      "scenario": "deadlock_free_hierarchy",
+      "title": "Deadlock-Free Lock Hierarchy",
+      "events": 10,
+      "snapshots": 11,
+      "raceDetected": false,
+      "deadlockDetected": false,
+      "status": "PASS"
+    }
+  ],
+  "schedulerMatrix": [
+    {
+      "name": "rr_q1",
+      "scheduler": "rr",
+      "quantum": 1,
+      "seed": 42,
+      "pattern": "1,2,1,2,1,2",
+      "expectedPattern": "1,2,1,2,1,2",
+      "status": "PASS"
+    },
+    {
+      "name": "rr_q2",
+      "scheduler": "rr",
+      "quantum": 2,
+      "seed": 42,
+      "pattern": "1,1,2,2,1,2",
+      "expectedPattern": "1,1,2,2,1,2",
+      "status": "PASS"
+    },
+    {
+      "name": "fifo",
+      "scheduler": "fifo",
+      "quantum": 1,
+      "seed": 42,
+      "pattern": "1,1,1,2,2,2",
+      "expectedPattern": "1,1,1,2,2,2",
+      "status": "PASS"
+    },
+    {
+      "name": "random_s42",
+      "scheduler": "random",
+      "quantum": 1,
+      "seed": 42,
+      "pattern": "1,2,2,1,2,1",
+      "expectedPattern": "1,2,2,1,2,1",
+      "status": "PASS"
+    }
+  ],
+  "randomReproducibility": {
+    "seed42Match": true,
+    "seedSensitivity": true,
+    "seed42Pattern": "1,2,2,1,2,1",
+    "seed99999Pattern": "1,1,2,2,2,1",
+    "status": "PASS"
+  },
+  "ipcScenarios": [
+    {
+      "scenario": "race_counter_2",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 6,
+      "snapshots": 7
+    },
+    {
+      "scenario": "race_counter_3",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 9,
+      "snapshots": 10
+    },
+    {
+      "scenario": "mutex_counter_2",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 10,
+      "snapshots": 11
+    },
+    {
+      "scenario": "mutex_contention",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 15,
+      "snapshots": 16
+    },
+    {
+      "scenario": "counting_semaphore",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 32,
+      "snapshots": 33
+    },
+    {
+      "scenario": "producer_consumer_3",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 32,
+      "snapshots": 33
+    },
+    {
+      "scenario": "dining_philosophers_deadlock",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 15,
+      "snapshots": 16
+    },
+    {
+      "scenario": "dining_philosophers_safe",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 30,
+      "snapshots": 31
+    },
+    {
+      "scenario": "deadlock_circular_wait",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 4,
+      "snapshots": 5
+    },
+    {
+      "scenario": "deadlock_free_hierarchy",
+      "status": "PASS",
+      "httpStatus": 200,
+      "events": 10,
+      "snapshots": 11
+    }
+  ],
+  "ipcResilience": [
+    {
+      "testCase": "Missing scenarioId",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Missing scenarioId parameter",
+        "message": "A non-empty string scenarioId must be provided in the request body."
+      }
+    },
+    {
+      "testCase": "Unknown scenarioId",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Invalid scenarioId parameter",
+        "message": "scenarioId 'non_existent_scenario' is not recognized. Valid scenarios: race_counter_2, race_counter_3, mutex_counter_2, mutex_contention, counting_semaphore, producer_consumer_3, dining_philosophers_deadlock, dining_philosophers_safe, deadlock_circular_wait, deadlock_free_hierarchy."
+      }
+    },
+    {
+      "testCase": "Malicious scenarioId characters",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Invalid scenarioId parameter",
+        "message": "scenarioId 'race;calc.exe' is not recognized. Valid scenarios: race_counter_2, race_counter_3, mutex_counter_2, mutex_contention, counting_semaphore, producer_consumer_3, dining_philosophers_deadlock, dining_philosophers_safe, deadlock_circular_wait, deadlock_free_hierarchy."
+      }
+    },
+    {
+      "testCase": "Invalid scheduler",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Invalid scheduler parameter",
+        "message": "scheduler must be one of: rr, fifo, random, manual."
+      }
+    },
+    {
+      "testCase": "Negative quantum",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Invalid quantum parameter",
+        "message": "quantum must be an integer between 1 and 1000."
+      }
+    },
+    {
+      "testCase": "Zero quantum",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Invalid quantum parameter",
+        "message": "quantum must be an integer between 1 and 1000."
+      }
+    },
+    {
+      "testCase": "Excessive quantum (>1000)",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Invalid quantum parameter",
+        "message": "quantum must be an integer between 1 and 1000."
+      }
+    },
+    {
+      "testCase": "Negative seed",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Invalid seed parameter",
+        "message": "seed must be an integer between 0 and 2147483647."
+      }
+    },
+    {
+      "testCase": "Malformed JSON string payload",
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "status": "PASS",
+      "response": {
+        "error": "Malformed JSON payload",
+        "message": "The request body could not be parsed as valid JSON."
+      }
+    }
+  ],
+  "concurrentLoad": {
+    "totalRequests": 10,
+    "successful": 10,
+    "status": "PASS"
+  },
+  "timeTravelIntegrity": [
+    {
+      "scenario": "race_counter_2",
+      "totalSteps": 6,
+      "status": "PASS",
+      "reason": "Monotonic sequences 0..N, state transitions & PC match 100%"
+    },
+    {
+      "scenario": "deadlock_circular_wait",
+      "totalSteps": 4,
+      "status": "PASS",
+      "reason": "Monotonic sequences 0..N, state transitions & PC match 100%"
+    },
+    {
+      "scenario": "counting_semaphore",
+      "totalSteps": 32,
+      "status": "PASS",
+      "reason": "Monotonic sequences 0..N, state transitions & PC match 100%"
+    }
+  ]
+}

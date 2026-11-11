@@ -207,6 +207,23 @@ public:
         }
         ss << "},";
 
+        // Memory access history
+        ss << "\"memoryAccessHistory\":[";
+        for (size_t i = 0; i < s.memoryAccessHistory.size(); ++i) {
+            const auto& rec = s.memoryAccessHistory[i];
+            ss << "{"
+               << "\"sequence\":" << rec.sequence << ","
+               << "\"timestamp\":" << rec.timestamp << ","
+               << "\"threadId\":" << rec.threadId << ","
+               << "\"threadName\":\"" << escape(rec.threadName) << "\","
+               << "\"variable\":\"" << escape(rec.variable) << "\","
+               << "\"type\":\"" << escape(memoryAccessTypeToString(rec.type)) << "\","
+               << "\"value\":" << rec.value << ","
+               << "\"previousValue\":" << rec.previousValue
+               << "}" << (i + 1 < s.memoryAccessHistory.size() ? "," : "");
+        }
+        ss << "],";
+
         // Mutexes
         ss << "\"mutexes\":{";
         size_t mCount = 0;
@@ -261,6 +278,18 @@ public:
         ss << "\"involvedResources\":[";
         for (size_t i = 0; i < s.deadlockReport.involvedResources.size(); ++i) {
             ss << "\"" << escape(s.deadlockReport.involvedResources[i]) << "\"" << (i + 1 < s.deadlockReport.involvedResources.size() ? "," : "");
+        }
+        ss << "],";
+        ss << "\"cycleEdges\":[";
+        for (size_t i = 0; i < s.deadlockReport.cycleEdges.size(); ++i) {
+            const auto& edge = s.deadlockReport.cycleEdges[i];
+            ss << "{"
+               << "\"waitingThreadId\":" << edge.waitingThreadId << ","
+               << "\"waitingThreadName\":\"" << escape(edge.waitingThreadName) << "\","
+               << "\"holdingThreadId\":" << edge.holdingThreadId << ","
+               << "\"holdingThreadName\":\"" << escape(edge.holdingThreadName) << "\","
+               << "\"resourceName\":\"" << escape(edge.resourceName) << "\""
+               << "}" << (i + 1 < s.deadlockReport.cycleEdges.size() ? "," : "");
         }
         ss << "],";
         ss << "\"cycleDescription\":\"" << escape(s.deadlockReport.cycleDescription) << "\","

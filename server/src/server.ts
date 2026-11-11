@@ -1,6 +1,6 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import { execFile, spawn } from "child_process";
+import { execFile } from "child_process";
 import path from "path";
 import fs from "fs";
 
@@ -9,9 +9,14 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
-app.use((err: any, req: any, res: any, next: any) => {
+
+// JSON Body Parser Error Handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof SyntaxError && "body" in err) {
-    return res.status(400).json({ error: "Invalid JSON payload" });
+    return res.status(400).json({ 
+      error: "Malformed JSON payload", 
+      message: "The request body could not be parsed as valid JSON." 
+    });
   }
   next(err);
 });
@@ -24,60 +29,174 @@ const env = {
   PATH: `${MINGW_BIN};${process.env.PATH || ""}`
 };
 
-// Check engine exists
-const engineExists = fs.existsSync(ENGINE_EXE);
-console.log(`[ConcurrencyLab Adapter] Engine executable at: ${ENGINE_EXE} (Exists: ${engineExists})`);
+// Known valid schedulers
+const VALID_SCHEDULERS = new Set(["rr", "fifo", "random", "manual"]);
+const SCENARIO_ID_REGEX = /^[a-zA-Z0-9_-]{1,64}$/;
 
-app.get("/api/health", (req, res) => {
+const KNOWN_SCENARIOS = new Set([
+  "race_counter_2",
+  "race_counter_3",
+  "mutex_counter_2",
+  "mutex_contention",
+  "counting_semaphore",
+  "producer_consumer_3",
+  "dining_philosophers_deadlock",
+  "dining_philosophers_safe",
+  "deadlock_circular_wait",
+  "deadlock_free_hierarchy",
+]);
+
+// Health check endpoint
+app.get("/api/health", (req: Request, res: Response) => {
+  const engineFound = fs.existsSync(ENGINE_EXE);
   res.json({
-    status: "healthy",
-    engineFound: fs.existsSync(ENGINE_EXE),
-    enginePath: ENGINE_EXE
+    status: engineFound ? "healthy" : "degraded",
+    engineFound,
+    enginePath: ENGINE_EXE,
+    serverUptimeSeconds: Math.floor(process.uptime()),
+    nodeVersion: process.version
   });
 });
 
-app.get("/api/scenarios", (req, res) => {
-  execFile(ENGINE_EXE, ["--list-scenarios"], { env, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
-    if (err) {
-      console.error("Error listing scenarios:", err, stderr);
-      return res.status(500).json({ error: "Failed to execute C++ engine", details: stderr || err.message });
+// List scenarios catalog directly from C++ engine
+app.get("/api/scenarios", (req: Request, res: Response) => {
+  if (!fs.existsSync(ENGINE_EXE)) {
+    return res.status(503).json({ 
+      error: "Native engine unavailable", 
+      details: `Binary not found at ${ENGINE_EXE}` 
+    });
+  }
+
+  execFile(
+    ENGINE_EXE, 
+    ["--list-scenarios"], 
+    { env, maxBuffer: 10 * 1024 * 1024, timeout: 10000 }, 
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error("[ConcurrencyLab IPC] Error listing scenarios:", err, stderr);
+        return res.status(500).json({ 
+          error: "Failed to execute C++ engine", 
+          details: stderr || err.message 
+        });
+      }
+      try {
+        const data = JSON.parse(stdout);
+        res.json(data);
+      } catch (parseErr: any) {
+        res.status(502).json({ 
+          error: "Failed to parse engine catalog JSON output", 
+          details: parseErr.message, 
+          raw: stdout.slice(0, 500) 
+        });
+      }
     }
-    try {
-      const data = JSON.parse(stdout);
-      res.json(data);
-    } catch (parseErr) {
-      res.status(500).json({ error: "Failed to parse engine output", raw: stdout });
-    }
-  });
+  );
 });
 
-app.post("/api/run", (req, res) => {
-  const { scenarioId = "race_counter_2", scheduler = "rr", quantum = 1, seed = 42 } = req.body;
+// Execute scenario simulation with strict validation and timeout
+app.post("/api/run", (req: Request, res: Response) => {
+  if (!fs.existsSync(ENGINE_EXE)) {
+    return res.status(503).json({ 
+      error: "Native engine unavailable", 
+      details: `Binary not found at ${ENGINE_EXE}` 
+    });
+  }
 
+  if (!req.body || typeof req.body.scenarioId !== "string" || !req.body.scenarioId.trim()) {
+    return res.status(400).json({
+      error: "Missing scenarioId parameter",
+      message: "A non-empty string scenarioId must be provided in the request body."
+    });
+  }
+
+  const { 
+    scenarioId, 
+    scheduler = "rr", 
+    quantum = 1, 
+    seed = 42 
+  } = req.body;
+
+  // 1. Validate scenarioId format and whitelist
+  if (!SCENARIO_ID_REGEX.test(scenarioId) || !KNOWN_SCENARIOS.has(scenarioId)) {
+    return res.status(400).json({ 
+      error: "Invalid scenarioId parameter", 
+      message: `scenarioId '${scenarioId}' is not recognized. Valid scenarios: ${Array.from(KNOWN_SCENARIOS).join(", ")}.` 
+    });
+  }
+
+  // 2. Validate scheduler
+  const normalizedScheduler = String(scheduler).toLowerCase();
+  if (!VALID_SCHEDULERS.has(normalizedScheduler)) {
+    return res.status(400).json({ 
+      error: "Invalid scheduler parameter", 
+      message: `scheduler must be one of: ${Array.from(VALID_SCHEDULERS).join(", ")}.` 
+    });
+  }
+
+  // 3. Validate quantum
+  const parsedQuantum = Number(quantum);
+  if (!Number.isInteger(parsedQuantum) || parsedQuantum < 1 || parsedQuantum > 1000) {
+    return res.status(400).json({ 
+      error: "Invalid quantum parameter", 
+      message: "quantum must be an integer between 1 and 1000." 
+    });
+  }
+
+  // 4. Validate seed
+  const parsedSeed = Number(seed);
+  if (!Number.isInteger(parsedSeed) || parsedSeed < 0 || parsedSeed > 2147483647) {
+    return res.status(400).json({ 
+      error: "Invalid seed parameter", 
+      message: "seed must be an integer between 0 and 2147483647." 
+    });
+  }
+
+  // ExecFile executes binary directly (no shell interpolation)
   const args = [
     "--scenario", scenarioId,
-    "--scheduler", scheduler,
-    "--quantum", String(quantum),
-    "--seed", String(seed),
+    "--scheduler", normalizedScheduler,
+    "--quantum", String(parsedQuantum),
+    "--seed", String(parsedSeed),
     "--run"
   ];
 
-  execFile(ENGINE_EXE, args, { env, maxBuffer: 25 * 1024 * 1024 }, (err, stdout, stderr) => {
-    if (err) {
-      console.error("Error executing engine:", err, stderr);
-      return res.status(500).json({ error: "Execution failed", details: stderr || err.message });
+  execFile(
+    ENGINE_EXE, 
+    args, 
+    { env, maxBuffer: 25 * 1024 * 1024, timeout: 10000 }, 
+    (err: any, stdout: string, stderr: string) => {
+      if (err) {
+        if (err.killed) {
+          console.error("[ConcurrencyLab IPC] Engine execution timed out (10s)");
+          return res.status(504).json({ 
+            error: "Simulation execution timed out", 
+            message: "The C++ simulation engine exceeded the 10-second runtime limit." 
+          });
+        }
+        console.error("[ConcurrencyLab IPC] Execution failed:", err.message, stderr);
+        return res.status(500).json({ 
+          error: "Execution failed", 
+          details: stderr || err.message 
+        });
+      }
+
+      try {
+        const result = JSON.parse(stdout);
+        res.json(result);
+      } catch (parseErr: any) {
+        console.error("[ConcurrencyLab IPC] Malformed JSON from engine:", parseErr.message);
+        res.status(502).json({ 
+          error: "Failed to parse engine JSON output", 
+          details: parseErr.message,
+          raw: stdout.slice(0, 1000) 
+        });
+      }
     }
-    try {
-      const result = JSON.parse(stdout);
-      res.json(result);
-    } catch (parseErr) {
-      res.status(500).json({ error: "Failed to parse engine JSON output", raw: stdout });
-    }
-  });
+  );
 });
 
 // Endpoint to generate full offline static bundle from C++ engine into frontend
-app.post("/api/generate-all", async (req, res) => {
+app.post("/api/generate-all", async (req: Request, res: Response) => {
   try {
     const listRaw = await runEngine(["--list-scenarios"]);
     const { scenarios } = JSON.parse(listRaw);
@@ -114,10 +233,15 @@ app.post("/api/generate-all", async (req, res) => {
 
 function runEngine(args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(ENGINE_EXE, args, { env, maxBuffer: 30 * 1024 * 1024 }, (err, stdout, stderr) => {
-      if (err) return reject(new Error(stderr || err.message));
-      resolve(stdout);
-    });
+    execFile(
+      ENGINE_EXE, 
+      args, 
+      { env, maxBuffer: 30 * 1024 * 1024, timeout: 15000 }, 
+      (err, stdout, stderr) => {
+        if (err) return reject(new Error(stderr || err.message));
+        resolve(stdout);
+      }
+    );
   });
 }
 

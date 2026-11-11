@@ -46,7 +46,6 @@ public:
 
         engine.getThreadManager().createThread("Worker-A", p1, "#6366F1");
         engine.getThreadManager().createThread("Worker-B", p2, "#EC4899");
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -84,7 +83,6 @@ public:
             engine.getThreadManager().createThread(name, p, color);
         }
 
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -130,7 +128,6 @@ public:
 
         engine.getThreadManager().createThread("Worker-A", p1, "#6366F1");
         engine.getThreadManager().createThread("Worker-B", p2, "#EC4899");
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -171,7 +168,6 @@ public:
             engine.getThreadManager().createThread(name, p, color);
         }
 
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -215,7 +211,6 @@ public:
             engine.getThreadManager().createThread(name, p, colors[i - 1]);
         }
 
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -274,7 +269,6 @@ public:
 
         engine.getThreadManager().createThread("Producer", prod, "#10B981");
         engine.getThreadManager().createThread("Consumer", cons, "#6366F1");
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -321,7 +315,6 @@ public:
             engine.getThreadManager().createThread(name, p, colors[i]);
         }
 
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -372,7 +365,6 @@ public:
             engine.getThreadManager().createThread(name, p, colors[i]);
         }
 
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -418,7 +410,6 @@ public:
 
         engine.getThreadManager().createThread("Thread-1", p1, "#6366F1");
         engine.getThreadManager().createThread("Thread-2", p2, "#EC4899");
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
@@ -464,7 +455,6 @@ public:
 
         engine.getThreadManager().createThread("Thread-1", p1, "#6366F1");
         engine.getThreadManager().createThread("Thread-2", p2, "#10B981");
-        engine.setScheduler(std::make_unique<RoundRobinScheduler>(1));
         engine.captureInitialSnapshot();
     }
 };
