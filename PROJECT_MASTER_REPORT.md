@@ -206,14 +206,21 @@ The laboratory workspace underwent a comprehensive two-pass UI/UX refactoring to
 
 Every screenshot below captures actual screens of ConcurrencyLab with compiled C++20 engine state.
 
-### 6.1 Homepage & Simulation Laboratories Dashboard (Editorial Broadsheet Design)
-The redesigned editorial landing page features high-contrast serif typography (`Newsreader` and `Playfair Display`), a burnt terracotta interactive accent palette (`#9E381E`), sharp architectural hairline dividers, a live interactive mini-trace card stepping through the two-thread race in real time, and broadsheet cards for all 6 simulation modules.
+### 6.1 Homepage & Simulation Laboratories Dashboard (Enriched Editorial Broadsheet Design)
+The enriched editorial landing page features high-contrast serif typography (`Newsreader` and `Playfair Display`), a burnt terracotta interactive accent palette (`#9E381E`), live register monitors (`r1`, `r2`, `SCHED`), a full-width engineering specifications bar, broadsheet simulation cards with concrete outcome previews, an architectural deep dive ("How ConcurrencyLab Works"), and an academic systems footer.
 
-![ConcurrencyLab Editorial Dashboard](./docs/screenshots/doc_editorial_landing.png)
+![ConcurrencyLab Editorial Dashboard](./docs/screenshots/doc_editorial_landing_enriched.png)
 
 ---
 
-### 6.2 Laboratory Workspace: Sharper Cards & Editorial Theme
+### 6.2 Simulation Labs & System Mechanics Breakdown
+The broadsheet simulation cards detailing category pills, difficulty ratings, descriptions, terracotta step metrics, and expected vs. actual outcomes, followed by the system mechanics deep dive.
+
+![Simulation Labs & System Mechanics](./docs/screenshots/doc_editorial_labs_section.png)
+
+---
+
+### 6.3 Laboratory Workspace: Sharper Cards & Editorial Theme
 The redesigned workspace shell with sharp rectilinear cards (`rounded-none`), hairline borders, terracotta active accents, high-contrast dark execution tracks, and a compact contextual inspector.
 
 ![ConcurrencyLab Editorial Workspace](./docs/screenshots/doc_editorial_workspace.png)
