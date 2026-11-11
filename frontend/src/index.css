@@ -30,10 +30,40 @@
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
+  .font-editorial {
+    font-family: 'Newsreader', 'Playfair Display', Georgia, serif;
+  }
+
+  .font-editorial-italic {
+    font-family: 'Newsreader', 'Playfair Display', 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+  }
+
   .font-serif-italic {
     font-family: 'Newsreader', 'Instrument Serif', Georgia, serif;
     font-style: italic;
   }
+}
+
+.text-terracotta {
+  color: #9E381E;
+}
+
+.bg-terracotta {
+  background-color: #9E381E;
+}
+
+.border-terracotta {
+  border-color: #9E381E;
+}
+
+/* Editorial hairline styling */
+.border-editorial {
+  border-color: #DED8CE;
+}
+
+.card-sharp {
+  border-radius: 0px;
 }
 
 /* Custom warm cream & dark charcoal scrollbars */

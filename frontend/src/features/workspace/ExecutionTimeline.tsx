@@ -48,12 +48,12 @@ export const ExecutionTimeline: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs min-w-0">
         {/* Left: Step indicator & Navigation buttons */}
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <div className="flex items-center bg-[#EFEAE2] border border-[#DDD6CB] rounded p-0.5 flex-shrink-0">
+          <div className="flex items-center bg-[#EFEAE2] border border-[#DDD6CB] rounded-none p-0.5 flex-shrink-0">
             <button
               onClick={stepBackward}
               disabled={currentStep === 0}
               title="Step Backward"
-              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+              className="p-1 text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
@@ -64,7 +64,7 @@ export const ExecutionTimeline: React.FC = () => {
               onClick={stepForward}
               disabled={currentStep >= totalSteps}
               title="Step Forward"
-              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+              className="p-1 text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -121,7 +121,7 @@ export const ExecutionTimeline: React.FC = () => {
         <button
           onClick={() => seek(0)}
           data-step="0"
-          className={`flex-shrink-0 px-2 py-1 rounded font-mono text-[10px] border transition-all cursor-pointer ${
+          className={`flex-shrink-0 px-2.5 py-1 rounded-none font-mono text-[10px] border transition-all cursor-pointer ${
             currentStep === 0
               ? 'bg-[#171717] text-white border-[#171717] font-bold shadow-xs'
               : 'bg-[#FBF4EA] text-[#57534E] border-[#DDD6CB] hover:border-[#171717] hover:text-[#171717]'
@@ -141,12 +141,12 @@ export const ExecutionTimeline: React.FC = () => {
               key={ev.sequence}
               onClick={() => seek(ev.sequence)}
               data-step={ev.sequence}
-              className={`flex-shrink-0 px-2 py-1 rounded font-mono text-[10px] border transition-all text-left cursor-pointer min-w-[76px] ${
+              className={`flex-shrink-0 px-2 py-1 rounded-none font-mono text-[10px] border transition-all text-left cursor-pointer min-w-[76px] ${
                 isSelected
                   ? 'bg-[#171717] text-white border-[#171717] font-bold shadow-xs ring-1 ring-[#171717]'
                   : isPast
                   ? 'bg-[#EFEAE2] text-[#171717] border-[#DDD6CB] hover:border-[#171717]'
-                  : 'bg-[#FBF4EA] text-[#78716C] border-[#E6E0D6] hover:text-[#171717]'
+                  : 'bg-[#FBF4EA] text-[#78716C] border-[#DDD6CB] hover:text-[#171717]'
               }`}
               style={isSelected ? { borderTopColor: threadColor, borderTopWidth: '3px' } : undefined}
             >

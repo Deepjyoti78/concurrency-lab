@@ -206,10 +206,17 @@ The laboratory workspace underwent a comprehensive two-pass UI/UX refactoring to
 
 Every screenshot below captures actual screens of ConcurrencyLab with compiled C++20 engine state.
 
-### 6.1 Homepage & Simulation Laboratories Dashboard
-The dashboard introduces the platform, showcases the physical 3D concurrency simulation console, features core engineering capabilities, and renders interactive cards for all 6 laboratory modules.
+### 6.1 Homepage & Simulation Laboratories Dashboard (Editorial Broadsheet Design)
+The redesigned editorial landing page features high-contrast serif typography (`Newsreader` and `Playfair Display`), a burnt terracotta interactive accent palette (`#9E381E`), sharp architectural hairline dividers, a live interactive mini-trace card stepping through the two-thread race in real time, and broadsheet cards for all 6 simulation modules.
 
-![ConcurrencyLab Dashboard](./docs/screenshots/doc_01_desktop_dashboard.png)
+![ConcurrencyLab Editorial Dashboard](./docs/screenshots/doc_editorial_landing.png)
+
+---
+
+### 6.2 Laboratory Workspace: Sharper Cards & Editorial Theme
+The redesigned workspace shell with sharp rectilinear cards (`rounded-none`), hairline borders, terracotta active accents, high-contrast dark execution tracks, and a compact contextual inspector.
+
+![ConcurrencyLab Editorial Workspace](./docs/screenshots/doc_editorial_workspace.png)
 
 ---
 

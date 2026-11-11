@@ -116,10 +116,10 @@ export const ThreadLanes: React.FC = () => {
             <div
               key={thread.id}
               onClick={() => selectThread(thread.id)}
-              className={`rounded-lg border transition-all cursor-pointer overflow-hidden w-full min-w-0 ${
+              className={`rounded-none border transition-all cursor-pointer overflow-hidden w-full min-w-0 ${
                 isSelected
                   ? 'border-[#171717] bg-[#F4EFE7] ring-1 ring-[#171717]/30 shadow-xs'
-                  : 'border-[#E6E0D6] bg-[#FBF4EA] hover:border-[#DDD6CB] hover:bg-[#F8F5EE]'
+                  : 'border-[#DDD6CB] bg-[#FBF4EA] hover:border-[#171717] hover:bg-[#F8F5EE]'
               }`}
             >
               {/* Two-Column Structure: LEFT RAIL + RIGHT EXECUTION TRACK */}
@@ -241,12 +241,12 @@ export const ThreadLanes: React.FC = () => {
                           >
                             {/* Instruction Card */}
                             <div
-                              className={`w-38 sm:w-42 p-1.5 rounded border font-mono text-left transition-all ${
+                              className={`w-38 sm:w-42 p-1.5 rounded-none border font-mono text-left transition-all ${
                                 isActive
                                   ? 'bg-[#171717] text-white border-[#171717] shadow-xs ring-1 ring-offset-1 ring-offset-[#FBF4EA]'
                                   : isExecuted
                                   ? 'bg-[#EFEAE2] text-[#171717] border-[#DDD6CB]'
-                                  : 'bg-[#FBF4EA] text-[#78716C] border-[#E6E0D6] border-dashed'
+                                  : 'bg-[#FBF4EA] text-[#78716C] border-[#DDD6CB] border-dashed'
                               }`}
                               style={isActive ? { borderColor: threadColor, outlineColor: threadColor } : undefined}
                               title={`${ev.instruction.disassembly} — ${ev.explanation}`}

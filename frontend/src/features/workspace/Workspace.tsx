@@ -43,10 +43,10 @@ export const Workspace: React.FC = () => {
           {/* View Tab Selector Bar */}
           <div className="px-2.5 sm:px-4 py-1.5 border-b border-[#E6E0D6] bg-[#F4EFE7] flex items-center justify-between gap-2 min-w-0 overflow-hidden select-none">
             {/* Visualizer selector segmented bar with touch-friendly scrolling */}
-            <div className="flex items-center gap-1 font-mono text-xs bg-[#EFEAE2] p-0.5 rounded border border-[#DDD6CB] overflow-x-auto scrollbar-none flex-nowrap min-w-0 flex-1 sm:flex-initial">
+            <div className="flex items-center gap-1 font-mono text-xs bg-[#EFEAE2] p-0.5 rounded-none border border-[#DDD6CB] overflow-x-auto scrollbar-none flex-nowrap min-w-0 flex-1 sm:flex-initial">
               <button
                 onClick={() => setActiveView('lanes')}
-                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
+                className={`px-2.5 py-1 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'lanes'
                     ? 'bg-[#171717] text-white font-bold'
                     : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
@@ -57,7 +57,7 @@ export const Workspace: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveView('memory')}
-                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
+                className={`px-2.5 py-1 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'memory'
                     ? 'bg-[#171717] text-white font-bold'
                     : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
@@ -68,7 +68,7 @@ export const Workspace: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveView('rag')}
-                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
+                className={`px-2.5 py-1 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'rag'
                     ? 'bg-[#171717] text-white font-bold'
                     : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
@@ -79,7 +79,7 @@ export const Workspace: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveView('philosophers')}
-                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
+                className={`px-2.5 py-1 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'philosophers'
                     ? 'bg-[#171717] text-white font-bold'
                     : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'
@@ -90,7 +90,7 @@ export const Workspace: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveView('buffer')}
-                className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
+                className={`px-2.5 py-1 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap flex-shrink-0 text-xs ${
                   activeView === 'buffer'
                     ? 'bg-[#171717] text-white font-bold'
                     : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/60'

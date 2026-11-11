@@ -51,10 +51,10 @@ export const InspectorPanel: React.FC = () => {
   return (
     <div className="w-full flex-1 bg-[#F4EFE7] lg:border-l border-[#E6E0D6] flex flex-col h-full text-xs text-[#171717] overflow-hidden select-none">
       {/* Contextual Inspector Tabs */}
-      <div className="flex items-center border-b border-[#E6E0D6] bg-[#EFEAE2] p-1 gap-1 flex-shrink-0">
+      <div className="flex items-center border-b border-[#DDD6CB] bg-[#EFEAE2] p-1 gap-1 flex-shrink-0">
         <button
           onClick={() => setActiveTab('thread')}
-          className={`flex-1 py-1 rounded text-center font-mono font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`flex-1 py-1 rounded-none text-center font-mono font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'thread'
               ? 'bg-[#171717] text-white font-bold'
               : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/70'
@@ -65,7 +65,7 @@ export const InspectorPanel: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('memory')}
-          className={`flex-1 py-1 rounded text-center font-mono font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`flex-1 py-1 rounded-none text-center font-mono font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'memory'
               ? 'bg-[#171717] text-white font-bold'
               : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/70'
@@ -76,7 +76,7 @@ export const InspectorPanel: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('guide')}
-          className={`flex-1 py-1 rounded text-center font-mono font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`flex-1 py-1 rounded-none text-center font-mono font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'guide'
               ? 'bg-[#171717] text-white font-bold'
               : 'text-[#57534E] hover:text-[#171717] hover:bg-[#E6E0D6]/70'
