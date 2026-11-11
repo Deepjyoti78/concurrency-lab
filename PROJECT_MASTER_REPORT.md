@@ -200,6 +200,33 @@ The laboratory workspace underwent a comprehensive two-pass UI/UX refactoring to
    - **Dining Table (`DiningTable.tsx`)**: Circular 5-philosopher table with distinct representation of `THINKING`, `HUNGRY`, `EATING`, and `DEADLOCKED` states, with held-fork connector lines.
    - **Bounded Buffer (`BoundedBuffer.tsx`)**: Clear separation between physical buffer occupancy (array slots) and counting semaphores (`empty_slots`, `full_slots`) and mutex locks (`buffer_mutex`), accurately showing negative counting semaphore values when threads are queued.
 
+### 5.3 Third-Pass Final Workspace Polish & Semantic Grounding
+1. **Full-Width Instruction Lanes**:
+   - For short instruction sequences ($\le 4$ instructions), instruction cards expand proportionally (`flex-1 min-w-0`), completely filling the execution track with consistent chevron connectors and zero dead horizontal space.
+   - For longer scenarios ($> 4$ instructions), maintains an internal horizontally scrollable track with a comfortable minimum card width (`min-w-[155px]`).
+2. **Refined Thread Card Styling**:
+   - Replaced heavy black outlines with thin warm-neutral borders (`border-[#DDD6CB]`, selected: `border-[#B8AFA2]` with subtle `bg-[#F2ECE2]`).
+   - Left-edge accents: Thread 1 (Indigo `#6366F1`), Thread 2 (Emerald `#10B981`), Thread 3 (Purple `#8B5CF6`).
+3. **Vertical Composition & Visual Centering**:
+   - The visualization canvas vertically centers short execution layouts (1 to 3 threads) via `min-h-[460px] justify-center`, eliminating awkward bottom gaps without artificial or decorative filler widgets.
+   - Scenarios with 4+ threads align naturally from the top with vertical scrolling.
+4. **Accurate Execution State Semantics**:
+   - **CURRENT PC vs. EXECUTED PC**: The left rail clearly differentiates between the thread's next instruction (`CURRENT PC: thread.pc`) and the program counter at the time the historical event executed (`EXECUTED PC: ev.previousPc`).
+   - **Eliminated False "ACTIVE" Labels**: Completed instructions are marked `✓ DONE`. Inspected timeline steps are marked `SELECTED`, avoiding confusion between historical inspection and active execution.
+   - **Enum Precision**: Standardized thread termination labels to **`TERMINATED`** (matching the C++20 engine state) instead of `HALTED`.
+5. **Inspector Synchronization (Following vs. Pinned Modes)**:
+   - *Following Mode (Default)*: Inspector automatically switches to inspect whichever thread executed the currently selected timeline event.
+   - *Pinned Mode*: Clicking `Pin Thread` locks the inspector to a manually chosen thread, allowing timeline scrubbing without losing focus.
+6. **Proportional Execution Timeline**:
+   - For short scenarios ($\le 8$ steps), buttons expand proportionally (`flex-1 min-w-0`) to span 100% of the timeline bar.
+   - Auto-scrolling occurs strictly during automatic playback (`isPlaying === true`), never fighting manual scrubbing.
+7. **Surface Completed Race Diagnostics**:
+   - At the completed two-thread race (Step 6/6), an authoritative alert banner highlights:
+     `Expected: counter = 2 | Actual: counter = 1 (Lost Update)` with direct access to the full modal.
+8. **Clean Desktop Header**:
+   - Replaced the logo's hamburger icon with an architectural `<Layers />` icon.
+   - Removed development-only "Browser preview" indicator, replacing it with a production `C++20 IPC` status badge.
+
 ---
 
 ## 6. Complete Visual Walkthrough & Gallery
