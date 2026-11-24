@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, setCurrentTab }) => 
                 : 'text-[#78716C] hover:text-[#18181B]'
             }`}
           >
-            <span>Dashboard</span>
+            <span>Home</span>
             {currentTab === 'dashboard' && (
               <span className="absolute -bottom-[11px] sm:-bottom-[13px] left-0 right-0 h-[2px] bg-[#9E381E]" />
             )}
