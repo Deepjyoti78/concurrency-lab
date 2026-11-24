@@ -3,9 +3,9 @@ import React from 'react';
 interface IsometricPedestalProps {
   x: number;
   y: number;
-  width?: number;   // isometric top face width
-  depth?: number;   // isometric top face depth
-  height?: number;  // plinth thickness
+  width?: number;   // isometric top face width (horizontal span)
+  depth?: number;   // isometric top face depth (vertical span)
+  height?: number;  // plinth vertical thickness
   pillValue?: string; // e.g. "r1 = 0"
   pillColor?: string;
   className?: string;
@@ -14,45 +14,35 @@ interface IsometricPedestalProps {
 export const IsometricPedestal: React.FC<IsometricPedestalProps> = ({
   x,
   y,
-  width = 120,
-  depth = 80,
-  height = 16,
+  width = 160,
+  depth = 90,
+  height = 20,
   pillValue,
   pillColor = '#18181B',
   className = ''
 }) => {
-  // 30 degree isometric vectors:
-  // dx = cos(30 deg) = 0.866, dy = sin(30 deg) = 0.5
-  const cos30 = 0.866;
-  const sin30 = 0.5;
+  const w = width / 2;
+  const d = depth / 2;
 
-  const wX = (width / 2) * cos30;
-  const dX = (depth / 2) * cos30;
-  const dY = (depth / 2) * sin30;
+  // 4 corners of the isometric top diamond centered at (x, y)
+  const pTop = { x, y: y - d };
+  const pRight = { x: x + w, y };
+  const pBottom = { x, y: y + d };
+  const pLeft = { x: x - w, y };
 
-  // Top face 4 corners:
-  // Top corner
-  const pTop = { x, y: y - dY };
-  // Right corner
-  const pRight = { x: x + wX, y: y };
-  // Bottom corner
-  const pBottom = { x: x + wX - dX, y: y + dY };
-  // Left corner
-  const pLeft = { x: x - dX, y: y };
-
-  // Extruded bottom corners (down by height):
+  // Extruded bottom corners (lowered by height)
   const pBottomLow = { x: pBottom.x, y: pBottom.y + height };
   const pRightLow = { x: pRight.x, y: pRight.y + height };
   const pLeftLow = { x: pLeft.x, y: pLeft.y + height };
 
   return (
     <g className={`isometric-pedestal ${className}`}>
-      {/* 1. Plinth Cast Shadow */}
+      {/* 1. Plinth Ground Cast Shadow */}
       <ellipse
-        cx={x + (wX - dX) / 2}
-        cy={y + dY + height + 6}
-        rx={width * 0.55}
-        ry={depth * 0.3}
+        cx={x}
+        cy={y + d + height + 6}
+        rx={w * 1.05}
+        ry={d * 0.55}
         fill="rgba(24, 24, 27, 0.08)"
       />
 
@@ -64,7 +54,7 @@ export const IsometricPedestal: React.FC<IsometricPedestalProps> = ({
           ${pBottomLow.x},${pBottomLow.y} 
           ${pLeftLow.x},${pLeftLow.y}
         `}
-        fill="#E2DBD0"
+        fill="#E8E2D8"
         stroke="#18181B"
         strokeWidth="1.5"
         strokeLinejoin="round"
@@ -78,7 +68,7 @@ export const IsometricPedestal: React.FC<IsometricPedestalProps> = ({
           ${pRightLow.x},${pRightLow.y} 
           ${pBottomLow.x},${pBottomLow.y}
         `}
-        fill="#D4CCC0"
+        fill="#DDD6CB"
         stroke="#18181B"
         strokeWidth="1.5"
         strokeLinejoin="round"
@@ -98,27 +88,29 @@ export const IsometricPedestal: React.FC<IsometricPedestalProps> = ({
         strokeLinejoin="round"
       />
 
-      {/* 5. Optional Front Embedded Register Pill (e.g. "r1 = 0") */}
+      {/* 5. Front Embedded Register Pill (e.g. "r1 = 0") */}
       {pillValue && (
-        <g transform={`translate(${pBottomLow.x - 28}, ${pBottomLow.y - 13})`}>
+        <g transform={`translate(${x}, ${y + d + height / 2})`}>
           <rect
-            x="0"
-            y="0"
-            width="56"
-            height="18"
-            rx="9"
+            x="-32"
+            y="-10"
+            width="64"
+            height="20"
+            rx="10"
             fill="#FFFFFF"
             stroke="#18181B"
             strokeWidth="1.25"
+            filter="drop-shadow(0 1px 2px rgba(24, 24, 27, 0.08))"
           />
           <text
-            x="28"
-            y="12"
+            x="0"
+            y="4"
             textAnchor="middle"
             fontFamily="JetBrains Mono, monospace"
-            fontSize="10"
-            fontWeight="bold"
+            fontSize="11"
+            fontWeight="700"
             fill={pillColor}
+            letterSpacing="-0.02em"
           >
             {pillValue}
           </text>

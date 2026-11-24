@@ -27,43 +27,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
     }
   };
 
-  // Featured Experiments (matching the 4 cards in the mockup)
+  // Featured Experiments (4 prominent cards matching the mockup)
   const featuredExperiments = [
     {
       id: '01',
       title: 'Race Conditions',
       scenarioId: 'race_counter_2',
-      description: 'See how interleaving leads to unexpected results.',
+      description: 'See how unsynchronized thread interleaving corrupts shared state.',
       illustration: <RaceConditionsThumbnail />,
-      bgClass: 'bg-[#FBF8F3]'
+      bgClass: 'bg-[#FAF6EE]'
     },
     {
       id: '02',
       title: 'Thread Scheduling',
-      scenarioId: 'mutex_counter_2',
-      description: 'Understand how the scheduler allocates CPU time.',
+      scenarioId: 'race_counter_3',
+      description: 'Understand how the CPU scheduler preempts and interleaves multiple threads.',
       illustration: <CpuCoreSocket />,
-      bgClass: 'bg-[#F2F7F4]' // subtle sage tint matching mockup
+      bgClass: 'bg-[#F2F7F4]' // Subtle sage tint matching mockup
     },
     {
       id: '03',
       title: 'Mutual Exclusion',
-      scenarioId: 'mutex_contention',
-      description: 'Learn how locks protect shared resources.',
+      scenarioId: 'mutex_counter_2',
+      description: 'Learn how mutex locks enforce critical sections and protect state.',
       illustration: <MutexPadlock />,
-      bgClass: 'bg-[#FBF8F3]'
+      bgClass: 'bg-[#FAF6EE]'
     },
     {
       id: '04',
       title: 'Deadlocks',
       scenarioId: 'deadlock_circular_wait',
-      description: 'Explore circular dependencies and how to avoid them.',
+      description: 'Explore circular resource wait cycles and mathematical graph traps.',
       illustration: <RagCycleThumbnail />,
-      bgClass: 'bg-[#FBF8F3]'
+      bgClass: 'bg-[#FAF6EE]'
     }
   ];
 
-  // Full Laboratory Modules Catalog
+  // Full Laboratory Modules Catalog (All 10 scenarios)
   const fullModules = [
     {
       id: 'race-conditions',
@@ -169,65 +169,56 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-10 space-y-12 sm:space-y-16 bg-[#FBF8F3] text-[#18181B] overflow-x-hidden select-none">
-      {/* 1. Hero Section (Matching Mockup) */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center pt-2">
-        {/* Left Column: Editorial Headline & Actions */}
+      {/* 1. Hero Section (40/60 Desktop Split with Editorial Typography) */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center pt-2">
+        {/* Left Column: Editorial Headline & Actions (40% width) */}
         <div className="lg:col-span-5 space-y-5 sm:space-y-6 pr-0 lg:pr-2">
-          {/* Badge Pill: Trusted by 135K+ people */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#DDD6CB] bg-[#F4EFE7] text-xs font-sans text-[#57534E]">
-            <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-            <span>Trusted by 135K+ people</span>
+          {/* Eyebrow Label: INTERACTIVE COMPUTER SCIENCE LABORATORY */}
+          <div className="flex items-center gap-2 text-xs font-mono font-semibold tracking-wider text-[#9E381E] uppercase">
+            <span className="w-5 h-[1.5px] bg-[#9E381E]" />
+            <span>Interactive Computer Science Laboratory</span>
           </div>
 
           {/* Editorial Headline: Concurrency, made visible. */}
-          <h1 className="font-editorial text-4xl sm:text-5xl lg:text-[54px] leading-[1.08] tracking-tight text-[#18181B]">
+          <h1 className="font-editorial text-5xl sm:text-6xl md:text-7xl lg:text-[76px] xl:text-[84px] leading-[1.04] tracking-[-0.03em] text-[#18181B]">
             Concurrency,<br />
             <span className="font-editorial-italic font-normal text-[#9E381E]">made visible.</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-[#57534E] text-sm sm:text-base leading-relaxed max-w-lg font-normal">
+          <p className="text-[#57534E] text-base sm:text-lg leading-relaxed max-w-xl font-normal">
             Explore real concurrency problems through interactive simulations. Run, trace, and understand how threads, shared state, and synchronization work in real programs.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-3.5 pt-2">
             <button
+              type="button"
               onClick={() => handleLaunch('race_counter_2')}
-              className="px-5 py-2.5 rounded-lg bg-[#9E381E] hover:bg-[#852E17] text-white font-medium text-xs sm:text-sm tracking-wide transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-98"
+              className="px-6 py-3 rounded-lg bg-[#9E381E] hover:bg-[#852E17] text-white font-medium text-sm tracking-wide transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-98"
             >
               <span>Start the lab</span>
               <ArrowRight className="w-4 h-4 ml-0.5" />
             </button>
 
             <button
+              type="button"
               onClick={scrollToLabs}
-              className="px-4 py-2.5 rounded-lg border border-[#DDD6CB] bg-[#FAF6EE] hover:bg-[#F4EFE7] text-[#18181B] font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-3 rounded-lg border border-[#DDD6CB] bg-[#FAF6EE] hover:bg-[#F4EFE7] text-[#18181B] font-medium text-sm transition-colors flex items-center gap-2 cursor-pointer"
             >
               <span>Browse experiments</span>
-              <ArrowDown className="w-3.5 h-3.5" />
+              <ArrowDown className="w-4 h-4" />
             </button>
-          </div>
-
-          {/* Micro-label: Comprehensive Care */}
-          <div className="pt-3 border-t border-[#E6E0D6] space-y-1">
-            <div className="flex items-center gap-2 text-[10px] font-mono tracking-wider uppercase text-[#9E381E] font-semibold">
-              <span className="w-4 h-[1px] bg-[#9E381E]" />
-              <span>Comprehensive Care</span>
-            </div>
-            <p className="text-xs text-[#57534E]">
-              Learn by doing. Build real understanding.
-            </p>
           </div>
         </div>
 
-        {/* Right Column: Hero Interactive Isometric Scene */}
+        {/* Right Column: Hero Interactive Isometric Scene (60% width) */}
         <div className="lg:col-span-7 flex justify-center w-full min-w-0">
           <HeroIsometricScene onOpenWorkspace={handleLaunch} />
         </div>
       </section>
 
-      {/* 2. Feature Strip (Matching Mockup) */}
+      {/* 2. Feature Strip */}
       <section className="border-y border-[#DDD6CB] bg-[#F4EFE7]/60 -mx-4 sm:-mx-8 lg:-mx-12 px-4 sm:px-8 lg:px-12 py-4 sm:py-5">
         <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 divide-x-0 md:divide-x divide-[#DDD6CB]">
           {/* Item 1 */}
@@ -247,7 +238,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
             <div>
               <div className="text-xs font-bold text-[#18181B]">Deterministic Replay</div>
               <p className="text-[11px] text-[#57534E] leading-relaxed mt-0.5">
-                Step forward and backward, always
+                Step forward and backward, always reproducible
               </p>
             </div>
           </div>
@@ -276,8 +267,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
         </div>
       </section>
 
-      {/* 3. Featured Experiments Section (Matching Mockup 4 Cards) */}
-      <section className="space-y-5 pt-1">
+      {/* 3. Featured Experiments Section (4 Prominent Cards) */}
+      <section className="space-y-6 pt-1">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pb-1">
           <div>
@@ -291,6 +282,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
           </div>
 
           <button
+            type="button"
             onClick={scrollToLabs}
             className="text-xs font-medium text-[#78716C] hover:text-[#18181B] flex items-center gap-1 transition-colors cursor-pointer self-start sm:self-auto"
           >
@@ -299,27 +291,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
           </button>
         </div>
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 4 Cards Grid with Accessible Buttons and 45-55% Illustration Area */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {featuredExperiments.map((card) => (
-            <div
+            <button
               key={card.id}
+              type="button"
+              tabIndex={0}
               onClick={() => handleLaunch(card.scenarioId)}
-              className={`rounded-2xl border border-[#DDD6CB] ${card.bgClass} p-4 sm:p-5 flex flex-col justify-between hover:border-[#18181B] hover:shadow-xs transition-all cursor-pointer group min-h-[220px]`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleLaunch(card.scenarioId);
+                }
+              }}
+              aria-label={`Explore ${card.title} experiment`}
+              className={`w-full text-left rounded-2xl border border-[#DDD6CB] ${card.bgClass} p-5 flex flex-col justify-between hover:border-[#18181B] hover:shadow-xs transition-all cursor-pointer group min-h-[320px] focus:outline-none focus:ring-2 focus:ring-[#9E381E]/40`}
             >
-              <div>
+              <div className="w-full">
                 {/* Number */}
-                <div className="text-[11px] font-mono text-[#78716C] mb-2 font-medium">
+                <div className="text-xs font-mono text-[#78716C] font-semibold">
                   {card.id}
                 </div>
 
-                {/* Card Vector Illustration */}
-                <div className="w-full h-24 flex items-center justify-center my-2 overflow-hidden">
+                {/* Card Vector Illustration (Occupies 45-55% of card area) */}
+                <div className="w-full h-36 sm:h-40 flex items-center justify-center my-3 overflow-hidden">
                   {card.illustration}
                 </div>
 
                 {/* Title */}
-                <h3 className="text-sm font-bold text-[#18181B] font-sans group-hover:text-[#9E381E] transition-colors mt-2">
+                <h3 className="text-base font-bold text-[#18181B] font-sans group-hover:text-[#9E381E] transition-colors">
                   {card.title}
                 </h3>
 
@@ -330,12 +331,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
               </div>
 
               {/* Bottom Right Arrow Button */}
-              <div className="flex justify-end pt-3">
-                <div className="w-7 h-7 rounded-full border border-[#DDD6CB] bg-white group-hover:bg-[#18181B] group-hover:text-white group-hover:border-[#18181B] flex items-center justify-center text-[#57534E] transition-all">
-                  <ArrowRight className="w-3.5 h-3.5" />
+              <div className="flex justify-end pt-3 w-full">
+                <div className="w-8 h-8 rounded-full border border-[#DDD6CB] bg-white group-hover:bg-[#18181B] group-hover:text-white group-hover:border-[#18181B] flex items-center justify-center text-[#57534E] transition-all">
+                  <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -360,12 +361,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
         {/* Labs Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {fullModules.map((m) => (
-            <div
+            <button
               key={m.id}
+              type="button"
+              tabIndex={0}
               onClick={() => handleLaunch(m.scenarioId)}
-              className="group p-4 sm:p-5 bg-[#FAF6EE] hover:bg-white border border-[#DDD6CB] hover:border-[#18181B] transition-all cursor-pointer flex flex-col justify-between rounded-xl shadow-2xs"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleLaunch(m.scenarioId);
+                }
+              }}
+              aria-label={`Launch ${m.title} module`}
+              className="w-full text-left group p-4 sm:p-5 bg-[#FAF6EE] hover:bg-white border border-[#DDD6CB] hover:border-[#18181B] transition-all cursor-pointer flex flex-col justify-between rounded-xl shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#9E381E]/40"
             >
-              <div className="space-y-2.5">
+              <div className="space-y-2.5 w-full">
                 <div className="flex items-center justify-between text-[11px] font-mono text-[#78716C] pb-2 border-b border-[#EFEAE2]">
                   <span className="font-semibold text-[#9E381E] uppercase">{m.category}</span>
                   <div className="flex items-center gap-2">
@@ -386,11 +396,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenWorkspace }) => {
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[#EFEAE2] flex items-center justify-between text-[11px] font-mono text-[#78716C]">
+              <div className="mt-4 pt-3 border-t border-[#EFEAE2] flex items-center justify-between text-[11px] font-mono text-[#78716C] w-full">
                 <span className="truncate pr-2">{m.outcome}</span>
                 <span className="text-[#9E381E] font-bold group-hover:underline flex-shrink-0">Launch &rarr;</span>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>

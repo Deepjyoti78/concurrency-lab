@@ -4,8 +4,7 @@ import { IsometricPedestal } from '../../components/illustrations/IsometricPedes
 import { WorkerCharacter } from '../../components/illustrations/WorkerCharacter';
 import { MemoryVaultCube } from '../../components/illustrations/MemoryVaultCube';
 import { AnimatedConnector } from '../../components/illustrations/AnimatedConnector';
-import { StageDecorations } from '../../components/illustrations/StageDecorations';
-import { ArrowRight, RotateCcw, Zap } from 'lucide-react';
+import { ArrowRight, RotateCcw } from 'lucide-react';
 
 interface HeroIsometricSceneProps {
   onOpenWorkspace: (scenarioId?: string) => void;
@@ -101,7 +100,7 @@ const HERO_STEPS: StepState[] = [
     isReadingA: false,
     isReadingB: false,
     hasRace: false,
-    narrative: 'Step 3: Thread A increments its local register: r1 becomes 1 (0 + 1). Memory x is still 0.'
+    narrative: 'Step 3: Thread A increments local register: r1 becomes 1 (0 + 1). Memory x remains 0.'
   },
   {
     step: 4,
@@ -119,7 +118,7 @@ const HERO_STEPS: StepState[] = [
     isReadingA: false,
     isReadingB: false,
     hasRace: false,
-    narrative: 'Step 4: Thread B increments its local register: r2 becomes 1 (0 + 1). Both hold value 1.'
+    narrative: 'Step 4: Thread B increments local register: r2 becomes 1 (0 + 1). Both threads now hold 1.'
   },
   {
     step: 5,
@@ -173,38 +172,35 @@ export const HeroIsometricScene: React.FC<HeroIsometricSceneProps> = ({ onOpenWo
   };
 
   return (
-    <div className="w-full flex flex-col items-center">
-      {/* 1. Main Isometric SVG Stage Viewport */}
-      <div className="w-full relative rounded-2xl border border-[#DDD6CB] bg-[#FBF8F3] shadow-xs overflow-hidden">
+    <div className="w-full flex flex-col items-center select-none">
+      {/* 1. Responsive Isometric Scene (Seamlessly blended into page background) */}
+      <div className="w-full relative flex items-center justify-center">
         <svg
-          viewBox="0 0 800 480"
-          className="w-full h-auto select-none block"
-          style={{ maxHeight: '460px' }}
+          viewBox="0 0 900 520"
+          className="w-full h-auto select-none block max-h-[500px]"
+          preserveAspectRatio="xMidYMid meet"
         >
-          {/* Subtle 30-degree isometric background diamond grid */}
-          <IsometricGrid width={800} height={480} />
-
-          {/* Plant & Coffee Stage Props */}
-          <StageDecorations />
+          {/* Subtle 30-degree isometric background diamond grid with fading edges */}
+          <IsometricGrid width={900} height={520} />
 
           {/* Left Pedestal (Thread A Workstation Plinth) */}
           <IsometricPedestal
-            x={190}
-            y={240}
-            width={140}
-            depth={90}
-            height={20}
+            x={180}
+            y={320}
+            width={180}
+            depth={100}
+            height={22}
             pillValue={`r1 = ${current.r1}`}
             pillColor="#7C3AED"
           />
 
           {/* Right Pedestal (Thread B Workstation Plinth) */}
           <IsometricPedestal
-            x={610}
-            y={240}
-            width={140}
-            depth={90}
-            height={20}
+            x={720}
+            y={320}
+            width={180}
+            depth={100}
+            height={22}
             pillValue={`r2 = ${current.r2}`}
             pillColor="#059669"
           />
@@ -212,41 +208,42 @@ export const HeroIsometricScene: React.FC<HeroIsometricSceneProps> = ({ onOpenWo
           {/* Animated Connectors with Diamond Data Packets */}
           {/* Connector A: Thread A Workstation <---> Shared Memory Vault */}
           <AnimatedConnector
-            x1={240}
-            y1={215}
-            x2={355}
-            y2={185}
+            x1={245}
+            y1={270}
+            x2={395}
+            y2={195}
             direction={current.flowDirectionA}
-            packetColor="#A78BFA"
+            packetColor="#9B87F5"
             packetCount={4}
           />
 
           {/* Connector B: Shared Memory Vault <---> Thread B Workstation */}
           <AnimatedConnector
-            x1={445}
-            y1={185}
-            x2={560}
-            y2={215}
+            x1={505}
+            y1={195}
+            x2={655}
+            y2={270}
             direction={current.flowDirectionB}
-            packetColor="#34D399"
+            packetColor="#6EE7B7"
             packetCount={4}
           />
 
           {/* Center 3D Shared Memory Vault Cube */}
           <MemoryVaultCube
-            x={400}
-            y={180}
+            x={450}
+            y={160}
             variableName="x"
             value={current.xVal}
             isWriting={current.isWritingA || current.isWritingB}
             isReading={current.isReadingA || current.isReadingB}
             hasRaceConflict={current.hasRace}
+            scale={1.05}
           />
 
-          {/* Worker Character A (Lavender Hoodie, facing right) */}
+          {/* Worker Character A (Lavender Hoodie, facing right-forward) */}
           <WorkerCharacter
-            x={190}
-            y={225}
+            x={180}
+            y={285}
             name="Thread A"
             pillColor="#7C3AED"
             hoodieColor="#8B5CF6"
@@ -254,12 +251,13 @@ export const HeroIsometricScene: React.FC<HeroIsometricSceneProps> = ({ onOpenWo
             screenText={current.t1Op}
             isExecuting={current.activeThread === 1}
             state={current.activeThread === 1 ? 'RUNNING' : 'READY'}
+            scale={1.15}
           />
 
-          {/* Worker Character B (Sage Green Hoodie, facing left) */}
+          {/* Worker Character B (Sage Green Hoodie, facing left-forward) */}
           <WorkerCharacter
-            x={610}
-            y={225}
+            x={720}
+            y={285}
             name="Thread B"
             pillColor="#059669"
             hoodieColor="#10B981"
@@ -267,72 +265,78 @@ export const HeroIsometricScene: React.FC<HeroIsometricSceneProps> = ({ onOpenWo
             screenText={current.t2Op}
             isExecuting={current.activeThread === 2}
             state={current.activeThread === 2 ? 'RUNNING' : 'READY'}
+            scale={1.15}
           />
         </svg>
-
-        {/* 2. Interactive Step Controller Bar directly below the stage */}
-        <div className="w-full bg-[#F4EFE7] border-t border-[#E6E0D6] px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-          {/* Step selector chips */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <button
-              onClick={handleReset}
-              title="Reset trace to initial state"
-              className="p-1.5 rounded-lg border border-[#DDD6CB] bg-white text-[#57534E] hover:text-[#18181B] hover:bg-[#EFEAE2] transition-colors cursor-pointer mr-1"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-
-            {HERO_STEPS.map((s, idx) => (
-              <button
-                key={s.step}
-                onClick={() => setCurrentStepIdx(idx)}
-                className={`px-2.5 py-1 rounded-full text-xs font-mono font-medium transition-all cursor-pointer ${
-                  currentStepIdx === idx
-                    ? 'bg-[#18181B] text-white font-bold shadow-xs'
-                    : 'bg-[#EFEAE2] text-[#57534E] hover:bg-[#E5DFD4] hover:text-[#18181B]'
-                }`}
-              >
-                0{s.step}
-              </button>
-            ))}
-          </div>
-
-          {/* Action button */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleNext}
-              className="px-4 py-1.5 rounded-lg bg-[#9E381E] hover:bg-[#852E17] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <span>{currentStepIdx === HERO_STEPS.length - 1 ? 'Replay Trace' : 'Next step'}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
       </div>
 
-      {/* 3. Live Explanatory Educational Narrative */}
-      <div className="w-full mt-3 p-3.5 rounded-xl border border-[#E6E0D6] bg-[#FAF6EE] flex items-center justify-between gap-3 shadow-xs">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
-            current.hasRace ? 'bg-[#F59E0B]/20 text-[#B45309]' : 'bg-[#18181B]/10 text-[#18181B]'
-          }`}>
-            <Zap className="w-4 h-4" />
-          </div>
-          <p className="text-xs font-sans text-[#18181B] leading-relaxed truncate sm:text-clip">
-            <strong className="font-semibold text-[#9E381E] mr-1.5">
-              {current.hasRace ? '⚠️ Conflict Detected:' : `Step ${current.step}/6:`}
-            </strong>
-            {current.narrative}
-          </p>
+      {/* 2. Sleek Floating Step Controls Toolbar */}
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#DDD6CB] bg-[#FAF6EE]/95 shadow-xs backdrop-blur-xs mt-2">
+        {/* Reset button */}
+        <button
+          type="button"
+          onClick={handleReset}
+          title="Reset trace to step 00"
+          className="p-1.5 rounded-full text-[#78716C] hover:text-[#18181B] hover:bg-[#EFEAE2] transition-colors cursor-pointer"
+          aria-label="Reset trace"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
+
+        <div className="w-[1px] h-4 bg-[#DDD6CB]" />
+
+        {/* Step buttons 00 to 06 */}
+        <div className="flex items-center gap-1">
+          {HERO_STEPS.map((s, idx) => (
+            <button
+              key={s.step}
+              type="button"
+              onClick={() => setCurrentStepIdx(idx)}
+              className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-medium transition-all cursor-pointer ${
+                currentStepIdx === idx
+                  ? 'bg-[#18181B] text-white font-bold shadow-2xs'
+                  : 'text-[#78716C] hover:text-[#18181B] hover:bg-[#EFEAE2]'
+              }`}
+              aria-label={`Step 0${s.step}: ${s.label}`}
+            >
+              0{s.step}
+            </button>
+          ))}
         </div>
 
+        <div className="w-[1px] h-4 bg-[#DDD6CB]" />
+
+        {/* Next Step / Replay button */}
         <button
-          onClick={() => onOpenWorkspace('race_counter_2')}
-          className="text-xs font-mono font-bold text-[#9E381E] hover:text-[#852E17] whitespace-nowrap flex items-center gap-1 flex-shrink-0 cursor-pointer ml-2"
+          type="button"
+          onClick={handleNext}
+          className="px-3.5 py-1 rounded-full bg-[#9E381E] hover:bg-[#852E17] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs active:scale-98"
         >
-          <span>Open Full Lab</span>
+          <span>{currentStepIdx === HERO_STEPS.length - 1 ? 'Replay' : 'Next'}</span>
           <ArrowRight className="w-3 h-3" />
         </button>
+      </div>
+
+      {/* 3. Minimal Explanatory Text Caption & Live Engine CTA */}
+      <div className="mt-3 text-center space-y-1.5 max-w-xl mx-auto px-4">
+        <p className="text-xs sm:text-sm font-sans text-[#18181B] leading-relaxed">
+          <span className="font-semibold text-[#9E381E] mr-1.5">
+            {current.hasRace ? '⚠️ Hazard Detected:' : `Step 0${current.step}:`}
+          </span>
+          {current.narrative}
+        </p>
+        <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-[#78716C]">
+          <span>Interactive trace preview</span>
+          <span>•</span>
+          <button
+            type="button"
+            onClick={() => onOpenWorkspace('race_counter_2')}
+            className="text-[#9E381E] hover:text-[#852E17] font-semibold underline underline-offset-2 cursor-pointer inline-flex items-center gap-0.5"
+          >
+            <span>Open live C++ execution in Workspace</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
       </div>
     </div>
   );

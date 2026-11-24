@@ -13,15 +13,21 @@ interface DataPacketProps {
 export const DataPacket: React.FC<DataPacketProps> = ({
   x,
   y,
-  size = 7,
-  color = '#A78BFA',
+  size = 6.5,
+  color = '#9B87F5', // muted lavender
   outlineColor = '#18181B',
   label,
   className = ''
 }) => {
+  // If green (Thread B), use matching sage facets. If lavender (Thread A), use lavender facets.
+  const isSage = color === '#6EE7B7' || color === '#34D399' || color === '#10B981' || color === '#A7F3D0';
+  const leftFacet = isSage ? '#34D399' : '#8B5CF6';
+  const rightFacet = isSage ? '#059669' : '#7C3AED';
+
   return (
     <g className={`data-packet ${className}`} transform={`translate(${x}, ${y})`}>
-      {/* 3D Isometric Diamond/Octahedron */}
+      {/* 3D Isometric Diamond / Octahedron Facets */}
+      {/* Top Diamond Face */}
       <polygon
         points={`
           0,${-size} 
@@ -31,9 +37,10 @@ export const DataPacket: React.FC<DataPacketProps> = ({
         `}
         fill={color}
         stroke={outlineColor}
-        strokeWidth="1.2"
+        strokeWidth="1.1"
         strokeLinejoin="round"
       />
+      {/* Left Shaded Face */}
       <polygon
         points={`
           ${-size * 0.866},${-size * 0.5} 
@@ -41,11 +48,12 @@ export const DataPacket: React.FC<DataPacketProps> = ({
           0,${size} 
           ${-size * 0.866},${size * 0.5}
         `}
-        fill="#7C3AED"
+        fill={leftFacet}
         stroke={outlineColor}
-        strokeWidth="1.2"
+        strokeWidth="1.1"
         strokeLinejoin="round"
       />
+      {/* Right Shaded Face */}
       <polygon
         points={`
           0,0 
@@ -53,15 +61,15 @@ export const DataPacket: React.FC<DataPacketProps> = ({
           ${size * 0.866},${size * 0.5} 
           0,${size}
         `}
-        fill="#6D28D9"
+        fill={rightFacet}
         stroke={outlineColor}
-        strokeWidth="1.2"
+        strokeWidth="1.1"
         strokeLinejoin="round"
       />
       {label && (
         <text
           x="0"
-          y={-size - 3}
+          y={-size - 4}
           textAnchor="middle"
           fontSize="8"
           fontFamily="JetBrains Mono, monospace"

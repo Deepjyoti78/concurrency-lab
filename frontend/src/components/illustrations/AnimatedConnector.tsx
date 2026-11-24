@@ -18,23 +18,29 @@ export const AnimatedConnector: React.FC<AnimatedConnectorProps> = ({
   x2,
   y2,
   direction = 'idle',
-  packetColor = '#A78BFA',
+  packetColor = '#9B87F5', // Muted lavender or sage green
   packetCount = 4,
   className = ''
 }) => {
-  // Compute positions along the line for stationary or floating packets
+  const isActive = direction !== 'idle';
+
+  // Compute positions along the line
   const packets = [];
   for (let i = 1; i <= packetCount; i++) {
     const fraction = i / (packetCount + 1);
     const px = x1 + (x2 - x1) * fraction;
     const py = y1 + (y2 - y1) * fraction;
-    packets.push({ x: px, y: py });
+    packets.push({ x: px, y: py, fraction });
   }
 
-  // Directional arrow head position
-  const arrowFraction = direction === 'backward' ? 0.2 : 0.8;
+  // Directional arrow head position along the line
+  const arrowFraction = direction === 'backward' ? 0.35 : 0.65;
   const arrowX = x1 + (x2 - x1) * arrowFraction;
   const arrowY = y1 + (y2 - y1) * arrowFraction;
+
+  // Calculate line angle for arrowhead orientation
+  const angleDeg = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
+  const arrowRot = direction === 'backward' ? angleDeg + 180 : angleDeg;
 
   return (
     <g className={`animated-connector ${className}`}>
@@ -44,33 +50,38 @@ export const AnimatedConnector: React.FC<AnimatedConnectorProps> = ({
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke="#D4CCC0"
+        stroke={isActive ? '#B8AFA0' : '#DED7CB'}
         strokeWidth="1.5"
         strokeDasharray="4,4"
-        className={direction !== 'idle' ? 'animate-pulse' : ''}
       />
 
       {/* 2. Floating Diamond Data Packets along the pipeline */}
       {packets.map((p, idx) => (
-        <DataPacket
+        <g
           key={idx}
-          x={p.x}
-          y={p.y}
-          size={5.5}
-          color={packetColor}
-        />
+          opacity={isActive ? 1 : 0.3}
+          className={isActive ? 'transition-opacity duration-300' : ''}
+        >
+          <DataPacket
+            x={p.x}
+            y={p.y}
+            size={5.5}
+            color={packetColor}
+          />
+        </g>
       ))}
 
-      {/* 3. Directional Arrow Marker */}
-      {direction !== 'idle' && (
-        <circle
-          cx={arrowX}
-          cy={arrowY}
-          r="4"
-          fill={direction === 'forward' ? '#10B981' : '#8B5CF6'}
-          stroke="#18181B"
-          strokeWidth="1"
-        />
+      {/* 3. Subtle Directional Arrow Marker (Visible ONLY during active transfer) */}
+      {isActive && (
+        <g transform={`translate(${arrowX}, ${arrowY}) rotate(${arrowRot})`}>
+          <polygon
+            points="5,0 -4,-4 -2,0 -4,4"
+            fill={packetColor}
+            stroke="#18181B"
+            strokeWidth="1"
+            strokeLinejoin="round"
+          />
+        </g>
       )}
     </g>
   );

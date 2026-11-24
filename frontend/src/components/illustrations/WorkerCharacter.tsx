@@ -10,6 +10,8 @@ interface WorkerCharacterProps {
   screenText?: string;
   isExecuting?: boolean;
   state?: 'READY' | 'RUNNING' | 'BLOCKED' | 'TERMINATED';
+  imageSrc?: string;
+  scale?: number;
   className?: string;
 }
 
@@ -23,291 +25,396 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
   screenText = 'r = x',
   isExecuting = false,
   state = 'READY',
+  imageSrc,
+  scale = 1,
   className = ''
 }) => {
   const isFacingRight = facing === 'right';
 
   return (
-    <g className={`worker-character ${className}`} transform={`translate(${x}, ${y})`}>
+    <g
+      className={`worker-character ${className}`}
+      transform={`translate(${x}, ${y}) scale(${scale})`}
+    >
       {/* 1. Floating Identity Pill Header (e.g. ● Thread A) */}
-      <g transform="translate(0, -90)">
+      <g transform="translate(0, -104)">
         <rect
-          x="-38"
-          y="-11"
-          width="76"
-          height="22"
-          rx="11"
+          x="-42"
+          y="-13"
+          width="84"
+          height="26"
+          rx="13"
           fill="#FFFFFF"
           stroke="#18181B"
           strokeWidth="1.25"
+          filter="drop-shadow(0 1px 2px rgba(24,24,27,0.06))"
         />
-        <circle cx="-25" cy="0" r="3.5" fill={pillColor} />
+        <circle cx="-27" cy="0" r="4" fill={pillColor} />
         <text
-          x="-15"
+          x="-17"
           y="3.5"
-          fontFamily="Inter, sans-serif"
-          fontSize="10"
+          fontFamily="Inter, system-ui, sans-serif"
+          fontSize="11"
           fontWeight="700"
           fill="#18181B"
+          letterSpacing="-0.01em"
         >
           {name}
         </text>
       </g>
 
-      {/* 2. Character Body & Chair */}
-      {isFacingRight ? (
-        // FACING RIGHT-FORWARD (Worker A on left side)
-        <g id="worker-a-body">
-          {/* Chair backrest */}
-          <rect
-            x="-42"
-            y="-38"
-            width="14"
-            height="28"
-            rx="5"
+      {/* 2. Character Artwork: External Transparent Asset OR Hand-Crafted Editorial Vector */}
+      {imageSrc ? (
+        <g transform="translate(-55, -90)">
+          <image
+            href={imageSrc}
+            x="0"
+            y="0"
+            width="110"
+            height="110"
+            preserveAspectRatio="xMidYMid meet"
+          />
+        </g>
+      ) : isFacingRight ? (
+        // ==================== WORKER A: FACING RIGHT-FORWARD ====================
+        <g id="worker-a-artwork">
+          {/* Chair / Ergonomic Stool */}
+          <ellipse cx="-28" cy="12" rx="18" ry="6" fill="#3F3F46" stroke="#18181B" strokeWidth="1.25" />
+          <path d="M -28 12 L -28 -10" stroke="#18181B" strokeWidth="2.5" strokeLinecap="round" />
+          <path
+            d="M -46 -8 C -48 -28 -44 -42 -38 -44 C -32 -46 -30 -30 -30 -12 Z"
             fill="#52525B"
             stroke="#18181B"
-            strokeWidth="1.5"
-            transform="rotate(-8, -42, -38)"
+            strokeWidth="1.25"
           />
 
-          {/* Torso / Hoodie */}
+          {/* Lower Torso / Legs Seated */}
           <path
-            d="M -34 -20 C -34 -45 -14 -48 -4 -30 C 2 -18 2 2 -4 8 C -14 12 -34 6 -34 -20 Z"
+            d="M -34 -6 C -34 6 -24 16 -12 16 C -4 16 0 10 2 2 L -8 -6 Z"
+            fill="#27272A"
+            stroke="#18181B"
+            strokeWidth="1.25"
+            strokeLinejoin="round"
+          />
+
+          {/* Main Torso & Hoodie Body */}
+          <path
+            d="M -38 -18 C -40 -46 -22 -52 -4 -38 C 4 -26 4 -6 -2 4 C -12 8 -34 4 -38 -18 Z"
             fill={hoodieColor}
             stroke="#18181B"
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
 
-          {/* Hoodie crease / detail */}
+          {/* Hoodie Shadow & Fold Detail */}
           <path
-            d="M -18 -32 Q -12 -18 -16 2"
+            d="M -22 -40 Q -14 -22 -18 2"
             fill="none"
             stroke="#18181B"
             strokeWidth="1.25"
+            strokeLinecap="round"
+          />
+          <path
+            d="M -34 -14 C -30 -6 -20 -4 -10 -2"
+            fill="none"
+            stroke="rgba(24, 24, 27, 0.15)"
+            strokeWidth="2"
+            strokeLinecap="round"
           />
 
           {/* Head & Neck */}
           <ellipse
-            cx="-12"
-            cy="-48"
-            rx="8.5"
-            ry="10.5"
-            fill="#FCD34D"
+            cx="-14"
+            cy="-54"
+            rx="10"
+            ry="12"
+            fill="#FDE0B6"
             stroke="#18181B"
-            strokeWidth="1.5"
+            strokeWidth="1.4"
           />
 
-          {/* Hair (side profile) */}
+          {/* Ear */}
+          <ellipse cx="-20" cy="-52" rx="2.5" ry="3.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
+
+          {/* Styled Hair Profile */}
           <path
-            d="M -21 -52 C -20 -62 -5 -62 -2 -53 C -1 -48 -4 -44 -6 -43 C -14 -42 -22 -44 -21 -52 Z"
+            d="M -24 -58 C -24 -70 -8 -72 -2 -62 C 2 -54 -2 -48 -4 -46 C -12 -46 -24 -48 -24 -58 Z"
             fill="#27272A"
             stroke="#18181B"
-            strokeWidth="1.5"
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
+          {/* Hair bangs / fringe */}
+          <path
+            d="M -8 -66 C -2 -64 2 -60 2 -55 C -2 -54 -4 -56 -8 -58 Z"
+            fill="#18181B"
           />
 
-          {/* Arms reaching to keyboard */}
+          {/* Eye & Brow Hint */}
+          <circle cx="-6" cy="-54" r="1.2" fill="#18181B" />
+          <path d="M -8 -58 Q -5 -59 -3 -57" stroke="#18181B" strokeWidth="1" strokeLinecap="round" fill="none" />
+
+          {/* Left / Upper Arm reaching to laptop */}
           <path
-            d="M -12 -16 Q 0 -12 8 -8 Q 12 -4 14 0"
+            d="M -16 -24 Q -2 -18 8 -12 Q 16 -6 20 -2"
             fill="none"
             stroke={hoodieColor}
-            strokeWidth="6"
+            strokeWidth="8"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <path
-            d="M -12 -16 Q 0 -12 8 -8 Q 12 -4 14 0"
+            d="M -16 -24 Q -2 -18 8 -12 Q 16 -6 20 -2"
             fill="none"
             stroke="#18181B"
-            strokeWidth="1.5"
+            strokeWidth="1.4"
             strokeLinecap="round"
           />
 
-          {/* Hand on laptop */}
-          <circle cx="14" cy="0" r="3" fill="#FCD34D" stroke="#18181B" strokeWidth="1" />
+          {/* Hand on Keyboard */}
+          <ellipse cx="20" cy="-2" rx="3.5" ry="2.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
 
-          {/* Laptop Base (Isometric keyboard) */}
+          {/* Modern Isometric Laptop Base */}
           <polygon
-            points="6,2 26,-8 40,-1 20,9"
-            fill="#71717A"
+            points="10,0 34,-12 50,-4 26,8"
+            fill="#94A3B8"
             stroke="#18181B"
-            strokeWidth="1.25"
+            strokeWidth="1.3"
             strokeLinejoin="round"
           />
-
-          {/* Laptop Screen (angled isometric display facing user) */}
+          {/* Keyboard keys surface */}
           <polygon
-            points="26,-8 40,-1 40,-26 26,-33"
-            fill="#18181B"
+            points="14,-1 32,-10 44,-4 26,5"
+            fill="#334155"
+          />
+
+          {/* Modern Isometric Laptop Display (angled towards user) */}
+          <polygon
+            points="34,-12 50,-4 50,-36 34,-44"
+            fill="#1E293B"
             stroke="#18181B"
-            strokeWidth="1.25"
+            strokeWidth="1.4"
             strokeLinejoin="round"
           />
-
-          {/* Screen Display Inner Glow */}
+          {/* Screen Inner Bezel */}
           <polygon
-            points="28,-10 38,-5 38,-24 28,-29"
-            fill="#27272A"
+            points="36,-14 48,-8 48,-34 36,-40"
+            fill={isExecuting ? '#0F172A' : '#18181B'}
           />
 
-          {/* Screen Code Lines */}
-          <line x1="30" y1="-24" x2="36" y2="-21" stroke="#A1A1AA" strokeWidth="1" />
-          <line x1="30" y1="-19" x2="37" y2="-15.5" stroke={isExecuting ? '#34D399' : '#A1A1AA'} strokeWidth="1" />
-          <line x1="30" y1="-14" x2="35" y2="-11.5" stroke="#A1A1AA" strokeWidth="1" />
+          {/* Code Lines on Screen */}
+          <line x1="39" y1="-32" x2="45" y2="-29" stroke={isExecuting ? '#34D399' : '#64748B'} strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="39" y1="-26" x2="46" y2="-22.5" stroke={isExecuting ? '#A7F3D0' : '#475569'} strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="39" y1="-20" x2="44" y2="-17.5" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
 
-          {/* Screen text indicator */}
+          {/* Small Screen Prompt Badge */}
           <text
-            x="33"
-            y="-16"
+            x="41"
+            y="-22"
             fill="#FFFFFF"
-            fontSize="6"
+            fontSize="5.5"
             fontFamily="JetBrains Mono, monospace"
             fontWeight="bold"
-            transform="skewY(20)"
+            transform="skewY(22)"
           >
             {screenText.slice(0, 4)}
           </text>
         </g>
       ) : (
-        // FACING LEFT-FORWARD (Worker B on right side)
-        <g id="worker-b-body">
-          {/* Chair backrest */}
-          <rect
-            x="28"
-            y="-38"
-            width="14"
-            height="28"
-            rx="5"
+        // ==================== WORKER B: FACING LEFT-FORWARD ====================
+        <g id="worker-b-artwork">
+          {/* Chair / Ergonomic Stool */}
+          <ellipse cx="28" cy="12" rx="18" ry="6" fill="#3F3F46" stroke="#18181B" strokeWidth="1.25" />
+          <path d="M 28 12 L 28 -10" stroke="#18181B" strokeWidth="2.5" strokeLinecap="round" />
+          <path
+            d="M 46 -8 C 48 -28 44 -42 38 -44 C 32 -46 30 -30 30 -12 Z"
             fill="#52525B"
             stroke="#18181B"
-            strokeWidth="1.5"
-            transform="rotate(8, 28, -38)"
+            strokeWidth="1.25"
           />
 
-          {/* Torso / Hoodie */}
+          {/* Lower Torso / Legs Seated */}
           <path
-            d="M 34 -20 C 34 -45 14 -48 4 -30 C -2 -18 -2 2 4 8 C 14 12 34 6 34 -20 Z"
+            d="M 34 -6 C 34 6 24 16 12 16 C 4 16 0 10 -2 2 L 8 -6 Z"
+            fill="#27272A"
+            stroke="#18181B"
+            strokeWidth="1.25"
+            strokeLinejoin="round"
+          />
+
+          {/* Main Torso & Hoodie Body */}
+          <path
+            d="M 38 -18 C 40 -46 22 -52 4 -38 C -4 -26 -4 -6 2 4 C 12 8 34 4 38 -18 Z"
             fill={hoodieColor}
             stroke="#18181B"
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
 
-          {/* Hoodie crease / detail */}
+          {/* Hoodie Shadow & Fold Detail */}
           <path
-            d="M 18 -32 Q 12 -18 16 2"
+            d="M 22 -40 Q 14 -22 18 2"
             fill="none"
             stroke="#18181B"
             strokeWidth="1.25"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 34 -14 C 30 -6 20 -4 10 -2"
+            fill="none"
+            stroke="rgba(24, 24, 27, 0.15)"
+            strokeWidth="2"
+            strokeLinecap="round"
           />
 
           {/* Head & Neck */}
           <ellipse
-            cx="12"
-            cy="-48"
-            rx="8.5"
-            ry="10.5"
-            fill="#FCD34D"
+            cx="14"
+            cy="-54"
+            rx="10"
+            ry="12"
+            fill="#FDE0B6"
             stroke="#18181B"
-            strokeWidth="1.5"
+            strokeWidth="1.4"
           />
 
-          {/* Hair (bun profile) */}
-          <path
-            d="M 21 -52 C 20 -62 5 -62 2 -53 C 1 -48 4 -44 6 -43 C 14 -42 22 -44 21 -52 Z"
-            fill="#18181B"
-            stroke="#18181B"
-            strokeWidth="1.5"
-          />
-          <circle cx="18" cy="-56" r="4.5" fill="#18181B" stroke="#18181B" strokeWidth="1" />
+          {/* Ear */}
+          <ellipse cx="20" cy="-52" rx="2.5" ry="3.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
 
-          {/* Arms reaching to keyboard */}
+          {/* Hair with Top-Bun Profile */}
           <path
-            d="M 12 -16 Q 0 -12 -8 -8 Q -12 -4 -14 0"
+            d="M 24 -58 C 24 -70 8 -72 2 -62 C -2 -54 2 -48 4 -46 C 12 -46 24 -48 24 -58 Z"
+            fill="#27272A"
+            stroke="#18181B"
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
+          {/* Top knot / bun */}
+          <circle cx="18" cy="-68" r="5.5" fill="#18181B" stroke="#18181B" strokeWidth="1.2" />
+          <line x1="12" y1="-72" x2="24" y2="-64" stroke="#F59E0B" strokeWidth="1.2" strokeLinecap="round" />
+
+          {/* Eye & Brow Hint */}
+          <circle cx="6" cy="-54" r="1.2" fill="#18181B" />
+          <path d="M 8 -58 Q 5 -59 3 -57" stroke="#18181B" strokeWidth="1" strokeLinecap="round" fill="none" />
+
+          {/* Arm reaching to keyboard */}
+          <path
+            d="M 16 -24 Q 2 -18 -8 -12 Q -16 -6 -20 -2"
             fill="none"
             stroke={hoodieColor}
-            strokeWidth="6"
+            strokeWidth="8"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <path
-            d="M 12 -16 Q 0 -12 -8 -8 Q -12 -4 -14 0"
+            d="M 16 -24 Q 2 -18 -8 -12 Q -16 -6 -20 -2"
             fill="none"
             stroke="#18181B"
-            strokeWidth="1.5"
+            strokeWidth="1.4"
             strokeLinecap="round"
           />
 
-          {/* Hand on laptop */}
-          <circle cx="-14" cy="0" r="3" fill="#FCD34D" stroke="#18181B" strokeWidth="1" />
+          {/* Hand on Keyboard */}
+          <ellipse cx="-20" cy="-2" rx="3.5" ry="2.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
 
-          {/* Laptop Base (Isometric keyboard) */}
+          {/* Modern Isometric Laptop Base */}
           <polygon
-            points="-6,2 -26,-8 -40,-1 -20,9"
-            fill="#71717A"
+            points="-10,0 -34,-12 -50,-4 -26,8"
+            fill="#94A3B8"
             stroke="#18181B"
-            strokeWidth="1.25"
+            strokeWidth="1.3"
             strokeLinejoin="round"
           />
-
-          {/* Laptop Screen (angled isometric display facing user) */}
+          {/* Keyboard keys surface */}
           <polygon
-            points="-26,-8 -40,-1 -40,-26 -26,-33"
-            fill="#18181B"
+            points="-14,-1 -32,-10 -44,-4 -26,5"
+            fill="#334155"
+          />
+
+          {/* Modern Isometric Laptop Display (angled towards user) */}
+          <polygon
+            points="-34,-12 -50,-4 -50,-36 -34,-44"
+            fill="#1E293B"
             stroke="#18181B"
-            strokeWidth="1.25"
+            strokeWidth="1.4"
             strokeLinejoin="round"
           />
-
-          {/* Screen Display Inner Glow */}
+          {/* Screen Inner Bezel */}
           <polygon
-            points="-28,-10 -38,-5 -38,-24 -28,-29"
-            fill="#27272A"
+            points="-36,-14 -48,-8 -48,-34 -36,-40"
+            fill={isExecuting ? '#0F172A' : '#18181B'}
           />
 
-          {/* Screen Code Lines */}
-          <line x1="-30" y1="-24" x2="-36" y2="-21" stroke="#A1A1AA" strokeWidth="1" />
-          <line x1="-30" y1="-19" x2="-37" y2="-15.5" stroke={isExecuting ? '#34D399' : '#A1A1AA'} strokeWidth="1" />
-          <line x1="-30" y1="-14" x2="-35" y2="-11.5" stroke="#A1A1AA" strokeWidth="1" />
+          {/* Code Lines on Screen */}
+          <line x1="-39" y1="-32" x2="-45" y2="-29" stroke={isExecuting ? '#34D399' : '#64748B'} strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="-39" y1="-26" x2="-46" y2="-22.5" stroke={isExecuting ? '#A7F3D0' : '#475569'} strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="-39" y1="-20" x2="-44" y2="-17.5" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
 
-          {/* Screen text indicator */}
+          {/* Small Screen Prompt Badge */}
           <text
-            x="-33"
-            y="-16"
+            x="-41"
+            y="-22"
             fill="#FFFFFF"
-            fontSize="6"
+            fontSize="5.5"
             fontFamily="JetBrains Mono, monospace"
             fontWeight="bold"
-            transform="skewY(-20)"
+            transform="skewY(-22)"
           >
             {screenText.slice(0, 4)}
           </text>
         </g>
       )}
 
-      {/* 3. State Status Aura (Pulsing green for RUNNING, amber for hazard, red for BLOCKED) */}
-      {state === 'RUNNING' && (
-        <circle
-          cx="0"
-          cy="-18"
-          r="36"
-          fill="none"
-          stroke="#10B981"
-          strokeWidth="1.5"
-          strokeDasharray="4,4"
-          opacity="0.6"
-          className="animate-spin"
-        />
+      {/* 3. Subtle Active Execution Indicator (Clean, non-distracting) */}
+      {isExecuting && (
+        <g transform="translate(0, 22)">
+          <rect
+            x="-26"
+            y="-7"
+            width="52"
+            height="14"
+            rx="7"
+            fill="#18181B"
+            stroke="#10B981"
+            strokeWidth="1"
+          />
+          <circle cx="-16" cy="0" r="2.5" fill="#10B981" />
+          <text
+            x="-8"
+            y="3"
+            fontFamily="Inter, system-ui, sans-serif"
+            fontSize="8"
+            fontWeight="700"
+            fill="#FFFFFF"
+          >
+            ACTIVE
+          </text>
+        </g>
       )}
       {state === 'BLOCKED' && (
-        <circle
-          cx="0"
-          cy="-18"
-          r="36"
-          fill="none"
-          stroke="#EF4444"
-          strokeWidth="1.75"
-          opacity="0.8"
-        />
+        <g transform="translate(0, 22)">
+          <rect
+            x="-28"
+            y="-7"
+            width="56"
+            height="14"
+            rx="7"
+            fill="#7F1D1D"
+            stroke="#EF4444"
+            strokeWidth="1"
+          />
+          <text
+            x="0"
+            y="3"
+            textAnchor="middle"
+            fontFamily="Inter, system-ui, sans-serif"
+            fontSize="8"
+            fontWeight="700"
+            fill="#FFFFFF"
+          >
+            WAITING
+          </text>
+        </g>
       )}
     </g>
   );

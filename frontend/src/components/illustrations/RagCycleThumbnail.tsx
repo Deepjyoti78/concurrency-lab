@@ -2,41 +2,61 @@ import React from 'react';
 
 export const RagCycleThumbnail: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
-    <svg viewBox="0 0 160 100" className={`w-full h-full max-h-[90px] ${className}`}>
-      {/* Background shadow */}
-      <ellipse cx="80" cy="55" rx="50" ry="26" fill="rgba(24, 24, 27, 0.05)" />
+    <svg viewBox="0 0 240 140" className={`w-full h-full ${className}`} preserveAspectRatio="xMidYMid meet">
+      {/* Ground Cast Shadow */}
+      <ellipse cx="120" cy="80" rx="75" ry="34" fill="rgba(24, 24, 27, 0.06)" />
 
-      {/* Directed Cycle Edges */}
+      {/* Directed Graph Markers */}
       <defs>
-        <marker id="arrow-head" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto">
-          <path d="M 0 0 L 6 3 L 0 6 z" fill="#18181B" />
+        <marker id="rag-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 1 1 L 7 4 L 1 7 z" fill="#18181B" />
+        </marker>
+        <marker id="rag-arrow-alert" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 1 1 L 7 4 L 1 7 z" fill="#DC2626" />
         </marker>
       </defs>
 
-      {/* Cycle paths connecting nodes */}
-      <line x1="50" y1="35" x2="80" y2="22" stroke="#18181B" strokeWidth="1.25" markerEnd="url(#arrow-head)" />
-      <line x1="80" y1="22" x2="115" y2="35" stroke="#18181B" strokeWidth="1.25" markerEnd="url(#arrow-head)" />
-      <line x1="115" y1="35" x2="105" y2="65" stroke="#18181B" strokeWidth="1.25" markerEnd="url(#arrow-head)" />
-      <line x1="105" y1="65" x2="70" y2="72" stroke="#18181B" strokeWidth="1.25" markerEnd="url(#arrow-head)" />
-      <line x1="70" y1="72" x2="50" y2="35" stroke="#18181B" strokeWidth="1.25" markerEnd="url(#arrow-head)" />
+      {/* Cycle Directed Edges */}
+      {/* Thread 1 -> Lock A (Requests / Waits) */}
+      <line x1="82" y1="46" x2="114" y2="34" stroke="#18181B" strokeWidth="1.4" markerEnd="url(#rag-arrow)" />
+      {/* Lock A -> Thread 2 (Held by) */}
+      <line x1="126" y1="34" x2="158" y2="46" stroke="#18181B" strokeWidth="1.4" markerEnd="url(#rag-arrow)" />
+      {/* Thread 2 -> Lock B (Requests / Waits) */}
+      <line x1="162" y1="58" x2="148" y2="92" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#rag-arrow-alert)" />
+      {/* Lock B -> Thread 1 (Held by) -> Deadlock cycle closed! */}
+      <line x1="134" y1="96" x2="88" y2="58" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#rag-arrow-alert)" />
 
-      {/* Node 1: Lavender Thread Node (top left) */}
-      <circle cx="50" cy="35" r="9" fill="#DDD6FE" stroke="#18181B" strokeWidth="1.5" />
-      <circle cx="50" cy="35" r="3" fill="#7C3AED" />
+      {/* Node 1: Thread 1 (Circle, Lavender) */}
+      <g transform="translate(76, 52)">
+        <circle cx="0" cy="0" r="14" fill="#DDD6FE" stroke="#18181B" strokeWidth="1.5" />
+        <circle cx="0" cy="0" r="5" fill="#7C3AED" />
+        <text x="0" y="24" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="7.5" fontWeight="bold" fill="#18181B">T1</text>
+      </g>
 
-      {/* Node 2: Mutex Resource Box (top center) */}
-      <rect x="73" y="15" width="14" height="14" rx="3" fill="#C7D2FE" stroke="#18181B" strokeWidth="1.5" />
+      {/* Node 2: Resource Lock A (Square Box, Amber) */}
+      <g transform="translate(120, 32)">
+        <rect x="-11" y="-11" width="22" height="22" rx="4" fill="#FEF3C7" stroke="#18181B" strokeWidth="1.5" />
+        <text x="0" y="3.5" textAnchor="middle" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#92400E">R1</text>
+      </g>
 
-      {/* Node 3: Sage Green Thread Node (top right) */}
-      <circle cx="115" cy="35" r="9" fill="#A7F3D0" stroke="#18181B" strokeWidth="1.5" />
-      <circle cx="115" cy="35" r="3" fill="#059669" />
+      {/* Node 3: Thread 2 (Circle, Sage Green) */}
+      <g transform="translate(164, 52)">
+        <circle cx="0" cy="0" r="14" fill="#A7F3D0" stroke="#18181B" strokeWidth="1.5" />
+        <circle cx="0" cy="0" r="5" fill="#059669" />
+        <text x="0" y="24" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="7.5" fontWeight="bold" fill="#18181B">T2</text>
+      </g>
 
-      {/* Node 4: Mutex Resource Box (bottom right) */}
-      <rect x="98" y="58" width="14" height="14" rx="3" fill="#FED7AA" stroke="#18181B" strokeWidth="1.5" />
+      {/* Node 4: Resource Lock B (Square Box, Peach) */}
+      <g transform="translate(140, 100)">
+        <rect x="-11" y="-11" width="22" height="22" rx="4" fill="#FED7AA" stroke="#DC2626" strokeWidth="1.5" />
+        <text x="0" y="3.5" textAnchor="middle" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#9A3412">R2</text>
+      </g>
 
-      {/* Node 5: Thread Node (bottom center) */}
-      <circle cx="70" cy="72" r="9" fill="#E9D5FF" stroke="#18181B" strokeWidth="1.5" />
-      <circle cx="70" cy="72" r="3" fill="#9333EA" />
+      {/* Center Deadlock Cycle Alert Badge */}
+      <g transform="translate(120, 68)">
+        <rect x="-26" y="-8" width="52" height="16" rx="8" fill="#FEE2E2" stroke="#DC2626" strokeWidth="1.2" />
+        <text x="0" y="3.5" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="7" fontWeight="bold" fill="#991B1B">CYCLE</text>
+      </g>
     </svg>
   );
 };
