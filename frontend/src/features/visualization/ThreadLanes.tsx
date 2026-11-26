@@ -31,7 +31,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
 
   if (!snapshot || !snapshot.threads) {
     return (
-      <div className="p-8 text-center text-[#78716C] font-mono text-sm bg-[#F4EFE7] rounded border border-[#E6E0D6]">
+      <div className="p-8 text-center text-[#78716C] font-mono text-sm bg-[#ECEAE3] rounded border border-[#D5D1C7]">
         No active threads in simulation.
       </div>
     );
@@ -56,7 +56,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
     switch (state) {
       case 'RUNNING':
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#171717] text-white">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#141413] text-white">
             <Play className="w-2.5 h-2.5 fill-white" />
             RUNNING
           </span>
@@ -77,7 +77,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
         );
       case 'TERMINATED':
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-semibold bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB]">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[10px] font-mono font-semibold bg-[#EAE4D9] text-[#78716C] border border-[#D5D1C7]">
             <CheckCircle2 className="w-2.5 h-2.5" />
             TERMINATED
           </span>
@@ -94,13 +94,13 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
   return (
     <div className={`w-full max-w-full min-w-0 flex flex-col ${threads.length <= 3 ? 'min-h-[460px] justify-center' : 'justify-start'} py-2 space-y-2.5`}>
       {/* Top Lane Header Info Bar */}
-      <div className="flex items-center justify-between pb-1.5 border-b border-[#E6E0D6] flex-shrink-0">
+      <div className="flex items-center justify-between pb-1.5 border-b border-[#D5D1C7] flex-shrink-0">
         <div className="flex items-center gap-2">
-          <Cpu className="w-3.5 h-3.5 text-[#171717]" />
-          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+          <Cpu className="w-3.5 h-3.5 text-[#141413]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#141413]">
             Virtual Thread Execution Lanes
           </h3>
-          <span className="text-[10px] font-mono text-[#57534E] px-1.5 py-0.5 rounded-none bg-[#EFEAE2] border border-[#DDD6CB]">
+          <span className="text-[10px] font-mono text-[#57534E] px-1.5 py-0.5 rounded-none bg-[#E4E1D9] border border-[#D5D1C7]">
             {threads.length} {threads.length === 1 ? 'Thread' : 'Threads'}
           </span>
         </div>
@@ -115,7 +115,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
           <div className="flex items-center gap-2 min-w-0">
             <Zap className="w-4 h-4 text-[#F59E0B] flex-shrink-0" />
             <div className="min-w-0 font-mono text-xs">
-              <span className="font-bold text-[#18181B] mr-2">
+              <span className="font-bold text-[#141413] mr-2">
                 RACE CONDITION (LOST UPDATE) DETECTED
               </span>
               <span className="text-[#78716C]">
@@ -152,15 +152,15 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
               onClick={() => selectThread(thread.id)}
               className={`rounded-none border transition-all cursor-pointer overflow-hidden w-full min-w-0 ${
                 isSelected
-                  ? 'border-[#B8AFA2] bg-[#F2ECE2] ring-1 ring-[#171717]/15 shadow-xs'
-                  : 'border-[#DDD6CB] bg-[#F7F2EB] hover:border-[#B8AFA2] hover:bg-[#F2EDE5]'
+                  ? 'border-[#B8AFA2] bg-[#FFFFFF] ring-1 ring-[#141413]/15 shadow-xs'
+                  : 'border-[#D5D1C7] bg-[#FAF9F5] hover:border-[#B8AFA2] hover:bg-[#FFFFFF]'
               }`}
             >
               {/* Two-Column Structure: LEFT RAIL + RIGHT EXECUTION TRACK */}
               <div className="grid grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] items-stretch w-full min-w-0">
                 {/* 1. LEFT RAIL: Thread identity, ID, state, PC, registers, mutexes */}
                 <div 
-                  className="p-3 border-b md:border-b-0 md:border-r border-[#E6E0D6] bg-[#F8F5EE]/90 flex flex-col justify-between min-w-0"
+                  className="p-3 border-b md:border-b-0 md:border-r border-[#D5D1C7] bg-[#FAF9F5]/90 flex flex-col justify-between min-w-0"
                   style={{ borderLeftColor: threadColor, borderLeftWidth: '4px' }}
                 >
                   <div className="space-y-2">
@@ -171,7 +171,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                           className="w-2 h-2 rounded-full flex-shrink-0"
                           style={{ backgroundColor: threadColor }}
                         />
-                        <span className="font-bold text-[#171717] text-xs font-mono truncate">
+                        <span className="font-bold text-[#141413] text-xs font-mono truncate">
                           {thread.name}
                         </span>
                         <span className="text-[9px] font-mono text-[#78716C] flex-shrink-0">
@@ -185,23 +185,23 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
 
                     {/* Program Counter: Current PC vs Executed PC */}
                     <div className="space-y-1 text-[10px] font-mono">
-                      <div className="flex items-center justify-between gap-1 bg-[#EFEAE2] px-2 py-0.5 rounded-none border border-[#DDD6CB]">
+                      <div className="flex items-center justify-between gap-1 bg-[#E4E1D9] px-2 py-0.5 rounded-none border border-[#D5D1C7]">
                         <span className="text-[#78716C] font-semibold">CURRENT PC</span>
-                        <strong className="text-[#171717]">{thread.pc}</strong>
+                        <strong className="text-[#141413]">{thread.pc}</strong>
                       </div>
 
                       {/* Explicitly show Executed PC if this thread was the executor of current step */}
                       {executedHistoricalEvent && currentEvent && (
                         <div className="flex items-center justify-between gap-1 bg-amber-500/10 px-2 py-0.5 rounded-none border border-amber-500/30 text-amber-900">
                           <span className="font-semibold text-[9px]">EXECUTED PC</span>
-                          <strong className="text-[#171717]">{currentEvent.previousPc}</strong>
+                          <strong className="text-[#141413]">{currentEvent.previousPc}</strong>
                         </div>
                       )}
 
                       {/* Distinct badges for currently running vs executed historical event */}
                       <div className="flex items-center gap-1 pt-0.5">
                         {isThreadRunningNow && (
-                          <span className="px-1.5 py-0.5 rounded-none text-[9px] font-mono font-bold bg-[#171717] text-white animate-pulse">
+                          <span className="px-1.5 py-0.5 rounded-none text-[9px] font-mono font-bold bg-[#141413] text-white animate-pulse">
                             ON CPU
                           </span>
                         )}
@@ -220,7 +220,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                     <div className="flex items-center gap-1 text-[10px] font-mono text-[#78716C]">
                       <Lock className="w-2.5 h-2.5 text-[#57534E]" />
                       <span>Held Mutexes:</span>
-                      <strong className="text-[#171717]">
+                      <strong className="text-[#141413]">
                         {thread.heldMutexes?.length || 0}
                       </strong>
                       {thread.heldMutexes && thread.heldMutexes.length > 0 && (
@@ -232,7 +232,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                   </div>
 
                   {/* Compact CPU Registers */}
-                  <div className="mt-2 pt-1.5 border-t border-[#E6E0D6] font-mono text-[10px]">
+                  <div className="mt-2 pt-1.5 border-t border-[#D5D1C7] font-mono text-[10px]">
                     <div className="text-[9px] uppercase font-bold text-[#78716C] mb-1">
                       CPU Registers
                     </div>
@@ -243,10 +243,10 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                         Object.entries(thread.registers).map(([reg, val]) => (
                           <span 
                             key={reg} 
-                            className="px-1.5 py-0.5 rounded-none bg-[#EFEAE2] border border-[#DDD6CB] text-[#171717] flex items-center gap-1 font-semibold"
+                            className="px-1.5 py-0.5 rounded-none bg-[#E4E1D9] border border-[#D5D1C7] text-[#141413] flex items-center gap-1 font-semibold"
                           >
                             <span className="text-[#78716C]">{reg}:</span>
-                            <strong className="text-[#171717]">{val}</strong>
+                            <strong className="text-[#141413]">{val}</strong>
                           </span>
                         ))
                       )}
@@ -255,7 +255,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                 </div>
 
                 {/* 2. RIGHT EXECUTION TRACK: Full-width instruction ribbon */}
-                <div className="p-3 flex flex-col justify-center min-w-0 overflow-hidden bg-[#FBF4EA]/50">
+                <div className="p-3 flex flex-col justify-center min-w-0 overflow-hidden bg-[#F6F4EF]/50">
                   <div className="flex items-center justify-between text-[10px] font-mono mb-1.5 text-[#78716C] flex-shrink-0">
                     <span className="uppercase font-bold tracking-wider">
                       Execution Track
@@ -286,10 +286,10 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                             <div
                               className={`w-full min-w-0 p-2 rounded-none border font-mono text-left transition-all ${
                                 isSelected
-                                  ? 'bg-[#18181B] text-white border-amber-400 ring-1 ring-amber-400/50 shadow-xs'
+                                  ? 'bg-[#141413] text-white border-amber-400 ring-1 ring-amber-400/50 shadow-xs'
                                   : isExecuted
-                                  ? 'bg-[#EFEAE2] text-[#171717] border-[#DDD6CB]'
-                                  : 'bg-[#FBF4EA] text-[#78716C] border-[#DDD6CB] border-dashed'
+                                  ? 'bg-[#E4E1D9] text-[#141413] border-[#D5D1C7]'
+                                  : 'bg-[#F6F4EF] text-[#78716C] border-[#D5D1C7] border-dashed'
                               }`}
                               style={isSelected ? { borderLeftColor: threadColor, borderLeftWidth: '3px' } : undefined}
                               title={`${ev.instruction.disassembly} — ${ev.explanation}`}
@@ -302,7 +302,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
 
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                   {isSelected ? (
-                                    <span className="px-1.5 py-0.2 bg-amber-400 text-[#18181B] font-bold rounded-none text-[8px] uppercase">
+                                    <span className="px-1.5 py-0.2 bg-amber-400 text-[#141413] font-bold rounded-none text-[8px] uppercase">
                                       SELECTED
                                     </span>
                                   ) : isExecuted ? (
@@ -319,7 +319,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                               </div>
 
                               {/* Opcode */}
-                              <div className={`font-bold text-[11px] truncate ${isSelected ? 'text-white' : isExecuted ? 'text-[#171717]' : 'text-[#57534E]'}`}>
+                              <div className={`font-bold text-[11px] truncate ${isSelected ? 'text-white' : isExecuted ? 'text-[#141413]' : 'text-[#57534E]'}`}>
                                 {ev.instruction.opcode}
                               </div>
 
@@ -339,7 +339,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                             {/* Chevron connector between instructions */}
                             {idx < threadEvents.length - 1 && (
                               <ChevronRight className={`w-3.5 h-3.5 flex-shrink-0 ${
-                                isExecuted ? 'text-[#78716C]' : 'text-[#DDD6CB]'
+                                isExecuted ? 'text-[#78716C]' : 'text-[#D5D1C7]'
                               }`} />
                             )}
                           </div>
@@ -348,7 +348,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
 
                       {/* Lane Terminator Badge */}
                       {thread.state === 'TERMINATED' && (
-                        <div className="flex-shrink-0 px-2 py-1 rounded-none bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB] font-mono text-[9px] font-bold">
+                        <div className="flex-shrink-0 px-2 py-1 rounded-none bg-[#EAE4D9] text-[#78716C] border border-[#D5D1C7] font-mono text-[9px] font-bold">
                           TERMINATED
                         </div>
                       )}
@@ -371,10 +371,10 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                             <div
                               className={`w-38 sm:w-42 p-2 rounded-none border font-mono text-left transition-all ${
                                 isSelected
-                                  ? 'bg-[#18181B] text-white border-amber-400 ring-1 ring-amber-400/50 shadow-xs'
+                                  ? 'bg-[#141413] text-white border-amber-400 ring-1 ring-amber-400/50 shadow-xs'
                                   : isExecuted
-                                  ? 'bg-[#EFEAE2] text-[#171717] border-[#DDD6CB]'
-                                  : 'bg-[#FBF4EA] text-[#78716C] border-[#DDD6CB] border-dashed'
+                                  ? 'bg-[#E4E1D9] text-[#141413] border-[#D5D1C7]'
+                                  : 'bg-[#F6F4EF] text-[#78716C] border-[#D5D1C7] border-dashed'
                               }`}
                               style={isSelected ? { borderLeftColor: threadColor, borderLeftWidth: '3px' } : undefined}
                               title={`${ev.instruction.disassembly} — ${ev.explanation}`}
@@ -386,7 +386,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
 
                                 <div className="flex items-center gap-1">
                                   {isSelected ? (
-                                    <span className="px-1.5 py-0.2 bg-amber-400 text-[#18181B] font-bold rounded-none text-[8px] uppercase">
+                                    <span className="px-1.5 py-0.2 bg-amber-400 text-[#141413] font-bold rounded-none text-[8px] uppercase">
                                       SELECTED
                                     </span>
                                   ) : isExecuted ? (
@@ -402,7 +402,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                                 </div>
                               </div>
 
-                              <div className={`font-bold text-[11px] truncate ${isSelected ? 'text-white' : isExecuted ? 'text-[#171717]' : 'text-[#57534E]'}`}>
+                              <div className={`font-bold text-[11px] truncate ${isSelected ? 'text-white' : isExecuted ? 'text-[#141413]' : 'text-[#57534E]'}`}>
                                 {ev.instruction.opcode}
                               </div>
 
@@ -419,7 +419,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
 
                             {idx < threadEvents.length - 1 && (
                               <ChevronRight className={`w-3 h-3 flex-shrink-0 ${
-                                isExecuted ? 'text-[#78716C]' : 'text-[#DDD6CB]'
+                                isExecuted ? 'text-[#78716C]' : 'text-[#D5D1C7]'
                               }`} />
                             )}
                           </div>
@@ -427,7 +427,7 @@ export const ThreadLanes: React.FC<ThreadLanesProps> = ({ onOpenRaceModal }) => 
                       })}
 
                       {thread.state === 'TERMINATED' && (
-                        <div className="flex-shrink-0 px-2 py-1 rounded-none bg-[#EAE4D9] text-[#78716C] border border-[#DDD6CB] font-mono text-[9px] font-bold">
+                        <div className="flex-shrink-0 px-2 py-1 rounded-none bg-[#EAE4D9] text-[#78716C] border border-[#D5D1C7] font-mono text-[9px] font-bold">
                           TERMINATED
                         </div>
                       )}

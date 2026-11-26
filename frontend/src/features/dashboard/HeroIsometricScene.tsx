@@ -1,343 +1,128 @@
-import React, { useState } from 'react';
-import { IsometricGrid } from '../../components/illustrations/IsometricGrid';
-import { IsometricPedestal } from '../../components/illustrations/IsometricPedestal';
-import { WorkerCharacter } from '../../components/illustrations/WorkerCharacter';
-import { MemoryVaultCube } from '../../components/illustrations/MemoryVaultCube';
-import { AnimatedConnector } from '../../components/illustrations/AnimatedConnector';
-import { ArrowRight, RotateCcw } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import { BackgroundGrid } from './hero/BackgroundGrid';
+import { ConnectionPaths } from './hero/ConnectionPaths';
+import { ThreadOne } from './hero/ThreadOne';
+import { ThreadTwo } from './hero/ThreadTwo';
+import { CPUScheduler } from './hero/CPUScheduler';
+import { SharedState } from './hero/SharedState';
+import { SyncLog } from './hero/SyncLog';
+import { DataPackets } from './hero/DataPackets';
+import { ExecutionStatus } from './hero/ExecutionStatus';
 
 interface HeroIsometricSceneProps {
-  onOpenWorkspace: (scenarioId?: string) => void;
+  onOpenWorkspace?: (scenarioId?: string) => void;
 }
 
-interface StepState {
-  step: number;
-  label: string;
-  t1Op: string;
-  t2Op: string;
-  r1: number;
-  r2: number;
-  xVal: number;
-  activeThread: 1 | 2 | null;
-  flowDirectionA: 'forward' | 'backward' | 'idle';
-  flowDirectionB: 'forward' | 'backward' | 'idle';
-  isWritingA: boolean;
-  isWritingB: boolean;
-  isReadingA: boolean;
-  isReadingB: boolean;
-  hasRace: boolean;
-  narrative: string;
-}
+// Synchronized 5-step deterministic pipeline (~1.35s per beat):
+// 0: Idle ready state (R1=0, R2=0, X=0)
+// 1: T1 dispatches instruction -> CPU Scheduler (R1=1)
+// 2: CPU Scheduler commits T1 write -> Shared State (X=1) -> SYNC_LOG
+// 3: T2 dispatches instruction -> CPU Scheduler (R2=1)
+// 4: CPU Scheduler commits T2 overwrite -> Shared State (X=1) -> SYNC_LOG
+const TOTAL_PHASES = 5;
 
-const HERO_STEPS: StepState[] = [
-  {
-    step: 0,
-    label: 'Init',
-    t1Op: 'READY',
-    t2Op: 'READY',
-    r1: 0,
-    r2: 0,
-    xVal: 0,
-    activeThread: null,
-    flowDirectionA: 'idle',
-    flowDirectionB: 'idle',
-    isWritingA: false,
-    isWritingB: false,
-    isReadingA: false,
-    isReadingB: false,
-    hasRace: false,
-    narrative: 'Initial State: Shared variable x = 0. Both threads are ready at their workstations.'
-  },
-  {
-    step: 1,
-    label: 'T1: Read',
-    t1Op: 'READ_SHARED',
-    t2Op: 'READY',
-    r1: 0,
-    r2: 0,
-    xVal: 0,
-    activeThread: 1,
-    flowDirectionA: 'backward', // Memory -> Thread A
-    flowDirectionB: 'idle',
-    isWritingA: false,
-    isWritingB: false,
-    isReadingA: true,
-    isReadingB: false,
-    hasRace: false,
-    narrative: 'Step 1: Thread A reads shared counter x (0) into local register r1.'
-  },
-  {
-    step: 2,
-    label: 'T2: Read',
-    t1Op: 'READY',
-    t2Op: 'READ_SHARED',
-    r1: 0,
-    r2: 0,
-    xVal: 0,
-    activeThread: 2,
-    flowDirectionA: 'idle',
-    flowDirectionB: 'forward', // Memory -> Thread B
-    isWritingA: false,
-    isWritingB: false,
-    isReadingA: false,
-    isReadingB: true,
-    hasRace: false,
-    narrative: 'Step 2: Context Switch! Thread B also reads shared counter x (0) into local register r2.'
-  },
-  {
-    step: 3,
-    label: 'T1: Add',
-    t1Op: 'ADD_IMM',
-    t2Op: 'READY',
-    r1: 1,
-    r2: 0,
-    xVal: 0,
-    activeThread: 1,
-    flowDirectionA: 'idle',
-    flowDirectionB: 'idle',
-    isWritingA: false,
-    isWritingB: false,
-    isReadingA: false,
-    isReadingB: false,
-    hasRace: false,
-    narrative: 'Step 3: Thread A increments local register: r1 becomes 1 (0 + 1). Memory x remains 0.'
-  },
-  {
-    step: 4,
-    label: 'T2: Add',
-    t1Op: 'READY',
-    t2Op: 'ADD_IMM',
-    r1: 1,
-    r2: 1,
-    xVal: 0,
-    activeThread: 2,
-    flowDirectionA: 'idle',
-    flowDirectionB: 'idle',
-    isWritingA: false,
-    isWritingB: false,
-    isReadingA: false,
-    isReadingB: false,
-    hasRace: false,
-    narrative: 'Step 4: Thread B increments local register: r2 becomes 1 (0 + 1). Both threads now hold 1.'
-  },
-  {
-    step: 5,
-    label: 'T1: Write',
-    t1Op: 'WRITE_SHARED',
-    t2Op: 'READY',
-    r1: 1,
-    r2: 1,
-    xVal: 1,
-    activeThread: 1,
-    flowDirectionA: 'forward', // Thread A -> Memory
-    flowDirectionB: 'idle',
-    isWritingA: true,
-    isWritingB: false,
-    isReadingA: false,
-    isReadingB: false,
-    hasRace: false,
-    narrative: 'Step 5: Thread A writes local r1 (1) back to shared counter. Shared memory x is now 1.'
-  },
-  {
-    step: 6,
-    label: 'T2: Overwrite',
-    t1Op: 'TERMINATED',
-    t2Op: 'WRITE_SHARED',
-    r1: 1,
-    r2: 1,
-    xVal: 1,
-    activeThread: 2,
-    flowDirectionA: 'idle',
-    flowDirectionB: 'backward', // Thread B -> Memory
-    isWritingA: false,
-    isWritingB: true,
-    isReadingA: false,
-    isReadingB: false,
-    hasRace: true,
-    narrative: 'Step 6: RACE CONDITION! Thread B writes its stale r2 (1) to x. Expected 2, actual value is 1 (Lost Update)!'
-  }
-];
+export const HeroIsometricScene: React.FC<HeroIsometricSceneProps> = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [phase, setPhase] = useState(0);
 
-export const HeroIsometricScene: React.FC<HeroIsometricSceneProps> = ({ onOpenWorkspace }) => {
-  const [currentStepIdx, setCurrentStepIdx] = useState(0);
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const timer = setInterval(() => {
+      setPhase((prev) => (prev + 1) % TOTAL_PHASES);
+    }, 1350);
+    return () => clearInterval(timer);
+  }, [prefersReducedMotion]);
 
-  const current = HERO_STEPS[currentStepIdx];
+  const isT1Active = phase === 1;
+  const isT1Write = phase === 2;
+  const isT2Active = phase === 3;
+  const isT2Write = phase === 4;
 
-  const handleNext = () => {
-    setCurrentStepIdx(prev => (prev < HERO_STEPS.length - 1 ? prev + 1 : 0));
-  };
+  const isCpuOut = isT1Write || isT2Write;
+  const activeLane: 't1' | 't2' | 'cpuOut' | 'idle' = isT1Active
+    ? 't1'
+    : isT2Active
+    ? 't2'
+    : isCpuOut
+    ? 'cpuOut'
+    : 'idle';
 
-  const handleReset = () => {
-    setCurrentStepIdx(0);
-  };
+  const pinPhase: 'in' | 'out' | 'idle' = isT1Active || isT2Active ? 'in' : isCpuOut ? 'out' : 'idle';
+  const lastWriter: 't1' | 't2' = phase >= 3 ? 't2' : 't1';
+  const activeActor: 't1' | 't2' | 'idle' =
+    isT1Active || isT1Write ? 't1' : isT2Active || isT2Write ? 't2' : 'idle';
+
+  const r1Val = phase >= 1 ? 1 : 0;
+  const r2Val = phase >= 3 ? 1 : 0;
+  const xVal = phase >= 2 ? 1 : 0;
+
+  const statusLabel =
+    phase === 0
+      ? 'IDLE // READY_QUEUE [T1, T2]'
+      : phase === 1
+      ? 'T1 [R1] → CPU_SCHEDULER // READ & INC (R1=1)'
+      : phase === 2
+      ? 'CPU_SCHEDULER → SHARED_STATE // WRITE COMMIT (X=1)'
+      : phase === 3
+      ? 'T2 [R2] → CPU_SCHEDULER // CONTEXT_SWITCH (R2=1)'
+      : 'CPU_SCHEDULER → SHARED_STATE // OVERWRITE HAZARD (X=1)';
 
   return (
-    <div className="w-full flex flex-col items-center select-none">
-      {/* 1. Responsive Isometric Scene (Seamlessly blended into page background) */}
-      <div className="w-full relative flex items-center justify-center">
-        <svg
-          viewBox="0 0 900 520"
-          className="w-full h-auto select-none block max-h-[500px]"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Subtle 30-degree isometric background diamond grid with fading edges */}
-          <IsometricGrid width={900} height={520} />
+    <div className="w-full flex items-center justify-center select-none">
+      <svg
+        viewBox="0 0 780 430"
+        className="w-full h-auto select-none block"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Concurrency Lab architecture: Thread 1 and Thread 2 connected through CPU Scheduler to Shared State X and Sync Log"
+      >
+        <BackgroundGrid width={780} height={430} prefersReducedMotion={prefersReducedMotion} />
 
-          {/* Left Pedestal (Thread A Workstation Plinth) */}
-          <IsometricPedestal
-            x={180}
-            y={320}
-            width={180}
-            depth={100}
-            height={22}
-            pillValue={`r1 = ${current.r1}`}
-            pillColor="#7C3AED"
-          />
+        <ConnectionPaths activePath={activeLane} />
 
-          {/* Right Pedestal (Thread B Workstation Plinth) */}
-          <IsometricPedestal
-            x={720}
-            y={320}
-            width={180}
-            depth={100}
-            height={22}
-            pillValue={`r2 = ${current.r2}`}
-            pillColor="#059669"
-          />
+        <ThreadOne
+          regValue={r1Val}
+          isActive={isT1Active}
+          prefersReducedMotion={prefersReducedMotion}
+        />
 
-          {/* Animated Connectors with Diamond Data Packets */}
-          {/* Connector A: Thread A Workstation <---> Shared Memory Vault */}
-          <AnimatedConnector
-            x1={245}
-            y1={270}
-            x2={395}
-            y2={195}
-            direction={current.flowDirectionA}
-            packetColor="#9B87F5"
-            packetCount={4}
-          />
+        <ThreadTwo
+          regValue={r2Val}
+          isActive={isT2Active}
+          prefersReducedMotion={prefersReducedMotion}
+        />
 
-          {/* Connector B: Shared Memory Vault <---> Thread B Workstation */}
-          <AnimatedConnector
-            x1={505}
-            y1={195}
-            x2={655}
-            y2={270}
-            direction={current.flowDirectionB}
-            packetColor="#6EE7B7"
-            packetCount={4}
-          />
+        <CPUScheduler
+          cx={382}
+          cy={220}
+          pinPhase={pinPhase}
+          prefersReducedMotion={prefersReducedMotion}
+        />
 
-          {/* Center 3D Shared Memory Vault Cube */}
-          <MemoryVaultCube
-            x={450}
-            y={160}
-            variableName="x"
-            value={current.xVal}
-            isWriting={current.isWritingA || current.isWritingB}
-            isReading={current.isReadingA || current.isReadingB}
-            hasRaceConflict={current.hasRace}
-            scale={1.05}
-          />
+        <SharedState
+          cx={598}
+          cy={178}
+          value={xVal}
+          isWriting={isCpuOut}
+          prefersReducedMotion={prefersReducedMotion}
+        />
 
-          {/* Worker Character A (Lavender Hoodie, facing right-forward) */}
-          <WorkerCharacter
-            x={180}
-            y={285}
-            name="Thread A"
-            pillColor="#7C3AED"
-            hoodieColor="#8B5CF6"
-            facing="right"
-            screenText={current.t1Op}
-            isExecuting={current.activeThread === 1}
-            state={current.activeThread === 1 ? 'RUNNING' : 'READY'}
-            scale={1.15}
-          />
+        <SyncLog
+          cx={710}
+          cy={236}
+          isSyncing={isCpuOut}
+          prefersReducedMotion={prefersReducedMotion}
+        />
 
-          {/* Worker Character B (Sage Green Hoodie, facing left-forward) */}
-          <WorkerCharacter
-            x={720}
-            y={285}
-            name="Thread B"
-            pillColor="#059669"
-            hoodieColor="#10B981"
-            facing="left"
-            screenText={current.t2Op}
-            isExecuting={current.activeThread === 2}
-            state={current.activeThread === 2 ? 'RUNNING' : 'READY'}
-            scale={1.15}
-          />
-        </svg>
-      </div>
+        <DataPackets
+          activeLane={activeLane}
+          lastWriter={lastWriter}
+          prefersReducedMotion={prefersReducedMotion}
+        />
 
-      {/* 2. Sleek Floating Step Controls Toolbar */}
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#DDD6CB] bg-[#FAF6EE]/95 shadow-xs backdrop-blur-xs mt-2">
-        {/* Reset button */}
-        <button
-          type="button"
-          onClick={handleReset}
-          title="Reset trace to step 00"
-          className="p-1.5 rounded-full text-[#78716C] hover:text-[#18181B] hover:bg-[#EFEAE2] transition-colors cursor-pointer"
-          aria-label="Reset trace"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-        </button>
-
-        <div className="w-[1px] h-4 bg-[#DDD6CB]" />
-
-        {/* Step buttons 00 to 06 */}
-        <div className="flex items-center gap-1">
-          {HERO_STEPS.map((s, idx) => (
-            <button
-              key={s.step}
-              type="button"
-              onClick={() => setCurrentStepIdx(idx)}
-              className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-medium transition-all cursor-pointer ${
-                currentStepIdx === idx
-                  ? 'bg-[#18181B] text-white font-bold shadow-2xs'
-                  : 'text-[#78716C] hover:text-[#18181B] hover:bg-[#EFEAE2]'
-              }`}
-              aria-label={`Step 0${s.step}: ${s.label}`}
-            >
-              0{s.step}
-            </button>
-          ))}
-        </div>
-
-        <div className="w-[1px] h-4 bg-[#DDD6CB]" />
-
-        {/* Next Step / Replay button */}
-        <button
-          type="button"
-          onClick={handleNext}
-          className="px-3.5 py-1 rounded-full bg-[#9E381E] hover:bg-[#852E17] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs active:scale-98"
-        >
-          <span>{currentStepIdx === HERO_STEPS.length - 1 ? 'Replay' : 'Next'}</span>
-          <ArrowRight className="w-3 h-3" />
-        </button>
-      </div>
-
-      {/* 3. Minimal Explanatory Text Caption & Live Engine CTA */}
-      <div className="mt-3 text-center space-y-1.5 max-w-xl mx-auto px-4">
-        <p className="text-xs sm:text-sm font-sans text-[#18181B] leading-relaxed">
-          <span className="font-semibold text-[#9E381E] mr-1.5">
-            {current.hasRace ? '⚠️ Hazard Detected:' : `Step 0${current.step}:`}
-          </span>
-          {current.narrative}
-        </p>
-        <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-[#78716C]">
-          <span>Interactive trace preview</span>
-          <span>•</span>
-          <button
-            type="button"
-            onClick={() => onOpenWorkspace('race_counter_2')}
-            className="text-[#9E381E] hover:text-[#852E17] font-semibold underline underline-offset-2 cursor-pointer inline-flex items-center gap-0.5"
-          >
-            <span>Open live C++ execution in Workspace</span>
-            <ArrowRight className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
+        <ExecutionStatus label={statusLabel} activeActor={activeActor} />
+      </svg>
     </div>
   );
 };

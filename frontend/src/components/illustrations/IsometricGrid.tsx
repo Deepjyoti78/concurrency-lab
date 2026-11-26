@@ -7,33 +7,32 @@ interface IsometricGridProps {
 }
 
 export const IsometricGrid: React.FC<IsometricGridProps> = ({
-  width = 900,
-  height = 540,
+  width = 780,
+  height = 430,
   className = ''
 }) => {
   return (
     <g className={`isometric-grid ${className}`} pointerEvents="none">
       <defs>
-        {/* Subtle 30-degree isometric diamond grid tile */}
+        {/* Crisp 30-degree isometric engineering floor grid */}
         <pattern
           id="iso-diamond-grid-pattern"
-          width="60"
-          height="34.64"
+          width="64"
+          height="36.95"
           patternUnits="userSpaceOnUse"
         >
           <path
-            d="M 30,0 L 60,17.32 L 30,34.64 L 0,17.32 Z"
+            d="M 32,0 L 64,18.475 L 32,36.95 L 0,18.475 Z"
             fill="none"
-            stroke="#EADBCE"
-            strokeWidth="0.85"
-            strokeDasharray="2,2"
+            stroke="#DBD7CE"
+            strokeWidth="0.95"
           />
         </pattern>
 
-        {/* Soft radial fade mask for seamless edge dissolution */}
-        <radialGradient id="iso-grid-fade-mask" cx="50%" cy="48%" r="48%">
-          <stop offset="35%" stopColor="#FFFFFF" stopOpacity="0.85" />
-          <stop offset="70%" stopColor="#FFFFFF" stopOpacity="0.4" />
+        {/* Radial fade mask into #F6F4EF */}
+        <radialGradient id="iso-grid-fade-mask" cx="50%" cy="50%" r="48%">
+          <stop offset="38%" stopColor="#FFFFFF" stopOpacity="1" />
+          <stop offset="72%" stopColor="#FFFFFF" stopOpacity="0.45" />
           <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
         </radialGradient>
         <mask id="iso-grid-mask">

@@ -2,23 +2,24 @@
 
 @layer base {
   :root {
-    --bg-base: #FBF4EA;
+    --bg-base: #F6F4EF;
     --bg-surface: #FFFFFF;
-    --bg-subtle: #F4EFE7;
-    --bg-muted: #EFEAE2;
-    --border-subtle: #E6E0D6;
-    --border-strong: #D5CEBF;
-    --text-primary: #18181B;
-    --text-secondary: #57534E;
-    --text-muted: #A8A29E;
-    --black-primary: #18181B;
+    --bg-subtle: #ECEAE3;
+    --bg-muted: #E4E1D9;
+    --border-subtle: #D5D1C7;
+    --border-strong: #141413;
+    --text-primary: #141413;
+    --text-secondary: #595751;
+    --text-muted: #8C8982;
+    --black-primary: #141413;
     --black-secondary: #27272A;
+    --accent-terracotta: #9E381E;
   }
 
   body {
     margin: 0;
-    background-color: #FBF4EA;
-    color: #18181B;
+    background-color: #F6F4EF;
+    color: #141413;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -30,19 +31,42 @@
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
+  .font-grotesk {
+    font-family: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
   .font-editorial {
-    font-family: 'Newsreader', 'Playfair Display', Georgia, serif;
+    font-family: 'Newsreader', Georgia, serif;
   }
 
   .font-editorial-italic {
-    font-family: 'Newsreader', 'Playfair Display', 'Instrument Serif', Georgia, serif;
+    font-family: 'Newsreader', Georgia, serif;
     font-style: italic;
   }
 
   .font-serif-italic {
-    font-family: 'Newsreader', 'Instrument Serif', Georgia, serif;
+    font-family: 'Newsreader', Georgia, serif;
     font-style: italic;
   }
+}
+
+/* Archival dotted & hairline blueprint background utilities (inspired by microscopic technical sheets) */
+.bg-micro-dots {
+  background-image: radial-gradient(#C8C3B8 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.bg-micro-grid {
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 19, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 20, 19, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-micro-dashed-grid {
+  background-image:
+    radial-gradient(circle, rgba(20, 20, 19, 0.14) 0.75px, transparent 0.75px);
+  background-size: 12px 12px;
 }
 
 .text-terracotta {
@@ -57,44 +81,18 @@
   border-color: #9E381E;
 }
 
-/* Editorial hairline styling */
-.border-editorial {
-  border-color: #DED8CE;
-}
-
-.card-sharp {
-  border-radius: 0px;
-}
-
-/* Custom warm cream & dark charcoal scrollbars */
+/* Crisp technical scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D8D2C5;
-  border-radius: 9999px;
+  background: #C9C4B8;
+  border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8B0A2;
-}
-
-/* Subtle clay/tactile shadows */
-.shadow-tactile-sm {
-  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.05), 0 2px 4px rgba(24, 24, 27, 0.03);
-}
-
-.shadow-tactile {
-  box-shadow: 0 4px 12px -2px rgba(24, 24, 27, 0.08), 0 2px 6px -1px rgba(24, 24, 27, 0.04);
-}
-
-.shadow-tactile-lg {
-  box-shadow: 0 12px 24px -4px rgba(24, 24, 27, 0.12), 0 4px 8px -2px rgba(24, 24, 27, 0.06);
-}
-
-.shadow-tactile-inner {
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  background: #9E998D;
 }

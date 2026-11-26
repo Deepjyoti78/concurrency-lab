@@ -15,18 +15,19 @@ export const DataPacket: React.FC<DataPacketProps> = ({
   y,
   size = 6.5,
   color = '#9B87F5', // muted lavender
-  outlineColor = '#18181B',
+  outlineColor = '#1E1E1C',
   label,
   className = ''
 }) => {
-  // If green (Thread B), use matching sage facets. If lavender (Thread A), use lavender facets.
+  // Subtle isometric lighting per face with refined thin boundary
   const isSage = color === '#6EE7B7' || color === '#34D399' || color === '#10B981' || color === '#A7F3D0';
+  const topFacet = isSage ? '#A7F3D0' : '#C4B5FD';
   const leftFacet = isSage ? '#34D399' : '#8B5CF6';
-  const rightFacet = isSage ? '#059669' : '#7C3AED';
+  const rightFacet = isSage ? '#059669' : '#6D28D9';
 
   return (
     <g className={`data-packet ${className}`} transform={`translate(${x}, ${y})`}>
-      {/* 3D Isometric Diamond / Octahedron Facets */}
+      {/* 3D Isometric Cube with Crisp Hairline Boundary */}
       {/* Top Diamond Face */}
       <polygon
         points={`
@@ -35,9 +36,10 @@ export const DataPacket: React.FC<DataPacketProps> = ({
           0,0 
           ${-size * 0.866},${-size * 0.5}
         `}
-        fill={color}
+        fill={topFacet}
         stroke={outlineColor}
-        strokeWidth="1.1"
+        strokeWidth="0.6"
+        strokeOpacity="0.82"
         strokeLinejoin="round"
       />
       {/* Left Shaded Face */}
@@ -50,7 +52,8 @@ export const DataPacket: React.FC<DataPacketProps> = ({
         `}
         fill={leftFacet}
         stroke={outlineColor}
-        strokeWidth="1.1"
+        strokeWidth="0.6"
+        strokeOpacity="0.82"
         strokeLinejoin="round"
       />
       {/* Right Shaded Face */}
@@ -63,7 +66,8 @@ export const DataPacket: React.FC<DataPacketProps> = ({
         `}
         fill={rightFacet}
         stroke={outlineColor}
-        strokeWidth="1.1"
+        strokeWidth="0.6"
+        strokeOpacity="0.82"
         strokeLinejoin="round"
       />
       {label && (

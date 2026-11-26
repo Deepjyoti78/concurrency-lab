@@ -50,16 +50,16 @@ export const ResourceAllocationGraph: React.FC = () => {
     if (id === 2) return '#10B981';
     if (id === 3) return '#8B5CF6';
     if (id === 4) return '#F59E0B';
-    return '#171717';
+    return '#141413';
   };
 
   return (
     <div className="space-y-3">
       {/* Header, Mode Switcher & Zoom Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1 border-b border-[#E6E0D6]">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1 border-b border-[#D5D1C7]">
         <div className="flex items-center gap-2">
-          <GitFork className="w-4 h-4 text-[#171717]" />
-          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+          <GitFork className="w-4 h-4 text-[#141413]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#141413]">
             {graphMode === 'rag' ? 'Resource Allocation Graph' : 'Wait-For Graph'}
           </h3>
           {isDeadlocked ? (
@@ -77,11 +77,11 @@ export const ResourceAllocationGraph: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {/* Zoom controls */}
-          <div className="flex items-center bg-[#EFEAE2] border border-[#DDD6CB] rounded p-0.5">
+          <div className="flex items-center bg-[#E4E1D9] border border-[#D5D1C7] rounded p-0.5">
             <button
               onClick={() => setZoomLevel(prev => Math.max(0.7, prev - 0.15))}
               title="Zoom Out"
-              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] cursor-pointer"
+              className="p-1 rounded text-[#57534E] hover:text-[#141413] hover:bg-[#E5DFD4] cursor-pointer"
             >
               <ZoomOut className="w-3 h-3" />
             </button>
@@ -91,25 +91,25 @@ export const ResourceAllocationGraph: React.FC = () => {
             <button
               onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.15))}
               title="Zoom In"
-              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] cursor-pointer"
+              className="p-1 rounded text-[#57534E] hover:text-[#141413] hover:bg-[#E5DFD4] cursor-pointer"
             >
               <ZoomIn className="w-3 h-3" />
             </button>
             <button
               onClick={() => setZoomLevel(1)}
               title="Reset Zoom"
-              className="p-1 rounded text-[#57534E] hover:text-[#171717] hover:bg-[#E5DFD4] cursor-pointer border-l border-[#DDD6CB] ml-0.5"
+              className="p-1 rounded text-[#57534E] hover:text-[#141413] hover:bg-[#E5DFD4] cursor-pointer border-l border-[#D5D1C7] ml-0.5"
             >
               <Maximize2 className="w-3 h-3" />
             </button>
           </div>
 
           {/* Mode Switcher */}
-          <div className="flex items-center gap-0.5 bg-[#EFEAE2] p-0.5 rounded border border-[#DDD6CB] text-xs font-mono">
+          <div className="flex items-center gap-0.5 bg-[#E4E1D9] p-0.5 rounded border border-[#D5D1C7] text-xs font-mono">
             <button
               onClick={() => setGraphMode('rag')}
               className={`px-2 py-0.5 rounded transition-colors cursor-pointer text-xs ${
-                graphMode === 'rag' ? 'bg-[#171717] text-white font-bold' : 'text-[#57534E] hover:text-[#171717]'
+                graphMode === 'rag' ? 'bg-[#141413] text-white font-bold' : 'text-[#57534E] hover:text-[#141413]'
               }`}
             >
               RAG
@@ -117,7 +117,7 @@ export const ResourceAllocationGraph: React.FC = () => {
             <button
               onClick={() => setGraphMode('wfg')}
               className={`px-2 py-0.5 rounded transition-colors cursor-pointer text-xs ${
-                graphMode === 'wfg' ? 'bg-[#171717] text-white font-bold' : 'text-[#57534E] hover:text-[#171717]'
+                graphMode === 'wfg' ? 'bg-[#141413] text-white font-bold' : 'text-[#57534E] hover:text-[#141413]'
               }`}
             >
               Wait-For Graph
@@ -128,7 +128,7 @@ export const ResourceAllocationGraph: React.FC = () => {
 
       {/* Deadlock Alert Banner */}
       {isDeadlocked && deadlockReport && (
-        <div className="p-3 rounded-md bg-[#EF4444]/10 border border-[#EF4444]/30 text-xs space-y-1 text-[#EF4444]">
+        <div className="p-3 rounded-none bg-[#EF4444]/10 border border-[#EF4444]/30 text-xs space-y-1 text-[#EF4444]">
           <div className="flex items-center gap-1.5 font-bold">
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Deadlock Cycle: {deadlockReport.cycleDescription || "Circular wait among threads"}</span>
@@ -143,7 +143,7 @@ export const ResourceAllocationGraph: React.FC = () => {
       )}
 
       {/* SVG Canvas with Zoom Scaling */}
-      <div className="rounded-lg border border-[#E6E0D6] bg-[#F4EFE7] p-2 flex items-center justify-center overflow-hidden min-h-[360px]">
+      <div className="rounded-none border border-[#D5D1C7] bg-[#ECEAE3] p-2 flex items-center justify-center overflow-hidden min-h-[360px]">
         <svg 
           viewBox={`0 0 ${width} ${height}`} 
           className="w-full h-auto max-w-[720px] max-h-[380px] select-none transition-transform duration-200"
@@ -187,7 +187,7 @@ export const ResourceAllocationGraph: React.FC = () => {
 
           {/* Subtle Grid Background */}
           <pattern id="warm-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1" fill="#DDD6CB" opacity="0.7" />
+            <circle cx="2" cy="2" r="1" fill="#D5D1C7" opacity="0.7" />
           </pattern>
           <rect width="100%" height="100%" fill="url(#warm-grid)" />
 
@@ -309,13 +309,13 @@ export const ResourceAllocationGraph: React.FC = () => {
                     width="56"
                     height="36"
                     rx="4"
-                    fill={isInCycle ? "#FEE2E2" : isHeld ? "#D1FAE5" : "#EFEAE2"}
-                    stroke={isInCycle ? "#EF4444" : isHeld ? "#10B981" : "#DDD6CB"}
+                    fill={isInCycle ? "#FEE2E2" : isHeld ? "#D1FAE5" : "#E4E1D9"}
+                    stroke={isInCycle ? "#EF4444" : isHeld ? "#10B981" : "#D5D1C7"}
                     strokeWidth={isInCycle ? 2.5 : 1.5}
                   />
                   <text
                     y="4"
-                    fill={isInCycle ? "#EF4444" : isHeld ? "#047857" : "#171717"}
+                    fill={isInCycle ? "#EF4444" : isHeld ? "#047857" : "#141413"}
                     fontSize="10"
                     fontFamily="monospace"
                     fontWeight="bold"
@@ -339,7 +339,7 @@ export const ResourceAllocationGraph: React.FC = () => {
               <g key={`node-t-${t.id}`} transform={`translate(${pos.x}, ${pos.y})`}>
                 <circle
                   r="26"
-                  fill={isDeadlockedThread ? "#FEE2E2" : isBlocked ? "#FEF3C7" : "#171717"}
+                  fill={isDeadlockedThread ? "#FEE2E2" : isBlocked ? "#FEF3C7" : "#141413"}
                   stroke={isDeadlockedThread ? "#EF4444" : isBlocked ? "#F59E0B" : threadAccent}
                   strokeWidth={isDeadlockedThread ? 3.5 : 2.5}
                 />
@@ -370,13 +370,13 @@ export const ResourceAllocationGraph: React.FC = () => {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-[#57534E] p-2 bg-[#F4EFE7] rounded border border-[#E6E0D6]">
+      <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-[#57534E] p-2 bg-[#ECEAE3] rounded border border-[#D5D1C7]">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#171717] border border-[#DDD6CB]" />
+          <div className="w-3 h-3 rounded-full bg-[#141413] border border-[#D5D1C7]" />
           <span>Thread Node</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-[#EFEAE2] border border-[#DDD6CB]" />
+          <div className="w-3 h-3 rounded bg-[#E4E1D9] border border-[#D5D1C7]" />
           <span>Mutex Resource</span>
         </div>
         <div className="flex items-center gap-1.5">

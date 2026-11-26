@@ -8,9 +8,12 @@ interface WorkerCharacterProps {
   hoodieColor: string;
   facing: 'left' | 'right';
   screenText?: string;
+  registerLabel?: string;
+  registerValue?: number;
   isExecuting?: boolean;
   state?: 'READY' | 'RUNNING' | 'BLOCKED' | 'TERMINATED';
   imageSrc?: string;
+  imageSize?: number;
   scale?: number;
   className?: string;
 }
@@ -23,13 +26,155 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
   hoodieColor,
   facing,
   screenText = 'r = x',
+  registerLabel,
+  registerValue,
   isExecuting = false,
   state = 'READY',
   imageSrc,
+  imageSize = 385,
   scale = 1,
   className = ''
 }) => {
   const isFacingRight = facing === 'right';
+
+  if (imageSrc) {
+    const imgScale = (imageSize / 1254) * scale;
+    const defaultLabel = isFacingRight ? 'r1' : 'r2';
+    const rLabel = registerLabel ?? defaultLabel;
+    const showDynamicRegister = registerValue !== undefined && registerValue !== 0;
+
+    return (
+      <g
+        className={`worker-character ${className}`}
+        transform={`translate(${x}, ${y}) scale(${imgScale})`}
+      >
+        {/* Subtle active pedestal spotlight glow when executing */}
+        {isExecuting && (
+          <ellipse
+            cx="0"
+            cy="280"
+            rx="420"
+            ry="190"
+            fill={isFacingRight ? 'rgba(139, 92, 246, 0.14)' : 'rgba(16, 185, 129, 0.14)'}
+          />
+        )}
+
+        {/* Transparent ChatGPT Isometric Artwork (includes pill, pedestal, character, laptop, register badge) */}
+        <image
+          href={imageSrc}
+          x={-627}
+          y={-627}
+          width={1254}
+          height={1254}
+          preserveAspectRatio="xMidYMid meet"
+        />
+
+        {/* Dynamic register value patch when register updates beyond initial 0 */}
+        {showDynamicRegister && (
+          isFacingRight ? (
+            <g>
+              <rect
+                x={-86}
+                y={208}
+                width={260}
+                height={92}
+                rx={44}
+                fill="#FDF5E8"
+              />
+              <text
+                x={44.5}
+                y={269}
+                textAnchor="middle"
+                fontFamily="JetBrains Mono, monospace"
+                fontSize="52"
+                fontWeight="700"
+                fill="#18181B"
+              >
+                {rLabel} = {registerValue}
+              </text>
+            </g>
+          ) : (
+            <g>
+              <rect
+                x={-168}
+                y={231}
+                width={282}
+                height={94}
+                rx={45}
+                fill="#FBF4EA"
+              />
+              <text
+                x={-26.5}
+                y={293}
+                textAnchor="middle"
+                fontFamily="JetBrains Mono, monospace"
+                fontSize="52"
+                fontWeight="700"
+              >
+                <tspan fill="#15803D">{rLabel}</tspan>
+                <tspan fill="#18181B"> = {registerValue}</tspan>
+              </text>
+            </g>
+          )
+        )}
+
+        {/* Subtle Active / Blocked state chip below pedestal when stepping */}
+        {isExecuting && (
+          <g transform="translate(0, 485)">
+            <rect
+              x="-120"
+              y="-34"
+              width="240"
+              height="68"
+              rx="34"
+              fill="#18181B"
+              stroke={isFacingRight ? '#8B5CF6' : '#10B981'}
+              strokeWidth="5"
+            />
+            <circle cx="-68" cy="0" r="11" fill={isFacingRight ? '#A78BFA' : '#34D399'} />
+            <text
+              x="16"
+              y="13"
+              textAnchor="middle"
+              fontFamily="Inter, system-ui, sans-serif"
+              fontSize="34"
+              fontWeight="700"
+              fill="#FFFFFF"
+              letterSpacing="0.04em"
+            >
+              ACTIVE
+            </text>
+          </g>
+        )}
+        {state === 'BLOCKED' && (
+          <g transform="translate(0, 485)">
+            <rect
+              x="-135"
+              y="-34"
+              width="270"
+              height="68"
+              rx="34"
+              fill="#7F1D1D"
+              stroke="#EF4444"
+              strokeWidth="5"
+            />
+            <text
+              x="0"
+              y="13"
+              textAnchor="middle"
+              fontFamily="Inter, system-ui, sans-serif"
+              fontSize="34"
+              fontWeight="700"
+              fill="#FFFFFF"
+              letterSpacing="0.04em"
+            >
+              WAITING
+            </text>
+          </g>
+        )}
+      </g>
+    );
+  }
 
   return (
     <g
@@ -63,22 +208,9 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
         </text>
       </g>
 
-      {/* 2. Character Artwork: External Transparent Asset OR Hand-Crafted Editorial Vector */}
-      {imageSrc ? (
-        <g transform="translate(-55, -90)">
-          <image
-            href={imageSrc}
-            x="0"
-            y="0"
-            width="110"
-            height="110"
-            preserveAspectRatio="xMidYMid meet"
-          />
-        </g>
-      ) : isFacingRight ? (
-        // ==================== WORKER A: FACING RIGHT-FORWARD ====================
+      {/* 2. Hand-Crafted Editorial Vector Fallback */}
+      {isFacingRight ? (
         <g id="worker-a-artwork">
-          {/* Chair / Ergonomic Stool */}
           <ellipse cx="-28" cy="12" rx="18" ry="6" fill="#3F3F46" stroke="#18181B" strokeWidth="1.25" />
           <path d="M -28 12 L -28 -10" stroke="#18181B" strokeWidth="2.5" strokeLinecap="round" />
           <path
@@ -87,8 +219,6 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             stroke="#18181B"
             strokeWidth="1.25"
           />
-
-          {/* Lower Torso / Legs Seated */}
           <path
             d="M -34 -6 C -34 6 -24 16 -12 16 C -4 16 0 10 2 2 L -8 -6 Z"
             fill="#27272A"
@@ -96,8 +226,6 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.25"
             strokeLinejoin="round"
           />
-
-          {/* Main Torso & Hoodie Body */}
           <path
             d="M -38 -18 C -40 -46 -22 -52 -4 -38 C 4 -26 4 -6 -2 4 C -12 8 -34 4 -38 -18 Z"
             fill={hoodieColor}
@@ -105,8 +233,6 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
-
-          {/* Hoodie Shadow & Fold Detail */}
           <path
             d="M -22 -40 Q -14 -22 -18 2"
             fill="none"
@@ -114,29 +240,7 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.25"
             strokeLinecap="round"
           />
-          <path
-            d="M -34 -14 C -30 -6 -20 -4 -10 -2"
-            fill="none"
-            stroke="rgba(24, 24, 27, 0.15)"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-
-          {/* Head & Neck */}
-          <ellipse
-            cx="-14"
-            cy="-54"
-            rx="10"
-            ry="12"
-            fill="#FDE0B6"
-            stroke="#18181B"
-            strokeWidth="1.4"
-          />
-
-          {/* Ear */}
-          <ellipse cx="-20" cy="-52" rx="2.5" ry="3.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
-
-          {/* Styled Hair Profile */}
+          <ellipse cx="-14" cy="-54" rx="10" ry="12" fill="#FDE0B6" stroke="#18181B" strokeWidth="1.4" />
           <path
             d="M -24 -58 C -24 -70 -8 -72 -2 -62 C 2 -54 -2 -48 -4 -46 C -12 -46 -24 -48 -24 -58 Z"
             fill="#27272A"
@@ -144,24 +248,12 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.4"
             strokeLinejoin="round"
           />
-          {/* Hair bangs / fringe */}
-          <path
-            d="M -8 -66 C -2 -64 2 -60 2 -55 C -2 -54 -4 -56 -8 -58 Z"
-            fill="#18181B"
-          />
-
-          {/* Eye & Brow Hint */}
-          <circle cx="-6" cy="-54" r="1.2" fill="#18181B" />
-          <path d="M -8 -58 Q -5 -59 -3 -57" stroke="#18181B" strokeWidth="1" strokeLinecap="round" fill="none" />
-
-          {/* Left / Upper Arm reaching to laptop */}
           <path
             d="M -16 -24 Q -2 -18 8 -12 Q 16 -6 20 -2"
             fill="none"
             stroke={hoodieColor}
             strokeWidth="8"
             strokeLinecap="round"
-            strokeLinejoin="round"
           />
           <path
             d="M -16 -24 Q -2 -18 8 -12 Q 16 -6 20 -2"
@@ -170,44 +262,9 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.4"
             strokeLinecap="round"
           />
-
-          {/* Hand on Keyboard */}
           <ellipse cx="20" cy="-2" rx="3.5" ry="2.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
-
-          {/* Modern Isometric Laptop Base */}
-          <polygon
-            points="10,0 34,-12 50,-4 26,8"
-            fill="#94A3B8"
-            stroke="#18181B"
-            strokeWidth="1.3"
-            strokeLinejoin="round"
-          />
-          {/* Keyboard keys surface */}
-          <polygon
-            points="14,-1 32,-10 44,-4 26,5"
-            fill="#334155"
-          />
-
-          {/* Modern Isometric Laptop Display (angled towards user) */}
-          <polygon
-            points="34,-12 50,-4 50,-36 34,-44"
-            fill="#1E293B"
-            stroke="#18181B"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-          {/* Screen Inner Bezel */}
-          <polygon
-            points="36,-14 48,-8 48,-34 36,-40"
-            fill={isExecuting ? '#0F172A' : '#18181B'}
-          />
-
-          {/* Code Lines on Screen */}
-          <line x1="39" y1="-32" x2="45" y2="-29" stroke={isExecuting ? '#34D399' : '#64748B'} strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="39" y1="-26" x2="46" y2="-22.5" stroke={isExecuting ? '#A7F3D0' : '#475569'} strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="39" y1="-20" x2="44" y2="-17.5" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
-
-          {/* Small Screen Prompt Badge */}
+          <polygon points="10,0 34,-12 50,-4 26,8" fill="#94A3B8" stroke="#18181B" strokeWidth="1.3" strokeLinejoin="round" />
+          <polygon points="34,-12 50,-4 50,-36 34,-44" fill="#1E293B" stroke="#18181B" strokeWidth="1.4" strokeLinejoin="round" />
           <text
             x="41"
             y="-22"
@@ -221,9 +278,7 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
           </text>
         </g>
       ) : (
-        // ==================== WORKER B: FACING LEFT-FORWARD ====================
         <g id="worker-b-artwork">
-          {/* Chair / Ergonomic Stool */}
           <ellipse cx="28" cy="12" rx="18" ry="6" fill="#3F3F46" stroke="#18181B" strokeWidth="1.25" />
           <path d="M 28 12 L 28 -10" stroke="#18181B" strokeWidth="2.5" strokeLinecap="round" />
           <path
@@ -232,8 +287,6 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             stroke="#18181B"
             strokeWidth="1.25"
           />
-
-          {/* Lower Torso / Legs Seated */}
           <path
             d="M 34 -6 C 34 6 24 16 12 16 C 4 16 0 10 -2 2 L 8 -6 Z"
             fill="#27272A"
@@ -241,8 +294,6 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.25"
             strokeLinejoin="round"
           />
-
-          {/* Main Torso & Hoodie Body */}
           <path
             d="M 38 -18 C 40 -46 22 -52 4 -38 C -4 -26 -4 -6 2 4 C 12 8 34 4 38 -18 Z"
             fill={hoodieColor}
@@ -250,38 +301,7 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
-
-          {/* Hoodie Shadow & Fold Detail */}
-          <path
-            d="M 22 -40 Q 14 -22 18 2"
-            fill="none"
-            stroke="#18181B"
-            strokeWidth="1.25"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 34 -14 C 30 -6 20 -4 10 -2"
-            fill="none"
-            stroke="rgba(24, 24, 27, 0.15)"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-
-          {/* Head & Neck */}
-          <ellipse
-            cx="14"
-            cy="-54"
-            rx="10"
-            ry="12"
-            fill="#FDE0B6"
-            stroke="#18181B"
-            strokeWidth="1.4"
-          />
-
-          {/* Ear */}
-          <ellipse cx="20" cy="-52" rx="2.5" ry="3.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
-
-          {/* Hair with Top-Bun Profile */}
+          <ellipse cx="14" cy="-54" rx="10" ry="12" fill="#FDE0B6" stroke="#18181B" strokeWidth="1.4" />
           <path
             d="M 24 -58 C 24 -70 8 -72 2 -62 C -2 -54 2 -48 4 -46 C 12 -46 24 -48 24 -58 Z"
             fill="#27272A"
@@ -289,22 +309,13 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.4"
             strokeLinejoin="round"
           />
-          {/* Top knot / bun */}
           <circle cx="18" cy="-68" r="5.5" fill="#18181B" stroke="#18181B" strokeWidth="1.2" />
-          <line x1="12" y1="-72" x2="24" y2="-64" stroke="#F59E0B" strokeWidth="1.2" strokeLinecap="round" />
-
-          {/* Eye & Brow Hint */}
-          <circle cx="6" cy="-54" r="1.2" fill="#18181B" />
-          <path d="M 8 -58 Q 5 -59 3 -57" stroke="#18181B" strokeWidth="1" strokeLinecap="round" fill="none" />
-
-          {/* Arm reaching to keyboard */}
           <path
             d="M 16 -24 Q 2 -18 -8 -12 Q -16 -6 -20 -2"
             fill="none"
             stroke={hoodieColor}
             strokeWidth="8"
             strokeLinecap="round"
-            strokeLinejoin="round"
           />
           <path
             d="M 16 -24 Q 2 -18 -8 -12 Q -16 -6 -20 -2"
@@ -313,44 +324,9 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
             strokeWidth="1.4"
             strokeLinecap="round"
           />
-
-          {/* Hand on Keyboard */}
           <ellipse cx="-20" cy="-2" rx="3.5" ry="2.5" fill="#FDE0B6" stroke="#18181B" strokeWidth="1" />
-
-          {/* Modern Isometric Laptop Base */}
-          <polygon
-            points="-10,0 -34,-12 -50,-4 -26,8"
-            fill="#94A3B8"
-            stroke="#18181B"
-            strokeWidth="1.3"
-            strokeLinejoin="round"
-          />
-          {/* Keyboard keys surface */}
-          <polygon
-            points="-14,-1 -32,-10 -44,-4 -26,5"
-            fill="#334155"
-          />
-
-          {/* Modern Isometric Laptop Display (angled towards user) */}
-          <polygon
-            points="-34,-12 -50,-4 -50,-36 -34,-44"
-            fill="#1E293B"
-            stroke="#18181B"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-          {/* Screen Inner Bezel */}
-          <polygon
-            points="-36,-14 -48,-8 -48,-34 -36,-40"
-            fill={isExecuting ? '#0F172A' : '#18181B'}
-          />
-
-          {/* Code Lines on Screen */}
-          <line x1="-39" y1="-32" x2="-45" y2="-29" stroke={isExecuting ? '#34D399' : '#64748B'} strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="-39" y1="-26" x2="-46" y2="-22.5" stroke={isExecuting ? '#A7F3D0' : '#475569'} strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="-39" y1="-20" x2="-44" y2="-17.5" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
-
-          {/* Small Screen Prompt Badge */}
+          <polygon points="-10,0 -34,-12 -50,-4 -26,8" fill="#94A3B8" stroke="#18181B" strokeWidth="1.3" strokeLinejoin="round" />
+          <polygon points="-34,-12 -50,-4 -50,-36 -34,-44" fill="#1E293B" stroke="#18181B" strokeWidth="1.4" strokeLinejoin="round" />
           <text
             x="-41"
             y="-22"
@@ -365,55 +341,11 @@ export const WorkerCharacter: React.FC<WorkerCharacterProps> = ({
         </g>
       )}
 
-      {/* 3. Subtle Active Execution Indicator (Clean, non-distracting) */}
       {isExecuting && (
         <g transform="translate(0, 22)">
-          <rect
-            x="-26"
-            y="-7"
-            width="52"
-            height="14"
-            rx="7"
-            fill="#18181B"
-            stroke="#10B981"
-            strokeWidth="1"
-          />
+          <rect x="-26" y="-7" width="52" height="14" rx="7" fill="#18181B" stroke="#10B981" strokeWidth="1" />
           <circle cx="-16" cy="0" r="2.5" fill="#10B981" />
-          <text
-            x="-8"
-            y="3"
-            fontFamily="Inter, system-ui, sans-serif"
-            fontSize="8"
-            fontWeight="700"
-            fill="#FFFFFF"
-          >
-            ACTIVE
-          </text>
-        </g>
-      )}
-      {state === 'BLOCKED' && (
-        <g transform="translate(0, 22)">
-          <rect
-            x="-28"
-            y="-7"
-            width="56"
-            height="14"
-            rx="7"
-            fill="#7F1D1D"
-            stroke="#EF4444"
-            strokeWidth="1"
-          />
-          <text
-            x="0"
-            y="3"
-            textAnchor="middle"
-            fontFamily="Inter, system-ui, sans-serif"
-            fontSize="8"
-            fontWeight="700"
-            fill="#FFFFFF"
-          >
-            WAITING
-          </text>
+          <text x="-8" y="3" fontFamily="Inter, system-ui, sans-serif" fontSize="8" fontWeight="700" fill="#FFFFFF">ACTIVE</text>
         </g>
       )}
     </g>

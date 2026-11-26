@@ -9,6 +9,7 @@ interface AnimatedConnectorProps {
   direction?: 'forward' | 'backward' | 'idle';
   packetColor?: string;
   packetCount?: number;
+  packetSize?: number;
   className?: string;
 }
 
@@ -18,13 +19,13 @@ export const AnimatedConnector: React.FC<AnimatedConnectorProps> = ({
   x2,
   y2,
   direction = 'idle',
-  packetColor = '#9B87F5', // Muted lavender or sage green
-  packetCount = 4,
+  packetColor = '#9B87F5',
+  packetCount = 5,
+  packetSize = 7.2,
   className = ''
 }) => {
   const isActive = direction !== 'idle';
 
-  // Compute positions along the line
   const packets = [];
   for (let i = 1; i <= packetCount; i++) {
     const fraction = i / (packetCount + 1);
@@ -33,52 +34,77 @@ export const AnimatedConnector: React.FC<AnimatedConnectorProps> = ({
     packets.push({ x: px, y: py, fraction });
   }
 
-  // Directional arrow head position along the line
-  const arrowFraction = direction === 'backward' ? 0.35 : 0.65;
-  const arrowX = x1 + (x2 - x1) * arrowFraction;
-  const arrowY = y1 + (y2 - y1) * arrowFraction;
-
-  // Calculate line angle for arrowhead orientation
   const angleDeg = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
-  const arrowRot = direction === 'backward' ? angleDeg + 180 : angleDeg;
+  const startArrowRot = angleDeg + 180;
+  const endArrowRot = angleDeg;
+  const activeArrowFraction = direction === 'backward' ? 0.14 : 0.86;
+  const activeArrowX = x1 + (x2 - x1) * activeArrowFraction;
+  const activeArrowY = y1 + (y2 - y1) * activeArrowFraction;
+  const activeArrowRot = direction === 'backward' ? angleDeg + 180 : angleDeg;
 
   return (
     <g className={`animated-connector ${className}`}>
-      {/* 1. Underlying Isometric Dashed Wire */}
+      {/* Underlying isometric dashed wire */}
       <line
         x1={x1}
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke={isActive ? '#B8AFA0' : '#DED7CB'}
+        stroke={isActive ? '#8C8478' : '#C7BFB3'}
         strokeWidth="1.5"
         strokeDasharray="4,4"
       />
 
-      {/* 2. Floating Diamond Data Packets along the pipeline */}
+      {/* Subtle end arrowheads matching Image 2 */}
+      {!isActive && (
+        <>
+          <g transform={`translate(${x1}, ${y1}) rotate(${startArrowRot})`}>
+            <polyline
+              points="-4,-3.5 1,0 -4,3.5"
+              fill="none"
+              stroke="#78716C"
+              strokeWidth="1.35"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </g>
+          <g transform={`translate(${x2}, ${y2}) rotate(${endArrowRot})`}>
+            <polyline
+              points="-4,-3.5 1,0 -4,3.5"
+              fill="none"
+              stroke="#78716C"
+              strokeWidth="1.35"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </g>
+        </>
+      )}
+
+      {/* 3D Isometric Data Packet Cubes */}
       {packets.map((p, idx) => (
         <g
           key={idx}
-          opacity={isActive ? 1 : 0.3}
-          className={isActive ? 'transition-opacity duration-300' : ''}
+          opacity={isActive ? 1 : 0.9}
+          className={isActive ? 'animate-pulse' : ''}
         >
           <DataPacket
             x={p.x}
             y={p.y}
-            size={5.5}
+            size={packetSize}
             color={packetColor}
           />
         </g>
       ))}
 
-      {/* 3. Subtle Directional Arrow Marker (Visible ONLY during active transfer) */}
+      {/* Active directional flow arrow during live step transfers */}
       {isActive && (
-        <g transform={`translate(${arrowX}, ${arrowY}) rotate(${arrowRot})`}>
+        <g transform={`translate(${activeArrowX}, ${activeArrowY}) rotate(${activeArrowRot})`}>
           <polygon
-            points="5,0 -4,-4 -2,0 -4,4"
+            points="6,0 -5,-5 -2.5,0 -5,5"
             fill={packetColor}
             stroke="#18181B"
-            strokeWidth="1"
+            strokeWidth="1.2"
             strokeLinejoin="round"
           />
         </g>

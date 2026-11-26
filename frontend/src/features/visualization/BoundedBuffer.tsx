@@ -20,13 +20,13 @@ export const BoundedBuffer: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1 border-b border-[#E6E0D6]">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-1 border-b border-[#D5D1C7]">
         <div className="flex items-center gap-2">
-          <RefreshCw className="w-4 h-4 text-[#171717]" />
-          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+          <RefreshCw className="w-4 h-4 text-[#141413]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#141413]">
             Producer-Consumer Bounded Buffer Subsystem
           </h3>
-          <span className="text-[10px] font-mono text-[#57534E] px-2 py-0.5 rounded bg-[#EFEAE2] border border-[#DDD6CB]">
+          <span className="text-[10px] font-mono text-[#57534E] px-2 py-0.5 rounded bg-[#E4E1D9] border border-[#D5D1C7]">
             Capacity: {capacity} Slots
           </span>
         </div>
@@ -37,14 +37,14 @@ export const BoundedBuffer: React.FC = () => {
       </div>
 
       {/* Main Visual Arena: Producer | Buffer Slots | Consumer */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch p-3.5 rounded-lg border border-[#E6E0D6] bg-[#F4EFE7]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch p-3.5 rounded-none border border-[#D5D1C7] bg-[#ECEAE3]">
         {/* Producer Column */}
-        <div className="rounded-md border border-[#E6E0D6] bg-[#FBF4EA] p-3 text-center flex flex-col justify-between">
+        <div className="rounded-none border border-[#D5D1C7] bg-[#F6F4EF] p-3 text-center flex flex-col justify-between">
           <div>
             <div className="w-8 h-8 rounded-full bg-[#10B981] text-white mx-auto flex items-center justify-center font-bold text-xs shadow-xs mb-2">
               P
             </div>
-            <div className="font-bold text-[#171717] text-xs font-mono">
+            <div className="font-bold text-[#141413] text-xs font-mono">
               {producerThread?.name || 'Producer'} (TID {producerThread?.id ?? 1})
             </div>
             <div className="text-[10px] font-mono text-[#57534E] mt-1">
@@ -62,17 +62,17 @@ export const BoundedBuffer: React.FC = () => {
                 Blocked on: {producerThread.blockedOn}
               </div>
             )}
-            <div className="mt-2 text-[10px] font-mono text-[#78716C] bg-[#EFEAE2] p-1.5 rounded border border-[#DDD6CB]">
+            <div className="mt-2 text-[10px] font-mono text-[#78716C] bg-[#E4E1D9] p-1.5 rounded border border-[#D5D1C7]">
               PC: {producerThread?.pc ?? 0}
             </div>
           </div>
-          <div className="text-[10px] font-mono text-[#57534E] bg-white p-2 rounded border border-[#E6E0D6] mt-3">
-            Acquires <code className="font-bold text-[#171717]">empty_slots</code> then locks buffer
+          <div className="text-[10px] font-mono text-[#57534E] bg-white p-2 rounded border border-[#D5D1C7] mt-3">
+            Acquires <code className="font-bold text-[#141413]">empty_slots</code> then locks buffer
           </div>
         </div>
 
         {/* Center: Bounded Buffer Slots Array */}
-        <div className="flex flex-col justify-between items-center text-center space-y-3 p-2 bg-[#F8F5EE] rounded-md border border-[#E6E0D6]">
+        <div className="flex flex-col justify-between items-center text-center space-y-3 p-2 bg-[#FAF9F5] rounded-none border border-[#D5D1C7]">
           <div>
             <div className="text-[10px] font-mono text-[#78716C] uppercase font-bold tracking-wider">
               Buffer Array Occupancy ({bufferCount} / {capacity})
@@ -92,7 +92,7 @@ export const BoundedBuffer: React.FC = () => {
                   className={`w-18 h-22 rounded border flex flex-col items-center justify-center transition-all ${
                     isOccupied
                       ? 'border-[#10B981] bg-[#10B981]/10 shadow-xs'
-                      : 'border-dashed border-[#DDD6CB] bg-[#FBF4EA]'
+                      : 'border-dashed border-[#D5D1C7] bg-[#F6F4EF]'
                   }`}
                 >
                   <span className="text-[9px] font-mono text-[#78716C] mb-1">Slot [{i}]</span>
@@ -110,7 +110,7 @@ export const BoundedBuffer: React.FC = () => {
           </div>
 
           {/* Buffer Mutex Indicator */}
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white border border-[#DDD6CB] text-[11px] font-mono">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white border border-[#D5D1C7] text-[11px] font-mono">
             <Lock className={`w-3 h-3 ${bufferMutex?.locked ? 'text-[#F59E0B]' : 'text-[#78716C]'}`} />
             <span className="text-[#57534E]">buffer_mutex:</span>
             <span className={bufferMutex?.locked ? 'text-[#B45309] font-bold' : 'text-[#047857] font-bold'}>
@@ -120,12 +120,12 @@ export const BoundedBuffer: React.FC = () => {
         </div>
 
         {/* Consumer Column */}
-        <div className="rounded-md border border-[#E6E0D6] bg-[#FBF4EA] p-3 text-center flex flex-col justify-between">
+        <div className="rounded-none border border-[#D5D1C7] bg-[#F6F4EF] p-3 text-center flex flex-col justify-between">
           <div>
             <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white mx-auto flex items-center justify-center font-bold text-xs shadow-xs mb-2">
               C
             </div>
-            <div className="font-bold text-[#171717] text-xs font-mono">
+            <div className="font-bold text-[#141413] text-xs font-mono">
               {consumerThread?.name || 'Consumer'} (TID {consumerThread?.id ?? 2})
             </div>
             <div className="text-[10px] font-mono text-[#57534E] mt-1">
@@ -143,12 +143,12 @@ export const BoundedBuffer: React.FC = () => {
                 Blocked on: {consumerThread.blockedOn}
               </div>
             )}
-            <div className="mt-2 text-[10px] font-mono text-[#78716C] bg-[#EFEAE2] p-1.5 rounded border border-[#DDD6CB]">
+            <div className="mt-2 text-[10px] font-mono text-[#78716C] bg-[#E4E1D9] p-1.5 rounded border border-[#D5D1C7]">
               PC: {consumerThread?.pc ?? 0}
             </div>
           </div>
-          <div className="text-[10px] font-mono text-[#57534E] bg-white p-2 rounded border border-[#E6E0D6] mt-3">
-            Acquires <code className="font-bold text-[#171717]">full_slots</code> then locks buffer
+          <div className="text-[10px] font-mono text-[#57534E] bg-white p-2 rounded border border-[#D5D1C7] mt-3">
+            Acquires <code className="font-bold text-[#141413]">full_slots</code> then locks buffer
           </div>
         </div>
       </div>
@@ -156,16 +156,16 @@ export const BoundedBuffer: React.FC = () => {
       {/* Synchronization Primitives Dashboard: Independent Semaphores */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Empty Slots Semaphore */}
-        <div className="rounded-md border border-[#E6E0D6] bg-white p-3 flex items-center justify-between">
+        <div className="rounded-none border border-[#D5D1C7] bg-white p-3 flex items-center justify-between">
           <div>
             <div className="text-[9px] uppercase font-mono text-[#78716C] font-bold">Counting Semaphore</div>
-            <div className="text-xs font-bold text-[#171717] font-mono">empty_slots</div>
+            <div className="text-xs font-bold text-[#141413] font-mono">empty_slots</div>
             <div className="text-[10px] text-[#57534E] mt-0.5">
-              Available empty slots for Producer (<code className="text-[#171717]">sem_wait</code> blocks if 0)
+              Available empty slots for Producer (<code className="text-[#141413]">sem_wait</code> blocks if 0)
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-mono font-bold text-[#171717]">
+            <div className="text-2xl font-mono font-bold text-[#141413]">
               {emptySem?.currentCount ?? 3}
             </div>
             <span className="text-[9px] font-mono text-[#78716C] flex items-center gap-1 justify-end">
@@ -176,16 +176,16 @@ export const BoundedBuffer: React.FC = () => {
         </div>
 
         {/* Full Slots Semaphore */}
-        <div className="rounded-md border border-[#E6E0D6] bg-white p-3 flex items-center justify-between">
+        <div className="rounded-none border border-[#D5D1C7] bg-white p-3 flex items-center justify-between">
           <div>
             <div className="text-[9px] uppercase font-mono text-[#78716C] font-bold">Counting Semaphore</div>
-            <div className="text-xs font-bold text-[#171717] font-mono">full_slots</div>
+            <div className="text-xs font-bold text-[#141413] font-mono">full_slots</div>
             <div className="text-[10px] text-[#57534E] mt-0.5">
-              Ready filled items for Consumer (<code className="text-[#171717]">sem_wait</code> blocks if 0)
+              Ready filled items for Consumer (<code className="text-[#141413]">sem_wait</code> blocks if 0)
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-mono font-bold text-[#171717]">
+            <div className="text-2xl font-mono font-bold text-[#141413]">
               {fullSem?.currentCount ?? 0}
             </div>
             <span className="text-[9px] font-mono text-[#78716C] flex items-center gap-1 justify-end">

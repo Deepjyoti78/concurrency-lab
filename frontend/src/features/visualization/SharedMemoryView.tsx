@@ -10,7 +10,7 @@ export const SharedMemoryView: React.FC = () => {
 
   if (!snapshot || !snapshot.sharedVariables) {
     return (
-      <div className="p-8 text-center text-[#78716C] font-mono text-sm bg-[#F4EFE7] rounded-lg border border-[#E6E0D6]">
+      <div className="p-8 text-center text-[#78716C] font-mono text-sm bg-[#ECEAE3] rounded-none border border-[#D5D1C7]">
         No shared memory variables declared in this scenario.
       </div>
     );
@@ -24,19 +24,19 @@ export const SharedMemoryView: React.FC = () => {
     if (threadId === 2) return '#10B981';
     if (threadId === 3) return '#8B5CF6';
     if (threadId === 4) return '#F59E0B';
-    return '#171717';
+    return '#141413';
   };
 
   return (
     <div className="space-y-4">
       {/* Subsystem Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-1 border-b border-[#E6E0D6]">
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-1 border-b border-[#D5D1C7]">
         <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-[#171717]" />
-          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#171717]">
+          <Database className="w-4 h-4 text-[#141413]" />
+          <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-[#141413]">
             Shared Memory Subsystem
           </h3>
-          <span className="text-[10px] font-mono text-[#57534E] px-2 py-0.5 rounded bg-[#EFEAE2] border border-[#DDD6CB]">
+          <span className="text-[10px] font-mono text-[#57534E] px-2 py-0.5 rounded bg-[#E4E1D9] border border-[#D5D1C7]">
             {variables.length} {variables.length === 1 ? 'Variable' : 'Variables'}
           </span>
         </div>
@@ -56,19 +56,19 @@ export const SharedMemoryView: React.FC = () => {
           return (
             <div
               key={name}
-              className={`rounded-lg border p-3.5 transition-all bg-[#F4EFE7] ${
+              className={`rounded-none border p-3.5 transition-all bg-[#ECEAE3] ${
                 isRaceOnVar
                   ? 'border-[#F59E0B] ring-1 ring-[#F59E0B] bg-[#F59E0B]/10'
                   : hasDelta
-                  ? 'border-[#171717] ring-1 ring-[#171717]/30 bg-white'
-                  : 'border-[#E6E0D6] hover:border-[#DDD6CB]'
+                  ? 'border-[#141413] ring-1 ring-[#141413]/30 bg-white'
+                  : 'border-[#D5D1C7] hover:border-[#D5D1C7]'
               }`}
             >
               {/* Card Header: Variable Name & Flags */}
-              <div className="flex items-center justify-between pb-2 border-b border-[#E6E0D6]">
+              <div className="flex items-center justify-between pb-2 border-b border-[#D5D1C7]">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-mono font-bold text-[#171717] text-xs">{name}</span>
-                  <span className="text-[9px] font-mono text-[#78716C] bg-[#EFEAE2] px-1.5 py-0.2 rounded border border-[#DDD6CB]">
+                  <span className="font-mono font-bold text-[#141413] text-xs">{name}</span>
+                  <span className="text-[9px] font-mono text-[#78716C] bg-[#E4E1D9] px-1.5 py-0.2 rounded border border-[#D5D1C7]">
                     int32
                   </span>
                 </div>
@@ -97,7 +97,7 @@ export const SharedMemoryView: React.FC = () => {
                 <div>
                   <div className="text-[9px] uppercase font-mono font-bold text-[#78716C]">Current Value</div>
                   <div className={`text-3xl font-mono font-bold tracking-tight transition-transform ${
-                    hasDelta ? 'scale-105 text-[#171717]' : 'text-[#171717]'
+                    hasDelta ? 'scale-105 text-[#141413]' : 'text-[#141413]'
                   }`}>
                     {meta.value}
                   </div>
@@ -108,23 +108,23 @@ export const SharedMemoryView: React.FC = () => {
                   <div className="text-sm font-mono text-[#57534E] font-semibold flex items-center gap-1 justify-end">
                     <span>{meta.previousValue}</span>
                     <ArrowRight className="w-3 h-3 text-[#78716C]" />
-                    <span className="font-bold text-[#171717]">{meta.value}</span>
+                    <span className="font-bold text-[#141413]">{meta.value}</span>
                   </div>
                 </div>
               </div>
 
               {/* Stats Footer */}
-              <div className="pt-2 border-t border-[#E6E0D6] grid grid-cols-2 gap-1.5 text-[10px] font-mono text-[#57534E]">
+              <div className="pt-2 border-t border-[#D5D1C7] grid grid-cols-2 gap-1.5 text-[10px] font-mono text-[#57534E]">
                 <div>
-                  <span className="text-[#78716C]">Writes:</span> <strong className="text-[#171717]">{meta.writeCount}</strong>
+                  <span className="text-[#78716C]">Writes:</span> <strong className="text-[#141413]">{meta.writeCount}</strong>
                 </div>
                 <div className="text-right">
-                  <span className="text-[#78716C]">Reads:</span> <strong className="text-[#171717]">{meta.readCount}</strong>
+                  <span className="text-[#78716C]">Reads:</span> <strong className="text-[#141413]">{meta.readCount}</strong>
                 </div>
-                <div className="col-span-2 truncate pt-1 flex items-center gap-1.5 border-t border-[#E6E0D6]/60">
+                <div className="col-span-2 truncate pt-1 flex items-center gap-1.5 border-t border-[#D5D1C7]/60">
                   <span className="text-[#78716C]">Last accessed by:</span>
                   {meta.lastModifiedByThreadId > 0 ? (
-                    <span className="inline-flex items-center gap-1 font-bold text-[#171717]">
+                    <span className="inline-flex items-center gap-1 font-bold text-[#141413]">
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: threadColor }} />
                       Thread #{meta.lastModifiedByThreadId}
                     </span>
@@ -139,10 +139,10 @@ export const SharedMemoryView: React.FC = () => {
       </div>
 
       {/* Memory Access History Feed */}
-      <div className="rounded-lg border border-[#E6E0D6] bg-[#F4EFE7] overflow-hidden">
-        <div className="px-3.5 py-2 border-b border-[#E6E0D6] bg-[#EFEAE2] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#171717] uppercase tracking-wide">
-            <History className="w-3.5 h-3.5 text-[#171717]" />
+      <div className="rounded-none border border-[#D5D1C7] bg-[#ECEAE3] overflow-hidden">
+        <div className="px-3.5 py-2 border-b border-[#D5D1C7] bg-[#E4E1D9] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#141413] uppercase tracking-wide">
+            <History className="w-3.5 h-3.5 text-[#141413]" />
             <span>Memory Access Journal</span>
           </div>
           <span className="text-[10px] font-mono text-[#78716C]">
@@ -150,7 +150,7 @@ export const SharedMemoryView: React.FC = () => {
           </span>
         </div>
 
-        <div className="max-h-64 overflow-y-auto divide-y divide-[#E6E0D6] text-xs font-mono scrollbar-thin">
+        <div className="max-h-64 overflow-y-auto divide-y divide-[#D5D1C7] text-xs font-mono scrollbar-thin">
           {accessHistory.length === 0 ? (
             <div className="p-6 text-center text-[#78716C] font-mono text-[11px] flex flex-col items-center justify-center gap-1">
               <span className="font-semibold text-[#57534E]">Initial state: no memory operations recorded yet.</span>
@@ -163,7 +163,7 @@ export const SharedMemoryView: React.FC = () => {
                 <div key={i} className="px-3.5 py-1.5 flex items-center justify-between hover:bg-white/60 transition-colors">
                   <div className="flex items-center gap-2">
                     <span className="text-[#78716C] text-[10px] w-6">#{rec.sequence}</span>
-                    <span className="flex items-center gap-1.5 font-bold text-[#171717]">
+                    <span className="flex items-center gap-1.5 font-bold text-[#141413]">
                       <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: threadColor }} />
                       {rec.threadName}
                     </span>
@@ -174,12 +174,12 @@ export const SharedMemoryView: React.FC = () => {
                     }`}>
                       {rec.type}
                     </span>
-                    <span className="text-[#171717] font-semibold">{rec.variable}</span>
+                    <span className="text-[#141413] font-semibold">{rec.variable}</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[#57534E] text-[11px]">
                     <span className="text-[#78716C]">{rec.previousValue}</span>
                     <ArrowRight className="w-3 h-3 text-[#78716C]" />
-                    <span className="font-bold text-[#171717]">{rec.value}</span>
+                    <span className="font-bold text-[#141413]">{rec.value}</span>
                   </div>
                 </div>
               );
